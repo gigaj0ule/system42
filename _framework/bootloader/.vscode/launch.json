@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // For the Cortex-Debug extension
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "request": "launch",
+            "name": "Debug F103 DFUse Bootloader (STM32)",
+            "executable": "${workspaceRoot}/_build/bootloader.elf",
+            "device": "STM32F103C8",
+            "configFiles": [
+                "${workspaceRoot}/../sources/_debug_tools/stm32f1.cfg"
+            ],  
+            "cwd": "${workspaceRoot}",
+            "svdFile": "${workspaceRoot}/../sources/_debug_tools/STM32F103.svd",
+            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+        }, 
+        {
+            // For the Cortex-Debug extension
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "request": "launch",
+            "name": "Debug F103 DFUse Bootloader (CKS32)",
+            "executable": "${workspaceRoot}/_build/bootloader.elf",
+            "device": "STM32F103C8",
+            "configFiles": [
+                "${workspaceRoot}/../sources/_debug_tools/cks32f1.cfg"
+            ],  
+            "cwd": "${workspaceRoot}",
+            "svdFile": "${workspaceRoot}/../sources/_debug_tools/STM32F103.svd",
+            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+        },
+        {
+            // For the Cortex-Debug extension
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "request": "launch",
+            "name": "Debug F4xx (STM32)",
+            "executable": "${workspaceRoot}/_build/fw.elf",
+            "configFiles": [
+                "interface/stlink-v2.cfg",
+                "target/stm32f4x_stlink.cfg"
+            ],  
+            "cwd": "${workspaceRoot}",
+            "svdFile": "${workspaceRoot}/../sources/_debug_tools/STM32F405.svd",
+            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+        }
+    ]
+}

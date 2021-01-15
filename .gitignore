@@ -1,0 +1,3 @@
+__build/*
+__bootloader_keys/*
+_framework/bootloader/__build/*

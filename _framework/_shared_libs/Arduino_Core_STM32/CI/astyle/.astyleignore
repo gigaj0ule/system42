@@ -1,0 +1,5 @@
+.git
+BUILD
+CI
+system/Drivers
+system/STM32*
