@@ -1,4 +1,4 @@
-# STM33: STM32 Firmware Framework
+# STM42: The answer to life, the universe, and everything STM32
 # (c) Adam Munich 2020, All Rights Reserved
 
 This is part of an STM32 Framework organized by Adam Munich for hobby projects. 
