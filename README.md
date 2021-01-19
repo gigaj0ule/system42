@@ -1,4 +1,4 @@
-# STM32 C++ Firmware
+# STM33: STM32 Firmware Framework
 # (c) Adam Munich 2020, All Rights Reserved
 
 This is part of an STM32 Framework organized by Adam Munich for hobby projects. 
