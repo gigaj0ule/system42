@@ -26,10 +26,17 @@ ifndef SRC
 endif
 
 # moto, or inverter, uses STM32F4
-#ifeq ($(SRC),$(filter $(SRC),moto inverter))
-#	fam := f4
-#	ODRIVE_CODEBASE := 1
-#endif
+###
+ifeq ($(SRC),$(filter $(SRC),moto inverter))  
+	fam := f4                                 
+	ODRIVE_CODEBASE := 1                      
+endif
+###
+
+# Use bitsnap?
+ifdef BITSNAP
+	USE_BITSNAP := 1
+endif
 
 # ==================================================================
 # What microcontroller?
@@ -100,6 +107,9 @@ ifeq ($(USBD_USE_AUDIO), 1)
 OPTIONS += -DUSBD_USE_AUDIO
 endif
 
+ifeq ($(USE_BITSNAP), 1)
+	OPTIONS += -DUSE_BITSNAP
+endif
 
 # Library specific options
 
@@ -224,15 +234,15 @@ PATCHESPATH 		= $(FRAMEWORKDIR)/_shared_libs/patches
 
 
 # Special config for ODRIVE_CODEBASE
-#ifdef ODRIVE_CODEBASE
-#	VARIANTPATH := $(SOURCEPATH)/Board/v3
-#	COMMUNICATIONPATH := $(FRAMEWORKDIR)/_shared_libs/communication/protocol
-#	NVMPATH := $(FRAMEWORKDIR)/_shared_libs/communication/nvm
-#else
+ifdef ODRIVE_CODEBASE
+	VARIANTPATH := $(SOURCEPATH)/Board/v3
+	BITSNAP_PATH := _bitsnap_lib/protocol
+	NVMPATH := _bitsnap_lib/nvm
+else
 	# Path location for STM32 variant
 	VARIANTPATH := $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/variants/$(STM_BOARD_VARIANT)
-	COMMUNICATIONPATH := $(FRAMEWORKDIR)/_shared_libs/communication
-#endif
+	BITSNAP_PATH := _bitsnap_lib
+endif
 
 # Target Path
 TARGET_PATH = $(TARGET)
@@ -253,21 +263,21 @@ CPPFLAGS += -fno-math-errno
 CPPFLAGS += -Wall -Wdouble-promotion -Wfloat-conversion
 
 # Special compiler flags for ODRIVE_CODEBASE
-#ifdef ODRIVE_CODEBASE
-#	CPPFLAGS += -Og -g
-#	CPPFLAGS += -fno-finite-math-only
-#	CPPFLAGS += -Wformat=0
-#	CPPFLAGS += -D__weak="__attribute__((weak))" 
-#	CPPFLAGS += -D__packed="__attribute__((__packed__))" 
+ifdef ODRIVE_CODEBASE
+	CPPFLAGS += -Og -g
+	CPPFLAGS += -fno-finite-math-only
+	CPPFLAGS += -Wformat=0
+	CPPFLAGS += -D__weak="__attribute__((weak))" 
+	CPPFLAGS += -D__packed="__attribute__((__packed__))" 
 
-#	CPPFLAGS += -fbranch-count-reg 
-#	CPPFLAGS += -fdse  -fif-conversion  -fif-conversion2  
-#	CPPFLAGS += -finline-functions-called-once 
-#	CPPFLAGS += -fmove-loop-invariants  -fssa-phiopt 
-#	CPPFLAGS += -ftree-bit-ccp  -ftree-dse  -ftree-pta  -ftree-sra
-#else 
+	CPPFLAGS += -fbranch-count-reg 
+	CPPFLAGS += -fdse  -fif-conversion  -fif-conversion2  
+	CPPFLAGS += -finline-functions-called-once 
+	CPPFLAGS += -fmove-loop-invariants  -fssa-phiopt 
+	CPPFLAGS += -ftree-bit-ccp  -ftree-dse  -ftree-pta  -ftree-sra
+else 
 	CPPFLAGS += -Os 
-#endif
+endif
 
 # Special compiler flags for STM32F1
 ifeq ($(COREFILES_FAMILY), f1)
@@ -345,15 +355,15 @@ else ifeq ($(COREFILES_FAMILY), f4)
 endif
 
 # Special linker flags for ODRIVE_CODEBASE
-#ifdef ODRIVE_CODEBASE
-#	FLASH_SIZE :=  1048576
+ifdef ODRIVE_CODEBASE
+	FLASH_SIZE :=  1048576
 
-#	LDFLAGS += -lstdc++
-#	LDFLAGS += -L$(VARIANTPATH)/Drivers/CMSIS/Lib
-#	LDFLAGS += -Wl,--undefined=uxTopUsedPriority
+	LDFLAGS += -lstdc++
+	LDFLAGS += -L$(VARIANTPATH)/Drivers/CMSIS/Lib
+	LDFLAGS += -Wl,--undefined=uxTopUsedPriority
 
-#	LDSCRIPT := $(FRAMEWORKDIR)/_build_tools/linker_scripts/STM32F405RGTx_FLASH.ld
-#endif
+	LDSCRIPT := $(FRAMEWORKDIR)/_build_tools/linker_scripts/STM32F405RGTx_FLASH.ld
+endif
 
 LDFLAGS += -Wl,--defsym=LD_MAX_SIZE=$(FLASH_SIZE)
 
@@ -378,29 +388,29 @@ NM = arm-none-eabi-nm
 rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
 # Source for ODRIVE_CODEBASE (slowly... we will merge as many dependencies as we can)
-#ifdef ODRIVE_CODEBASE
+ifdef ODRIVE_CODEBASE
 	# Source
-#	C_FILES := $(call rwildcard, $(SOURCEPATH), *.c)
-#	C_FILES += $(call rwildcard, $(COMMUNICATIONPATH), *.c)
-#	C_FILES += $(call rwildcard, $(NVMPATH), *.c)
-#	C_FILES := $(filter-out $(wildcard $(SOURCEPATH)/Board/v3/Src/prev_board_ver/*.c), $(C_FILES))
+	C_FILES := $(call rwildcard, $(SOURCEPATH), *.c)
+	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
+	C_FILES += $(call rwildcard, $(NVMPATH), *.c)
+	C_FILES := $(filter-out $(wildcard $(SOURCEPATH)/Board/v3/Src/prev_board_ver/*.c), $(C_FILES))
 
-#	CPP_FILES := $(call rwildcard, $(SOURCEPATH), *.cpp)
-#	CPP_FILES += $(call rwildcard, $(COMMUNICATIONPATH), *.cpp)
-#	CPP_FILES += $(call rwildcard, $(NVMPATH), *.cpp)
+	CPP_FILES := $(call rwildcard, $(SOURCEPATH), *.cpp)
+	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
+	CPP_FILES += $(call rwildcard, $(NVMPATH), *.cpp)
 
-#	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/test/*.cpp), $(CPP_FILES))
-#	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/cpp/posix*.cpp), $(CPP_FILES))
+	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/test/*.cpp), $(CPP_FILES))
+	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/cpp/posix*.cpp), $(CPP_FILES))
 
 	# Assembly
-#	ASM_FILES := $(call rwildcard, $(SOURCEPATH), *.s)
+	ASM_FILES := $(call rwildcard, $(SOURCEPATH), *.s)
 
-#	INC_DIRS := $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(SOURCEPATH), *)))
-#	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(COMMUNICATIONPATH), *)))
-#	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(NVMPATH), *)))
+	INC_DIRS := $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(SOURCEPATH), *)))
+	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(BITSNAP_PATH), *)))
+	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(NVMPATH), *)))
 
 # If not ODRIVE_CODEBASE, source for everything else...
-#else
+else
 	# Source
 	INO_FILES := $(filter-out %examples%, $(wildcard $(SOURCEPATH)/*.ino))
 	C_FILES   := $(filter-out %examples%, $(call rwildcard, $(SOURCEPATH), *.c))
@@ -432,8 +442,8 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 	CPP_FILES += $(call rwildcard, $(CMSISPATH), *.cpp)
 
 	# Comms
-	C_FILES += $(call rwildcard, $(COMMUNICATIONPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(COMMUNICATIONPATH), *.cpp)
+	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
+	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
 
 	# Core
 	C_FILES += $(call rwildcard, $(COREPATH), *.c)
@@ -491,7 +501,7 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(STARTUPFILESPATH), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(MIDDLEWARESPATH), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(FREERTOSPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(COMMUNICATIONPATH), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(BITSNAP_PATH), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(CMSISPATH), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATCHESPATH), *)))
 
@@ -507,7 +517,7 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 
 	# Board variant
 	INC_DIRS += $(sort $(dir $(wildcard $(VARIANTPATH)/*)))
-#endif 
+endif 
 
 
 ######################################################################
