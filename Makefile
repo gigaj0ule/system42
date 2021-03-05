@@ -23,7 +23,10 @@ endif
 # Path of project source, set from command line
 ifndef SRC
     $(error SRC is not defined, there is nothing to build...)
+else
+    $(warning Building project $(SRC))
 endif
+
 
 # moto, or inverter, uses STM32F4
 ###
@@ -178,7 +181,7 @@ endif
 BUILDDIR = $(abspath $(CURDIR)/__build)
 
 # Directory to project in
-RELEASEDIR = $(BUILDDIR)/$(SRC))
+RELEASEDIR = $(BUILDDIR)/$(SRC)
 
 # Where bootloader keys are stored
 KEYDIR_BASE = $(abspath $(CURDIR)/__bootloader_keys)
@@ -565,7 +568,7 @@ endef
 
 define encrypt
 	@echo "\nMAKE: Locking down $(TARGET_PATH).bin...\n"
-	@./$(FRAMEWORKDIR)/_build_tools/lockdown.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(KEYDIR_BASE)/$(SRC)/bootkey.h $(BOOTLOADER_SIZE)
+	./$(FRAMEWORKDIR)/_build_tools/lockdown.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(KEYDIR_BASE)/$(SRC)/bootkey.h $(BOOTLOADER_SIZE)
 endef
 
 define upload-dfu

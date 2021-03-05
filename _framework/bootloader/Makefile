@@ -155,7 +155,7 @@ else ifeq ($(COREFILES_FAMILY), f4)
 	OPENOCD_ERASE :=  -c "init" -c "reset" -c "halt 0" -c "stm32f4x mass_erase 0"
 endif
 
-OPENOCD_PROGRAM := -c "program _build/$(TARGET).elf verify; reset; exit;"
+OPENOCD_PROGRAM := -c "program __build/$(TARGET).elf verify; reset; exit;"
 
 C_FILES += $(call rwildcard, $(OPENCM3USB), *.c)
 
