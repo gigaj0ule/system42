@@ -394,23 +394,28 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 ifdef ODRIVE_CODEBASE
 	# Source
 	C_FILES := $(call rwildcard, $(SOURCEPATH), *.c)
-	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
 	C_FILES += $(call rwildcard, $(NVMPATH), *.c)
 	C_FILES := $(filter-out $(wildcard $(SOURCEPATH)/Board/v3/Src/prev_board_ver/*.c), $(C_FILES))
 
 	CPP_FILES := $(call rwildcard, $(SOURCEPATH), *.cpp)
-	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
+
 	CPP_FILES += $(call rwildcard, $(NVMPATH), *.cpp)
 
 	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/test/*.cpp), $(CPP_FILES))
 	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/cpp/posix*.cpp), $(CPP_FILES))
 
+	ifeq ($(USE_BITSNAP), 1)
+	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
+	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
+	endif
+
 	# Assembly
 	ASM_FILES := $(call rwildcard, $(SOURCEPATH), *.s)
 
 	INC_DIRS := $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(SOURCEPATH), *)))
-	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(BITSNAP_PATH), *)))
 	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(NVMPATH), *)))
+	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(BITSNAP_PATH), *)))
+
 
 # If not ODRIVE_CODEBASE, source for everything else...
 else
@@ -444,9 +449,11 @@ else
 	C_FILES += $(call rwildcard, $(CMSISPATH), *.c)
 	CPP_FILES += $(call rwildcard, $(CMSISPATH), *.cpp)
 
+	ifeq ($(USE_BITSNAP), 1)
 	# Comms
 	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
 	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
+	endif
 
 	# Core
 	C_FILES += $(call rwildcard, $(COREPATH), *.c)
