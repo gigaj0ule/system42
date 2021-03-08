@@ -37,7 +37,7 @@ endif
 ###
 
 # Use bitsnap?
-ifdef BITSNAP
+ifeq ($(BITSNAP), 1)
 	USE_BITSNAP := 1
 endif
 
