@@ -159,6 +159,7 @@ inline void create_threads(void (*worker_thread)(void *), uint8_t worker_thread_
 
     // Check for thread creation errors
     if (worker_thread_handle != pdPASS || ui_thread_handle != pdPASS) {
+        __asm__ volatile("nop");
         catch_thread_fault();
     }
 

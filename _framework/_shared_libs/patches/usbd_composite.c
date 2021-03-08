@@ -278,7 +278,7 @@ static uint8_t USBD_Composite_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqType
 					//hUSBD_Device_CDC.ep0_state = pdev->ep0_state;
 					//hUSBD_Device_CDC.ep0_data_len = pdev->ep0_data_len;
 					//hUSBD_Device_CDC.request = pdev->request;
-					hUSBD_Device_HID.dev_state = pdev->dev_state;
+					hUSBD_Device_CDC.dev_state = pdev->dev_state;
 
 					result += USBD_CDC.Setup(&hUSBD_Device_CDC, req);
 					utilized_static_device = hUSBD_Device_CDC;
