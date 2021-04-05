@@ -59,23 +59,56 @@ Where "demo" of course, is the firmware target.
 
 This will automatically: 
 
-- Generate a key for the firmware
-- Build the bootloader with this key
 - Mass erase the STM32
+- (optionally) Generate an encryption key for the firmware
+- (optionally) Encrypt the firmware file
 - Upload the bootloader with openocd and st-link v2
 - (optionally) Enable read-out protection and disable SWD/JTAG
-- Encrypt the firmware file
 - Upload the firmware over USB / DFU 
 
 The firmware (.snap) file will be in ./__builds/<project> if you want 
 to save it for the future. Otherwise it will be destroyed the next time 
-make runs with clean
+make runs with "clean" enabled.
 
-To enable readout protection, use
+Sometimes you'd like to prevent the firmware from being read out of the MCU, 
+if it stores private data fro example. You can enable "read out protection"
+to (theoretically) prevent this, but, it doesn't actually prevent a determined
+hacker in most cases. It just makes it slightly harder. 
 
-    sudo make SRC=demo RDP=1 clean upload-all
+To enable readout protection, use:
+
+    sudo make SRC=demo USE_RDP=1 clean upload-all
+
+There is also support for AES256 encryption, which prevents the firmware from 
+being seen as plaintext. With AES enabled, a "boot_key" will be generated and 
+built into the bootloader. Only firmwares encrypted with this key will be able 
+to be loaded into the microcontroller. This is useful if for example, loading 
+the wrong firmware into the MCU would cause an elctrical fire. Of course, if 
+you lose this key, it will not be possible to update a firmware with DFU and 
+you would need to flash a new bootloader onto the MCU manually.
+
+To enable firmware encryption, use:
+
+    sudo make SRC=demo USE_ENCRYPTION=1 clean upload-all
+
+
+## Supported MCU
+
+Right now, only the STM32F103 and STM32F405/7 MCUs are supported. By default
+the build system will use the STM32F103. If you are building for the F407, use
+the following command:
+
+    sudo make SRC=demo MCU_FAMILY=$FAMILY clean upload-all
+
+Where $FAMILY is one of the following:
+
+    f103c8
+    f103rc
+    f40x
 
 
 ### Debugging a project
 
-You can use cortex-debug in vscode
+You can use cortex-debug in vscode, but it only works when read out protection 
+is turned off. SVD and configuration files should be already present for the 
+STM32F1 family and the STM32F4 family in this repository.

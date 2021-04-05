@@ -16,22 +16,22 @@ FRAMEWORKDIR = _framework
 
 # ==================================================================
 # Family
-ifndef fam
-	fam := f1
+ifndef MCU_FAMILY
+	MCU_FAMILY := f103c8
 endif
 
 # Path of project source, set from command line
 ifndef SRC
     $(error SRC is not defined, there is nothing to build...)
 else
-    $(warning Building project $(SRC))
+    $(warning Building SRC "$(SRC)")
 endif
 
 
 # moto, or inverter, uses STM32F4
 ###
 ifeq ($(SRC),$(filter $(SRC),moto inverter))  
-	fam := f4                                 
+	MCU_FAMILY := f40x                                 
 	ODRIVE_CODEBASE := 1                      
 endif
 ###
@@ -43,23 +43,23 @@ endif
 
 # ==================================================================
 # What microcontroller?
-ifeq ($(fam), f1)
-    $(warning Building for F103C8)
+ifeq ($(MCU_FAMILY), f103c8)
+    $(warning Building for MCU_FAMILY "f103c8")
 	COREFILES_FAMILY    := f1
 	STM_BOARD_VARIANT   := BLUEPILL_F103XX
 	CPUID 				:= 0x1ba01477
 #	CPUID 				:= 0x2ba01477
 	FLASH_SIZE          := 131072
 	RAM_SIZE			:= 20480
-else ifeq ($(fam), f103rc)
-    $(warning Building for F103RC)
+else ifeq ($(MCU_FAMILY), f103rc)
+    $(warning Building for MCU_FAMILY "f103rc")
 	COREFILES_FAMILY    := f1
 	STM_BOARD_VARIANT   := TAIDACENT_F103RC
 	CPUID				:= 0x1ba01477
 	FLASH_SIZE          := 262144
 	RAM_SIZE			:= 65536
 else
-    $(warning Building for F407)
+    $(warning Building for MCU_FAMILY "f40x")
 	COREFILES_FAMILY    := f4
 	CPUID				:= 0x2ba01477
 	STM_BOARD_VARIANT   := DISCO_F407VG
@@ -201,7 +201,7 @@ else
 endif
 
 # Encrypt?
-ifeq ($(ENCRYPT), 1)
+ifeq ($(USE_ENCRYPTION), 1)
 	USE_BOOTLOADER_KEY_FILE := USE_BOOTLOADER_KEY_FILE=$(KEYDIR_BASE)/$(SRC)/bootkey.h
 else 
 	USE_BOOTLOADER_KEY_FILE :=
@@ -576,7 +576,7 @@ endef
 
 define build-upload-bootloader
 	@echo "\nMAKE: Building bootloader...\n"
-	@(cd ./$(FRAMEWORKDIR)/bootloader && make $(USE_BOOTLOADER_KEY_FILE) fam=$(fam) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
+	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) MCU_FAMILY=$(MCU_FAMILY) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload -j8)	
 	@ sleep 1
 endef
 

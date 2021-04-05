@@ -11,22 +11,22 @@
 TARGET = "fw"
 
 # Family
-ifndef fam
-	fam := f1
+ifndef MCU_FAMILY
+	MCU_FAMILY := f103c8
 endif
 
 # Configurable options
 OPTIONS := -DVERSION=5
 
-ifeq ($(fam), f1)
+ifeq ($(MCU_FAMILY), f103c8)
 	OPTIONS += -DSTM32F1
 	COREFILES_FAMILY := f1
 
-else ifeq ($(fam), f103rc)
+else ifeq ($(MCU_FAMILY), f103rc)
 	OPTIONS += -DSTM32F1
 	COREFILES_FAMILY := f1
 
-else ifeq ($(fam), f4)
+else ifeq ($(MCU_FAMILY), f40x)
 	OPTIONS += -DSTM32F4
 	COREFILES_FAMILY := f4
 endif
