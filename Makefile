@@ -202,9 +202,11 @@ endif
 
 # Encrypt?
 ifeq ($(USE_ENCRYPTION), 1)
-	USE_BOOTLOADER_KEY_FILE := USE_BOOTLOADER_KEY_FILE=$(KEYDIR_BASE)/$(SRC)/bootkey.h
+	BOOT_KEY_FILE := $(KEYDIR_BASE)/$(SRC)/bootkey.h
+	USE_BOOTLOADER_KEY_FILE := USE_BOOTLOADER_KEY_FILE=$(BOOT_KEY_FILE)
 else 
 	USE_BOOTLOADER_KEY_FILE :=
+	BOOT_KEY_FILE :=
 endif
 
 # Path location for arduino core
@@ -576,13 +578,13 @@ endef
 
 define build-upload-bootloader
 	@echo "\nMAKE: Building bootloader...\n"
-	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) MCU_FAMILY=$(MCU_FAMILY) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload -j8)	
+	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) MCU_FAMILY=$(MCU_FAMILY) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
 	@ sleep 1
 endef
 
 define snappack
 	@echo "\nMAKE: Packing $(TARGET_PATH).bin...\n"
-	./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(USE_BOOTLOADER_KEY_FILE)
+	./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(BOOT_KEY_FILE)
 endef
 
 define upload-dfu

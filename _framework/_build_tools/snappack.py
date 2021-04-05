@@ -97,9 +97,10 @@ if __name__ == '__main__':
     if HAVE_BOOT_KEY_FILE == True:
         try:
             bootkey_file = open(bootkey_file_name, 'r')
-        except:
+        except Exception as e:
             # Uh oh, can't open input file
             print("== Error: could not open bootkey file!")
+            print(e)
             program_quit(1)
 
         print("\nOpened key file \"{}\"".format(bootkey_file_name))
