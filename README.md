@@ -95,8 +95,8 @@ To enable firmware encryption, use:
 ## Supported MCU
 
 Right now, only the STM32F103 and STM32F405/7 MCUs are supported. By default
-the build system will use the STM32F103. If you are building for the F407, use
-the following command:
+the build system will use the STM32F103C8T6. If you are building for something
+else, use the following command:
 
     sudo make SRC=demo MCU_FAMILY=$FAMILY clean upload-all
 
