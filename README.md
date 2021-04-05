@@ -3,7 +3,7 @@
 
 This is part of an STM32 Framework organized by Adam Munich for hobby projects. 
 It is a work in progress. It is for non-commercial use only, unless explicit 
-permission and usage terms of use are given.
+permission and terms of use are agreed upon in writing.
 
 ### Prerequisites
 
