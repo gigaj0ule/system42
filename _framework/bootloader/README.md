@@ -97,8 +97,3 @@ bootloader was successfully entered.
 
 If you mess up, set the boot1 pin to its active state with the jumper and this 
 will force the STM32 back into DFUse mode.
-
-
-## Config options:
-
-See config.h
