@@ -88,7 +88,9 @@ Check if you were successful with:
 
 You should see something from 0x1337:0xC0DE. 
 
-For STM32F4 family cpus, use MCU_FAMILY=f40x
+For STM32F405/7 family cpus, use...
+
+    make MCU_FAMILY=f40x upload
 
 The LED should be blinking funny, this is intentional and means the 
 bootloader was successfully entered.
