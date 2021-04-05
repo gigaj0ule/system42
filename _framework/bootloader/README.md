@@ -1,10 +1,9 @@
-# STM32F103 DFUse Bootloader
-# (c) Adam Munich 2020, All Rights Reserved
+# STM32Fx DFUse Bootloader
+# (c) Adam Munich 2020, 2021, All Rights Reserved
 
 This is part of an STM32 Framework organized by Adam Munich for hobby projects. 
 It is a work in progress. It is for non-commercial use only, unless explicit 
 permission and usage terms of use are given.
-
 
 This bootloader closely emulates the behavior of the built-in DFUse bootloader
 on most STM32 devices, but provides extra features and customizations.
@@ -19,19 +18,19 @@ For STM32F4, this is 0x8004000 (16k).
 
 To flash a file to the bootloader, use either:
 
-    sudo dfu-util -a 0 -s 0x08002000:leave -D ./_build/sample/fw.bin
-    sudo dfu-util -a 0 -s 0x08004000:leave -D ./_build/sample/fw.bin
+    sudo dfu-util -a 0 -s 0x08000000:leave -D ./_build/sample/fw.bin
+    sudo dfu-util -a 0 -s 0x08000000:leave -D ./_build/sample/fw.bin
 
 ...depending on your MCU.
+
+You must flash the file at address 0x08000000. The bootloader will automatically 
+skip over the padding in the file, which is expected to be the size of the
+bootloader itself. This padding can just be a bunch of 0xFF. 
 
 The bootloader has AES256 encryption support. If this is enabled, then you
 must supply the bootloader with a file that is padded with the size of the 
 bootloader, minus 16 bytes. The first 16 bytes are the AES CBC initialization
-vector used to encrypt the firmware file. See lockdown.py for further insight.
-
-In AES mode, you must flash the file at address 0x08000000. The bootloader will
-automatically skip over the padding in the file after reading the first 16 bytes
-as the init vector. 
+vector used to encrypt the firmware file. See snappack.py for further insight.
 
 You can use the following command to flash the encrypted file:
 
@@ -50,7 +49,7 @@ successful decryption.
 * Testing for RAM token for forced DFU mode entry.
 * Application flash is wiped on download to prevent stub attacks.
 * Option to disable DFUse upload to prevent firmware read-out.
-* Firmware checksum validation.
+* Firmware checksum validation (untested).
 * AES256 CBC encryption.
 
 
@@ -79,21 +78,17 @@ Optonally (untested):
 
 First, go to the root /bootloader folder, then:
 
-For STM32...
+For STM32F103...
 
-    make fam=f1 upload
+    make MCU_FAMILY=f103c8 upload
     
-For CKS32, the china variant of the STM32...
-
-    make fam=f1 upload-alt 
-
 Check if you were successful with:
 
     sudo lsusb
 
 You should see something from 0x1337:0xC0DE. 
 
-For STM32F4 family cpus, use fam=f4 instead of fam=f1. 
+For STM32F4 family cpus, use MCU_FAMILY=f40x
 
 The LED should be blinking funny, this is intentional and means the 
 bootloader was successfully entered.
