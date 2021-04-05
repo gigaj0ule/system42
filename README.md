@@ -23,7 +23,7 @@ To make a new project  you just copy the projects/demo folder and then see the f
 inside. You will find a few files:
 
 - sketch.ino, which contains your "main" function
-- crash_handlers.cpp, which contain fault handlers
+- sketch.hpp, which is your project header file
 
 All of the other libraries are shared between all projects. Unless a library is 
 absolutely shared between every project, please, keep it out of _shared_libs!
