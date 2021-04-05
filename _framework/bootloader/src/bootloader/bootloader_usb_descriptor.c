@@ -13,7 +13,7 @@
 struct iFlashMemoryPartitions_t iFlashMemoryPartitions = {
     .header                      = "@Internal Flash /" STR(FLASH_BASE_ADDR) "/",
 
-    #ifndef ENABLE_AES_DECRYPTION
+    /*#ifndef BOOT_KEY_FILE
     .bootloader_size_kb          = STR(FLASH_BOOTLDR_SIZE_KB),
     .bootloader_size_multiplier  = {'*'},
     .bootloader_transfer_size    = {'1'},
@@ -23,6 +23,8 @@ struct iFlashMemoryPartitions_t iFlashMemoryPartitions = {
     .bootloader_permissions      = {'a'},
     .partition_1                 = {','},
     #endif
+    */
+   
     .payload_size_kb             = "00000",
     .payload_size_multiplier     = {'*'},
     .payload_transfer_size       = {'1'},

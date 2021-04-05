@@ -20,7 +20,8 @@
     struct iFlashMemoryPartitions_t {
         const char header[28];
         
-        #ifndef ENABLE_AES_DECRYPTION
+        /*
+        #ifndef BOOT_KEY_FILE
         const char  bootloader_size_kb[2];
         const char  bootloader_size_multiplier[1];
         const char  bootloader_transfer_size[1];    // B, K, M (bytes)
@@ -29,6 +30,7 @@
 
         const char  partition_1[1];
         #endif
+        */
 
         char        payload_size_kb[5];
         const char  payload_size_multiplier[1];

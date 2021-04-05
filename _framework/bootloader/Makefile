@@ -32,7 +32,7 @@ else ifeq ($(fam), f4)
 endif
 
 # Should SWD be enabled?
-ifeq ($(RDP), 1)
+ifeq ($(USE_RDP), 1)
 	OPTIONS += -DENABLE_READOUT_PROTECTION_LEVEL_1
 endif
 
@@ -42,8 +42,8 @@ BUILDDIR = $(abspath $(CURDIR)/__build)
 
 ######################################################################
 # Ecryption key for the particular instance of this bootloader
-ifdef BOOTLOADER_KEY_FILE
-	OPTIONS += -DBOOT_KEY_FILE="\"$(BOOTLOADER_KEY_FILE)\""
+ifdef USE_BOOTLOADER_KEY_FILE
+	OPTIONS += -DBOOT_KEY_FILE="\"$(USE_BOOTLOADER_KEY_FILE)\""
 endif
 
 ######################################################################

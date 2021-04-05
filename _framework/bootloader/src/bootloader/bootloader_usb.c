@@ -66,11 +66,15 @@ void usb_init() {
 
 	// We hard code our payload block size to 1024. Even though ST's spec recommends
 	// to use the sector size, I found that in practice it's easier to just assume 1kB.
-	#ifdef ENABLE_AES_DECRYPTION
+	/*#ifdef BOOT_KEY_FILE*/
 		uint32_t payload_sector_size = writable_flash_size / 1024;
+	/*
 	#else
+		// Shouldn't this be writable_flash_size -(MINUS) FLASH_BOOTLDR_SIZE_KB_INT?
+		// Oh whatever I'll just yeet it with a block comment
 		uint32_t payload_sector_size = (writable_flash_size + (FLASH_BOOTLDR_SIZE_KB_INT * 1024)) / 1024;	
 	#endif
+	*/
 
 	// Populate flash partition string descriptor
 	iFlashMemoryPartitions.payload_size_kb[0] = ((payload_sector_size / 10000) % 10) + '0';

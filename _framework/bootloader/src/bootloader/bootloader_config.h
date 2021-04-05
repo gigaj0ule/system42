@@ -31,7 +31,7 @@
     #define ENABLE_FIRMWARE_UPLOAD
     #define ERASE_EXISTING_APPLICATION
     #define PROTECT_LAST_TWO_FLASH_PAGES
-    #define ENABLE_AES_DECRYPTION
+    //#define BOOT_KEY_FILE
     //#define ENABLE_READOUT_PROTECTION_LEVEL_1
     //#define ENABLE_CHECKSUM
 
@@ -43,9 +43,13 @@
 
 	// LED Bank
     #ifdef STM32F1    
-        #define LED_BANK              GPIOA
-        #define LED_PIN               GPIO1
-
+        //#define LED_BANK              GPIOA
+        //#define LED_PIN               GPIO1
+        
+        // Blue Pill
+        #define LED_BANK              GPIOC
+        #define LED_PIN               GPIO13
+        
         // Use Boot1 PB2 as the button, as hardly anyone uses this pin as GPIO
         #define BUTTON_BANK           GPIOB
         #define BUTTON_PIN            GPIO2

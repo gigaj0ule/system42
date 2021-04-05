@@ -187,17 +187,24 @@ RELEASEDIR = $(BUILDDIR)/$(SRC)
 KEYDIR_BASE = $(abspath $(CURDIR)/__bootloader_keys)
 
 # Should we enable debugging? (set in bootloader)
-ifeq ($(DEBUG), 1)
-	RDP := 0
-endif
+#ifeq ($(DEBUG), 1)
+#	RDP := 0
+#endif
 
 # RDP enabled?
-ifeq ($(RDP), 1)
-	BOOTLOADER_READOUT_PROTECT := RDP=1
+ifeq ($(USE_RDP), 1)
+	BOOTLOADER_READOUT_PROTECT := USE_RDP=1
 	DEBUG := 0
 else
 	DEBUG := 1
-	RDP := 0
+	USE_RDP := 0
+endif
+
+# Encrypt?
+ifeq ($(ENCRYPT), 1)
+	USE_BOOTLOADER_KEY_FILE := USE_BOOTLOADER_KEY_FILE=$(KEYDIR_BASE)/$(SRC)/bootkey.h
+else 
+	USE_BOOTLOADER_KEY_FILE :=
 endif
 
 # Path location for arduino core
@@ -569,13 +576,13 @@ endef
 
 define build-upload-bootloader
 	@echo "\nMAKE: Building bootloader...\n"
-	@(cd ./$(FRAMEWORKDIR)/bootloader && make BOOTLOADER_KEY_FILE=$(KEYDIR_BASE)/$(SRC)/bootkey.h fam=$(fam) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
+	@(cd ./$(FRAMEWORKDIR)/bootloader && make $(USE_BOOTLOADER_KEY_FILE) fam=$(fam) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
 	@ sleep 1
 endef
 
-define encrypt
-	@echo "\nMAKE: Locking down $(TARGET_PATH).bin...\n"
-	./$(FRAMEWORKDIR)/_build_tools/lockdown.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(KEYDIR_BASE)/$(SRC)/bootkey.h $(BOOTLOADER_SIZE)
+define snappack
+	@echo "\nMAKE: Packing $(TARGET_PATH).bin...\n"
+	./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(USE_BOOTLOADER_KEY_FILE)
 endef
 
 define upload-dfu
@@ -593,17 +600,17 @@ upload-bootloader:
 	$(build-upload-bootloader)
 
 upload-program:
-	$(encrypt)
+	$(snappack)
 	$(upload-dfu)
 
 upload-verbose:
-	$(encrypt)
+	$(snappack)
 	$(upload-dfu-v)
 
 upload-all:  $(TARGET_PATH).bin
 	$(build-key)
+	$(snappack)
 	$(build-upload-bootloader)
-	$(encrypt)
 	$(upload-dfu)
 
 #upload-dfu-aes:  $(TARGET_PATH).bin

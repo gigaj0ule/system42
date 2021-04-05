@@ -15,7 +15,7 @@
 #include "bootloader_utils.h"
 #include "bootloader_tests.h"
 
-#ifdef ENABLE_AES_DECRYPTION
+#ifdef BOOT_KEY_FILE
 	#include "AES/aes.h"
 #endif
 
@@ -34,7 +34,7 @@ uint8_t last_flash_sector_erased = 0;
 // DFU state
 enum dfu_state dfu_state_ = STATE_DFU_IDLE;
 
-#ifdef ENABLE_AES_DECRYPTION
+#ifdef BOOT_KEY_FILE
 	uint8_t aes_key[] = BOOT_KEY;
 	struct AES_ctx ctx;
 #endif
@@ -198,11 +198,11 @@ void usbdfu_getstatus_complete(struct usb_setup_data *req) {
                 // From formula Address_Pointer + ((wBlockNum - 2)*wTransferSize)
                 volatile uint32_t write_address = prog.addr + ((prog.blocknum - 2) * wTransferSize_);
 
-				#ifdef ENABLE_AES_DECRYPTION
+				#ifdef BOOT_KEY_FILE
 					// If this request is for the start of the program flash
 					// then we should have our initialization vector at the 
 					// beginning 16 bytes of the firmware update file 
-					// (per our lockdown.py program). 
+					// (per our snappack.py program). 
 
 					if(write_address == FLASH_BASE_ADDR) {
 						// Get first 16 bytes of data as our init_vector

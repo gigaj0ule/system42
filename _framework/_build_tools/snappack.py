@@ -3,9 +3,6 @@ import sys, os, array
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
-#AES_KEY =   [0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
-#            0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4]
-
 class AESCipher:
     def __init__(self, aes_key, bootloader_size):
         self.key = bytes(aes_key)
@@ -45,13 +42,18 @@ def program_quit(arg):
         print("\n== Terminating")
     exit(arg)
 
-if __name__ == '__main__':
 
-    print("== ╦  ╔═╗╔═╗╦╔═╔╦╗╔═╗╦ ╦╔╗╔\n"+
-          "== ║  ║ ║║  ╠╩╗ ║║║ ║║║║║║║\n"+
-          "== ╩═╝╚═╝╚═╝╩ ╩═╩╝╚═╝╚╩╝╝╚╝")
-    print("== AES256 arbitrary binary file encrypter")
-    print("== (C) 2019 Adam Munich, All Rights Reserved\n")
+# ----------------------------------------------------------
+if __name__ == '__main__':
+    # Calvin S
+    print("== ╔═╗╔╗╔╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═\n"+
+          "== ╚═╗║║║╠═╣╠═╝╠═╝╠═╣║  ╠╩╗\n"+
+          "== ╚═╝╝╚╝╩ ╩╩  ╩  ╩ ╩╚═╝╩ ╩")
+    print("== Firmware packer for snaps")
+    print("== (C) 2019, 2021 Adam Munich, All Rights Reserved\n")
+
+    # Encrypt, or no?
+    HAVE_BOOT_KEY_FILE = False
 
     # Get input and output file path from command line
     try:
@@ -69,57 +71,57 @@ if __name__ == '__main__':
             print("== Error: no output file!")
             raise FileNotFoundError
 
-        # Was any bootkey file passed?
-        try:
-            bootkey_file_name = sys.argv[3]
-        except:
-            print("== Error: no key file!")
-            raise FileNotFoundError
-
     except FileNotFoundError:
         # Uh oh, no files passed
-        print("== Proper usage is {} <input file> <output file> <bootkey file>".format(sys.argv[0]))
+        print("== Proper usage is {} <input file> <output file> <bootloader size> <(optional) bootkey file>".format(sys.argv[0]))
         program_quit(1)
-
 
     # Get bootloader size from CMD line
     bootloader_size = 0
     try:
-        bootloader_size = int(sys.argv[4], 0)
+        bootloader_size = int(sys.argv[3], 0)
         print("Bootloader size specified to be {} bytes.".format(bootloader_size))
     except:
         print("No bootloader size specified, assuming {} bytes.".format(bootloader_size))
 
+    # Was any bootkey file passed?
+    try:
+        bootkey_file_name = sys.argv[4]
+        HAVE_BOOT_KEY_FILE = True
+    except:
+        print("\nNo key file provided, firmware will not be encrypted.")
+        HAVE_BOOT_KEY_FILE = False
+        #raise FileNotFoundError
 
     # Try to open bootkey file
-    try:
-        bootkey_file = open(bootkey_file_name, 'r')
-    except:
-        # Uh oh, can't open input file
-        print("== Error: could not open bootkey file!")
-        program_quit(1)
+    if HAVE_BOOT_KEY_FILE == True:
+        try:
+            bootkey_file = open(bootkey_file_name, 'r')
+        except:
+            # Uh oh, can't open input file
+            print("== Error: could not open bootkey file!")
+            program_quit(1)
 
-    print("\nOpened key file \"{}\"".format(bootkey_file_name))
-    
-    # Try to extract the crypto key from key file
-    try:
-        bootkey_file_parts    = bootkey_file.read().split('BOOT_KEY')
-        bootkey_file_key_half = bootkey_file_parts[1]
-        bootkey_file_key_line = bootkey_file_key_half.split('\n')[0] 
-        bootkey_file_key_list = bootkey_file_key_line.replace('{', '').replace('}', '').strip()
-        bootkey_file_key_hexs = bootkey_file_key_list.split(', ')
-        bootkey_file_key_ints = [int(x, 16) for x in bootkey_file_key_hexs]
-        if(len(bootkey_file_key_ints) != 32):
-            print("== Error: key is incorrect length!")
-            raise FileNotFoundError
-        bootkey_file_bytes = array.array('B', bootkey_file_key_ints).tobytes()
-        AES_KEY = bootkey_file_bytes
-        print("\tSuccessfully parsed key file.")
-    except Exception as e:
-        # Uh oh, can't parse key file
-        print("== Error: invalid boot key file!")
-        program_quit(1)
-
+        print("\nOpened key file \"{}\"".format(bootkey_file_name))
+        
+        # Try to extract the crypto key from key file
+        try:
+            bootkey_file_parts    = bootkey_file.read().split('BOOT_KEY')
+            bootkey_file_key_half = bootkey_file_parts[1]
+            bootkey_file_key_line = bootkey_file_key_half.split('\n')[0] 
+            bootkey_file_key_list = bootkey_file_key_line.replace('{', '').replace('}', '').strip()
+            bootkey_file_key_hexs = bootkey_file_key_list.split(', ')
+            bootkey_file_key_ints = [int(x, 16) for x in bootkey_file_key_hexs]
+            if(len(bootkey_file_key_ints) != 32):
+                print("== Error: key is incorrect length!")
+                raise FileNotFoundError
+            bootkey_file_bytes = array.array('B', bootkey_file_key_ints).tobytes()
+            AES_KEY = bootkey_file_bytes
+            print("\tSuccessfully parsed key file.")
+        except Exception as e:
+            # Uh oh, can't parse key file
+            print("== Error: invalid boot key file!")
+            program_quit(1)
 
     # Try to open input file
     try:
@@ -138,13 +140,15 @@ if __name__ == '__main__':
 
     # Test to see if file is modulo AES block size
     must_pad = False
-    if(len(input_byte_array) % len(AES_KEY) != 0):
-        print("\tBinary length not encryptable!")
+    AES_BLOCKLEN = 16
+
+    if(len(input_byte_array) % AES_BLOCKLEN != 0):
+        print("\tBinary length requires padding!")
         must_pad = True
 
-    # Pad end of file with 0xFFif length of the file is not mod 16
+    # Pad end of file with 0xFF if length of the file is not mod 16
     padding_length = 0
-    while(must_pad is True and (len(input_byte_array) % len(AES_KEY)) != 0):
+    while(must_pad is True and (len(input_byte_array) % AES_BLOCKLEN) != 0):
         input_byte_array += b'\xFF'
         padding_length += 1
     
@@ -154,27 +158,32 @@ if __name__ == '__main__':
         print("\tNew binary length is {} bytes.".format(encryptable_length))
 
 
-    # Encrypt file
-    print("\nEncrypting...")
-    ciphertext = AESCipher(AES_KEY, bootloader_size).encrypt(input_byte_array)
-    encrypted_length = len(ciphertext)
-    print("\tDone! \n\tCiphertext length is {} bytes.".format(encrypted_length))
+    # Encrypt file if boot_key_file was provided
+    if HAVE_BOOT_KEY_FILE == True:
+        print("\nEncrypting...")
+        ciphertext = AESCipher(AES_KEY, bootloader_size).encrypt(input_byte_array)
+        encrypted_length = len(ciphertext)
+        print("\tDone! \n\tCiphertext length is {} bytes.".format(encrypted_length))
 
+        # Decrypt file
+        print("\nDecrypting...")
+        decrypted = AESCipher(AES_KEY, bootloader_size).decrypt(ciphertext)
+        decrypted_length = len(decrypted)
+        print("\tDone! \n\tDecrypted length is {} bytes.".format(decrypted_length))
 
-    # Decrypt file
-    print("\nDecrypting...")
-    decrypted = AESCipher(AES_KEY, bootloader_size).decrypt(ciphertext)
-    decrypted_length = len(decrypted)
-    print("\tDone! \n\tDecrypted length is {} bytes.".format(decrypted_length))
+        # Program text == cyphertext
+        program_text = ciphertext
 
-
-    # Verifify decrypt matches plaintext
-    print("\nVerifying...")
-    if input_byte_array == bytearray(decrypted):
-        print("\tDone! \n\tDecryption matches source.")
-    else:
-        print("== Error: decryption mismatches encryption!")
-        program_quit(1)
+        # Verifify decrypt matches plaintext
+        print("\nVerifying...")
+        if input_byte_array == bytearray(decrypted):
+            print("\tDone! \n\tDecryption matches source.")
+        else:
+            print("== Error: decryption mismatches encryption!")
+            program_quit(1)
+    else: 
+        # No encryption, program_text = padding + input_byte_array
+        program_text = bytes(bootloader_size) + input_byte_array
 
 
     # Write output file
@@ -182,11 +191,12 @@ if __name__ == '__main__':
     try:
         os.makedirs(os.path.dirname(output_file_name), exist_ok=True)
         output_file = open(output_file_name, 'wb')
-        written_bytes = output_file.write(ciphertext)
+        written_bytes = output_file.write(program_text)
         output_file.close()
-    except:
+    except Exception as e:
         # Uh oh, permissions error?
         print("== Error: could not write output file!")
+        print(e)
         program_quit(1)
 
 

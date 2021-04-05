@@ -21,7 +21,8 @@
         #define FLASH_BOOTLDR_SIZE_KB_INT  16
     #endif
 
-    #ifdef ENABLE_AES_DECRYPTION
+    #ifdef BOOT_KEY_FILE
+    
         #define CBC 1
         #define ECB 0
         #define CTR 0
