@@ -15,7 +15,7 @@ An install script is not written yet. You will need:
 - dfu-util
 - "cortex-debug" add-on for vscode
 - python3 (and whatever libraries it complains about wanting when you try to compile)
-- arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1
+- arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 (see INSTALLING_GCC.md)
 
 ### Making a Project
 
