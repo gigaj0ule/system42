@@ -638,7 +638,7 @@ $(BUILDDIR)/%.o: %.cpp
 $(BUILDDIR)/%.o: %.S
 	@echo "\nMAKE: Building file $<"
 	@mkdir -p "$(dir $@)"
-	$(CXX) -v
+	@$(CXX) -v
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LIBRARIES) -o "$@" -c "$<"
 
 $(BUILDDIR)/%.o: %.ino

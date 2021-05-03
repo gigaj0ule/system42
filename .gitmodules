@@ -1,3 +1,10 @@
 [submodule "_bitsnap_lib"]
 	path = _bitsnap_lib
 	url = https://gitlab.com/civil-electric/bitsnap-lib
+	
+[submodule "universal_display_board"]
+	path = projects/universal_display_board
+	url = https://gitlab.com/adammunich/universal_display_board
+[submodule "projects/universal_display_board"]
+	path = projects/universal_display_board
+	url = https://gitlab.com/adammunich/universal_display_board.git
