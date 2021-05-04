@@ -91,12 +91,28 @@ USBD_USE_AUDIO = 0
 OPTIONS =  -DHAL_UART_MODULE_ENABLED 
 OPTIONS += -DUSBCON 
 OPTIONS += -DHAL_PCD_MODULE_ENABLED
-OPTIONS += -DUSBD_VID=0x1337
 OPTIONS += -DUSB_MANUFACTURER="\"Civil Electric\"" 
 OPTIONS += -DUSB_PRODUCT="\"Bitsnap\""
 OPTIONS += -DARDUINO_BLUEPILL_F103C8 
 OPTIONS += -DARDUINO_GENERIC_STM32F103C 
 OPTIONS += -DARDUINO_ARCH_STM32
+
+# Special meta settings
+ifdef META
+	OPTIONS += -DUSE_META_SETTINGS
+
+	# USB IDs
+	USB_VENDOR_ID = 0483
+	USB_PRODUCT_ID = DF11
+
+	TEMP_META_HACK = "META_V5=1"
+else
+	USB_VENDOR_ID = 1337
+	USB_PRODUCT_ID = c0de
+endif
+
+OPTIONS += -DUSBD_VID=0x$(USB_VENDOR_ID) 
+
 
 ifeq ($(USBD_USE_HID_COMPOSITE), 1)
 OPTIONS += -DUSBD_USE_HID_COMPOSITE
@@ -578,7 +594,7 @@ endef
 
 define build-upload-bootloader
 	@echo "\nMAKE: Building bootloader...\n"
-	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) MCU_FAMILY=$(MCU_FAMILY) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
+	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) USB_VENDOR_ID=$(USB_VENDOR_ID) USB_PRODUCT_ID=$(USB_PRODUCT_ID) MCU_FAMILY=$(MCU_FAMILY) $(TEMP_META_HACK) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
 	@ sleep 1
 endef
 
@@ -587,27 +603,27 @@ define snappack
 	./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(BOOT_KEY_FILE)
 endef
 
-define upload-dfu
+define upload-dfuse
 	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-	@dfu-util --device 1337:c0de -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap
+	@dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap
 endef
 
-define upload-dfu-v
+define upload-dfuse-v
 	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-	@dfu-util --device 1337:c0de -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap -v -v
+	@dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap -v -v
 endef
 
 upload-bootloader:
 	$(build-key)
 	$(build-upload-bootloader)
 
-upload-program:
+upload-dfu:
 	$(snappack)
-	$(upload-dfu)
+	$(upload-dfuse)
 
 upload-verbose:
 	$(snappack)
-	$(upload-dfu-v)
+	$(upload-dfuse-v)
 
 upload-all:  $(TARGET_PATH).bin
 	$(build-key)

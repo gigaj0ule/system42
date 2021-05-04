@@ -35,14 +35,22 @@
     //#define ENABLE_READOUT_PROTECTION_LEVEL_1
     //#define ENABLE_CHECKSUM
 
-    #define I_MANUFACTURER "Civil Electric"
-    #define I_PRODUCT  "Bitsnap Bootloader"
+    // Now in Makefile
+    //#define I_MANUFACTURER "Civil Electric"
+    //#define I_PRODUCT  "Bitsnap Bootloader"
+    //#define ID_VENDOR  0x1337
+    //#define ID_PRODUCT 0xC0DE
 
-    #define ID_VENDOR  0x1337
-    #define ID_PRODUCT 0xC0DE
+    #ifdef MTV
+        #define LED_BANK              GPIOA
+        #define LED_PIN               GPIO1
+
+        // Use Boot1 PB2 as the button, as hardly anyone uses this pin as GPIO
+        #define BUTTON_BANK           GPIOC
+        #define BUTTON_PIN            GPIO2
 
 	// LED Bank
-    #ifdef STM32F1    
+    #elif defined(STM32F1)  
         //#define LED_BANK              GPIOA
         //#define LED_PIN               GPIO1
         

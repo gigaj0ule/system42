@@ -31,6 +31,16 @@ else ifeq ($(MCU_FAMILY), f40x)
 	COREFILES_FAMILY := f4
 endif
 
+ifeq ($(META_V5), 1)
+	OPTIONS += -DMTV
+endif
+
+# Strings
+OPTIONS += -DI_MANUFACTURER="\"Civil Electric\""
+OPTIONS += -DI_PRODUCT="\"Bootloader\""
+OPTIONS += -DID_VENDOR=0x$(USB_VENDOR_ID)
+OPTIONS += -DID_PRODUCT=0x$(USB_PRODUCT_ID)
+
 # Should SWD be enabled?
 ifeq ($(USE_RDP), 1)
 	OPTIONS += -DENABLE_READOUT_PROTECTION_LEVEL_1
