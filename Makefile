@@ -617,15 +617,15 @@ upload-bootloader:
 	$(build-key)
 	$(build-upload-bootloader)
 
-upload-dfu:
+upload-dfu: $(TARGET_PATH).bin
 	$(snappack)
 	$(upload-dfuse)
 
-upload-verbose:
+upload-verbose: $(TARGET_PATH).bin
 	$(snappack)
 	$(upload-dfuse-v)
 
-upload-all:  $(TARGET_PATH).bin
+upload-all: $(TARGET_PATH).bin
 	$(build-key)
 	$(snappack)
 	$(build-upload-bootloader)
