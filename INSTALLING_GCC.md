@@ -29,7 +29,7 @@ Now, we will need to add symlinks to /usr/bin so make can find the new compiler
 
 Congrats, GNU tools for arm shoudl now be installed. You can verify with:
 
-	$ arm-none-eabi-gcc -v
+	arm-none-eabi-gcc -v
 
 And you should see:
 
