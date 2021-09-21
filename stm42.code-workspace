@@ -120,6 +120,7 @@
 			"stop_token": "cpp",
 			"*.hx": "cpp"
 		},
-		"git.ignoreLimitWarning": true
+		"git.ignoreLimitWarning": true,
+		"cortex-debug.variableUseNaturalFormat": true
 	}
 }

@@ -4,6 +4,17 @@
     #ifdef USE_BITSNAP
     #include "communication.h"
 
+
+    //void remote_update_occured(void *);
+
+    static void host_wrote_data_callback(void *) {
+        // Stuff
+    }
+
+    static void host_read_data_callback(void *) {
+        // Stuff
+    }
+
     // See README.md for information about how to construct 
     // this class
 
@@ -26,7 +37,9 @@
 
                     make_protocol_number_kw(
                         &uint8_property,
-                        property_name = "uint8_property"
+                        property_name = "uint8_property",
+                        after_written_callback = &host_wrote_data_callback,
+                        after_read_callback = &host_read_data_callback
                     ),
 
                     make_protocol_number_kw(

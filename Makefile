@@ -97,6 +97,9 @@ OPTIONS += -DARDUINO_BLUEPILL_F103C8
 OPTIONS += -DARDUINO_GENERIC_STM32F103C 
 OPTIONS += -DARDUINO_ARCH_STM32
 
+USB_VENDOR_ID = 1337
+USB_PRODUCT_ID = c0de
+
 # Special meta settings
 ifdef META
 	OPTIONS += -DUSE_META_SETTINGS
@@ -106,9 +109,6 @@ ifdef META
 	USB_PRODUCT_ID = DF11
 
 	TEMP_META_HACK = "META_V5=1"
-else
-	USB_VENDOR_ID = 1337
-	USB_PRODUCT_ID = c0de
 endif
 
 OPTIONS += -DUSBD_VID=0x$(USB_VENDOR_ID) 
@@ -610,7 +610,7 @@ endef
 
 define upload-dfuse-v
 	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-	@dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap -v -v
+	dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap -v -v
 endef
 
 upload-bootloader:
@@ -629,7 +629,7 @@ upload-all: $(TARGET_PATH).bin
 	$(build-key)
 	$(snappack)
 	$(build-upload-bootloader)
-	$(upload-dfu)
+	$(upload-dfuse)
 
 #upload-dfu-aes:  $(TARGET_PATH).bin
 #	@echo "\nMAKE: Locking down $(TARGET_PATH).bin...\n"

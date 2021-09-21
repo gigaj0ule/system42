@@ -9,7 +9,7 @@
 
 static void worker_thread(void* arg) {
     while(true) {
-	// Do something every second
+		// Do something every second
         os_delay(1000);
     }
 }

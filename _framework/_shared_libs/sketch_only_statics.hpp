@@ -8,9 +8,9 @@
 #include "STM32FreeRTOS.h"
 
 #if defined(STM32F1)
-    #define RED_LED_PIN PC13
-    #define GREEN_LED_PIN PC14
-    #define BLUE_LED_PIN PC15
+    #define RED_LED_PIN PB6
+    #define GREEN_LED_PIN PB7
+    #define BLUE_LED_PIN PA1
     #define USER_BUTTON PB2
 #endif
 
@@ -30,12 +30,17 @@ void user_button_handler(void);
 
 
 // =========================================================================
+// Delay function that will ensure the scheduler doesn't bind up
+//
 static void os_delay(uint32_t milliseconds) {
     vTaskDelay((milliseconds * configTICK_RATE_HZ) / 1000L);
 }
 
 
 // =========================================================================
+// This thread listens on the USB port for communication requests and will
+// respond to said requests
+// 
 static void communication_thread(void* arg) {
   while(true) {
 
@@ -55,6 +60,9 @@ static void communication_thread(void* arg) {
 
 
 // =========================================================================
+// If we got here then something really bad went wrong, or the MCU had a
+// single-upset event.
+//
 static void catch_kernel_fault() {
     while(1) {
 
@@ -67,6 +75,9 @@ static void catch_kernel_fault() {
 }
 
 // =========================================================================
+// If we got here something went wrong when launching the threads. This
+// most often means there was a stack overflow
+//
 static void catch_thread_fault() {
     while(1) {
 
@@ -79,6 +90,8 @@ static void catch_thread_fault() {
 }
 
 // =========================================================================
+// This is a thread that listens for user button presses
+// 
 static void ui_thread(void* arg) {
   while(true) {
 
@@ -123,6 +136,9 @@ static void ui_thread(void* arg) {
 
 
 // =========================================================================
+// This initializes things that are run-once operations
+// done with all projects
+//
 inline void early_setup(void) {
   #ifdef USE_BITSNAP
   init_communication();
@@ -139,13 +155,20 @@ inline void early_setup(void) {
 
 
 // =========================================================================
-inline void create_threads(void (*worker_thread)(void *), uint8_t worker_thread_stack_size = 5, uint8_t communication_thread_stack_size = 4) {
+// This boots up the operating system and launches the 
+// worker thread
+//
+inline void create_threads(
+  void (*worker_thread)(void *), 
+  uint8_t worker_thread_stack_size = 5, 
+  uint8_t communication_thread_stack_size = 5
+) {
 
     // Create worker task at priority 1 (low)
     portBASE_TYPE worker_thread_handle
       = xTaskCreate(worker_thread, NULL, worker_thread_stack_size * configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
-    // Create communication task at priority 2 (high)
+    // Create communication task at priority 2 (medium)
     // Increase stack size if communication does not work
     #ifdef USE_BITSNAP
     portBASE_TYPE communication_thread_handle
@@ -159,7 +182,6 @@ inline void create_threads(void (*worker_thread)(void *), uint8_t worker_thread_
 
     // Check for thread creation errors
     if (worker_thread_handle != pdPASS || ui_thread_handle != pdPASS) {
-        __asm__ volatile("nop");
         catch_thread_fault();
     }
 
@@ -182,6 +204,8 @@ communication communicable;
 
 
 // =========================================================================
+// Sets the color of the status LED
+//
 void set_led_color(uint8_t led_color) {
 
   uint8_t led_state = (uint8_t) led_color;
