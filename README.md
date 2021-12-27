@@ -1,7 +1,7 @@
 # STM42: The answer to life, the universe, and everything STM32
-# (c) Adam Munich 2019, 2020, 2021, All Rights Reserved
+# (c) ~j0ule 2019, 2020, 2021, All Rights Reserved
 
-This is part of an STM32 Framework organized by Adam Munich for hobby projects. 
+This is part of an STM32 Framework organized by ~j0ule for hobby projects. 
 It is a work in progress. It is for non-commercial use only, unless explicit 
 permission and terms of use are agreed upon in writing.
 
