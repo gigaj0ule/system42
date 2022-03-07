@@ -38,8 +38,10 @@
 #endif
 #define USBD_LANGID_STRING            0x409   /* 1033 US.S English */
 
+#ifdef USB_PRODUCT_ID
+#define USBD_CLASS_PID                USB_PRODUCT_ID
+#else 
 #define USBD_CLASS_PID                0xC0DE
-
 
 /* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
