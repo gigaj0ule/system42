@@ -1,6 +1,6 @@
-[submodule "_bitsnap_lib"]
-	path = _bitsnap_lib
-	url = https://gitlab.com/civil-electric/bitsnap-lib
+[submodule "lib_bitsnap"]
+	path = lib_bitsnap
+	url = https://github.com/gigaj0ule/lib_bitsnap
 	
 [submodule "universal_display_board"]
 	path = projects/universal_display_board
