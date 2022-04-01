@@ -30,9 +30,9 @@ endif
 
 # moto, or inverter, uses STM32F4
 ###
-ifeq ($(SRC),$(filter $(SRC),moto inverter))  
-	MCU_FAMILY := f40x                                 
-	ODRIVE_CODEBASE := 1                      
+ifeq ($(SRC),$(filter $(SRC),moto inverter))
+	MCU_FAMILY := f40x
+	ODRIVE_CODEBASE := 1
 endif
 ###
 
@@ -264,12 +264,12 @@ PATCHESPATH 		= $(FRAMEWORKDIR)/_shared_libs/patches
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
 	VARIANTPATH := $(SOURCEPATH)/Board/v3
-	BITSNAP_PATH := _bitsnap_lib/protocol
-	NVMPATH := _bitsnap_lib/nvm
+	BITSNAP_PATH := lib_bitsnap/protocol
+	NVMPATH := lib_bitsnap/nvm
 else
 	# Path location for STM32 variant
 	VARIANTPATH := $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/variants/$(STM_BOARD_VARIANT)
-	BITSNAP_PATH := _bitsnap_lib
+	BITSNAP_PATH := lib_bitsnap
 endif
 
 # Target Path
