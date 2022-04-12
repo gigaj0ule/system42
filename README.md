@@ -65,7 +65,7 @@ then write your MCU code!
 Inside sketch.ino you will find some 
 threads. One of them is named:
     
-    static void worker_thread(void* arg)
+    static void daughter_thread(void* arg)
     
 This is where all of your program 
 should go. You can do whatever
