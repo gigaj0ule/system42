@@ -6,8 +6,8 @@ This is an operating system for small microcontrollers.
 It allows you to run multiple threads and call both 
 ST HAL and arduino bindings. 
 
-It has a bootloader that lets you flash new code over
-USB. 
+It has a BIOS that lets you flash new code over
+USB so you don't need a special programmer.
 
 You can do tons of awesome stuff in 5k of ram. 
 Honestly it's the best thing ever. No really,
@@ -67,7 +67,6 @@ Where "demo" of course, is the firmware target.
 
 This will automatically: 
 
-- Mass erase the STM32
 - (optionally) Generate an encryption key for the firmware
 - (optionally) Encrypt the firmware file
 - Upload the bootloader with openocd and st-link v2
