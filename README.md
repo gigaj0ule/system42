@@ -1,4 +1,4 @@
-# STM42: The answer to life, the universe, and everything l
+# STM42: The answer to life, the universe, and everything
 
 (c) ~j0ule 2019-2022
 
