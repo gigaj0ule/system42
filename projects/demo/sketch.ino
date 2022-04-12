@@ -7,7 +7,7 @@
     #include "Mouse.h"
 #endif
 
-static void worker_thread(void* arg) {
+static void daughter_thread(void* arg) {
     while(true) {
 		// Do something every second
         os_delay(1000);
@@ -25,7 +25,7 @@ void setup() {
     early_setup();
     
     // Launch program!
-    create_threads(worker_thread);
+    create_threads(daughter_thread);
 };
 
 
