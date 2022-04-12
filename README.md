@@ -2,6 +2,19 @@
 
 (c) ~j0ule 2019-2022
 
+This is an operating system for small microcontrollers.
+It allows you to run multiple threads and call both 
+ST HAL and arduino bindings. 
+
+It has a bootloader that lets you flash new code over
+USB. 
+
+You can do tons of awesome stuff in 5k of ram. 
+Honestly it's the best thing ever. No really,
+you can automate your labor with this by making 
+tiny robots or even a whole village of them. 
+
+
 An install script is not written yet. You will need:
 
 - make
