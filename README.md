@@ -39,10 +39,8 @@ inside. You will find a few files:
 - sketch.ino, which contains your "main" function
 - sketch.hpp, which is your project header file
 
-All of the other libraries are shared between all projects. Unless a library is 
-absolutely shared between every project, please, keep it out of _shared_libs!
-
-Clone "demo" folder into "myproject" (or whatever), then write your MCU code!
+Clone "demo" folder into "myproject" (or whatever), 
+then write your MCU code!
 
 
 ### Sketch.ino
