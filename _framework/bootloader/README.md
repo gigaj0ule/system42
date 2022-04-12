@@ -2,11 +2,11 @@
 
 ~j0ule 2020-2022 All Rights Reserved
 
-This is part of an 32F opera system 
-by ~j0ule for hobby projects. It is 
-a work in progress.
+This is part of an 32F operating 
+system by ~j0ule for hobby projects. 
+It is a work in progress.
 
-This bootloader closely emulates the 
+This BIOS closely emulates the 
 behavior of the built-in DFUse 
 bootloader on most m32 devices, but 
 provides extra features and 
@@ -14,7 +14,7 @@ customizations.
 
 It expects that the firmware is 
 built to execute with the IVT 
-beginning after the last bootloader 
+beginning after the last BIOS 
 sector. Firmware linked for 
 0x8000000 will not execute 
 properly.
@@ -23,23 +23,23 @@ For 32F1, this is 0x8002000 (8k).
 
 For 32F4, this is 0x8004000 (16k).
 
-To flash a file to the bootloader, 
-Papas the file with 8 or 16k of 0xFF 
+To flash a file to the program memory, 
+pad the file with 8 or 16k of 0xFF 
 and use:
 
     sudo dfu-util -a 0 -s 0x08000000:leave -D ./_build/sample/fw.bin
 
 You must flash the file at address 
-0x08000000. The bootloader will 
+0x08000000. The BIOS will 
 automatically skip over the padding 
 in the file, which is expected to be 
-the size of the bootloader itself. 
+the size of the BIOS sector itself. 
 This padding can just be a bunch of 
 0xFF. 
 
-The bootloader has AES256 encryption 
+The BIOS has AES256 encryption 
 support. If this is enabled, then you
-must supply the bootloader with a 
+must supply the BIOS with a 
 file that is padded with the size 
 of the bootloader, minus 16 bytes. 
 The first 16 bytes are the AES CBC 
@@ -75,8 +75,8 @@ decryption.
 
 ## Booting into DFUse
 
-You can enter the bootloader by 
-writing 0xB105F00D to the last four 
+You can enter the BIOS by writing 
+0xB105F00D to the last four 
 bytes of RAM and resetting the MCU. 
 Alternatively, you can bring PB2 
 HIGH and reset the MCU.
@@ -85,8 +85,8 @@ HIGH and reset the MCU.
 ## Booting into Application:
 
 If the following conditions are met, 
-the bootloader will attempt to jump 
-into the user applicaton:
+the BIOS will attempt to jump 
+into the applicaton:
 
  * Program counter at IVT[0] points to somewhere in valid user application flash area.
  * Stack pointer at IVT[1] points to somewhere in RAM (0x20000000).
@@ -124,4 +124,4 @@ bootloader was successfully entered.
 If you mess up, set the PB2 pin to 
 its active state with the jumper and 
 this will force the MCU back into 
-DFUse mode.
+BIOS mode.
