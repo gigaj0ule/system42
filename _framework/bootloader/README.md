@@ -1,4 +1,4 @@
-# 32F DFUse Bootloader
+# 32F DFUse BIOS
 
 ~j0ule 2020-2022 All Rights Reserved
 
