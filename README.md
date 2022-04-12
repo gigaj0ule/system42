@@ -21,7 +21,8 @@ programmer.
 
 This is a stable OS. Code you write 
 on the x42 operating system will 
-be usable forever.
+be usable forever because all the 
+dependencies are included in-tree.
 
 You can do tons of awesome stuff 
 in 5k of ram. Honestly it's the 
