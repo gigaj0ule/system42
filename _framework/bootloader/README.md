@@ -41,7 +41,7 @@ The BIOS has AES256 encryption
 support. If this is enabled, then you
 must supply the BIOS with a 
 file that is padded with the size 
-of the bootloader, minus 16 bytes. 
+of the BIOS sector, minus 16 bytes. 
 The first 16 bytes are the AES CBC 
 initialization vector used to encrypt 
 the firmware file. See snappack.py 
