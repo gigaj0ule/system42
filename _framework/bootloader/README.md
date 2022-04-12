@@ -1,8 +1,8 @@
-# STM32Fx DFUse Bootloader
+# 32F DFUse Bootloader
 
 ~j0ule 2020-2022 All Rights Reserved
 
-This is part of an 32 Bit framework 
+This is part of an 32F opera system 
 by ~j0ule for hobby projects. It is 
 a work in progress.
 
