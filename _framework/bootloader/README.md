@@ -74,7 +74,7 @@ of encryption anyway.
 * AES256 CBC encryption.
 
 
-## Booting into DFUse
+## Booting into BIOS
 
 You can enter the BIOS by writing 
 0xB105F00D to the last four 
