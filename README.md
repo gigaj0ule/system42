@@ -1,5 +1,6 @@
-# STM42: The answer to life, the universe, and everything STM32
-# (c) ~j0ule 2019, 2020, 2021, All Rights Reserved
+# STM42: The answer to life, the universe, and everything l
+
+(c) ~j0ule 2019-2022
 
 This is part of an STM32 Framework organized by ~j0ule for hobby projects. 
 It is a work in progress. It is for non-commercial use only, unless explicit 
