@@ -1,6 +1,7 @@
 # x42: The answer to life, the universe, and everything MCU
 
-(c) ~j0ule 2019-2022
+~j0ule 2019-2022
+
 
 This is an operating system for 
 STM/CKS/GD 32 Bit microcontrollers.
@@ -32,6 +33,9 @@ whole village of them. These robot
 villages can help you live your 
 best life on starship earth.
 
+
+### Toolchain
+
 An install script is not written yet. 
 
 You will need:
@@ -46,7 +50,7 @@ You will need:
 
 ### Starting a Project
 
-To start a new project you just copy 
+To begin a new program you just copy 
 the projects/demo folder and then view
 the files inside. 
 
@@ -87,7 +91,7 @@ includedin your project and also
 set program definitions. 
 
 
-### Building a project
+### Building
 
 To build a project, make does all 
 the work for you. You must tell make
@@ -117,6 +121,26 @@ in ./__builds/<project> if you want
 to save it for the future. Otherwise 
 it will be destroyed the next time 
 make runs with "clean" enabled.
+
+
+### USB Firmware Upgrade
+
+After you have installed the BIOS
+you can use     
+
+    sudo make SRC=demo clean upload-dfu
+
+To flash new firmware to the MCU 
+over USB without a SWD programmer 
+attached. This is great for pushing 
+new firmware distributions out to 
+other hackers who don't have debug
+tools.
+
+x42 DFU usb device id is 1337:c0de
+
+
+### Employing ion beam researchers
 
 Sometimes you'd like to prevent the 
 firmware from being read out of the 
@@ -151,7 +175,7 @@ To enable firmware encryption, use:
     sudo make SRC=demo USE_ENCRYPTION=1 clean upload-all
 
 
-## Supported MCU
+### Supported MCU
 
 Right now, only the 32F103 and 
 32F405/7 MCUs are supported. By 
