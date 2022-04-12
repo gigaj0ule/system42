@@ -2,13 +2,13 @@
 
 ~j0ule 2020-2022 All Rights Reserved
 
-This is part of an 32F operating 
+This is part of a 32F operating 
 system by ~j0ule for hobby projects. 
 It is a work in progress.
 
 This BIOS closely emulates the 
 behavior of the built-in DFUse 
-bootloader on most m32 devices, but 
+bootloader on most 32F devices, but 
 provides extra features and 
 customizations.
 
