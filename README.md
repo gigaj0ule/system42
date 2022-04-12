@@ -2,7 +2,6 @@
 
 ~j0ule 2019-2022
 
-
 This is an operating system for 
 STM/CKS/GD 32 Bit microcontrollers.
 
@@ -33,7 +32,6 @@ whole village of them. These robot
 villages can help you live your 
 best life on starship earth.
 
-
 ### Toolchain
 
 An install script is not written yet. 
@@ -46,7 +44,6 @@ You will need:
 - dfu-util
 - python3 (and whatever libraries it complains about wanting when you try to compile)
 - arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 (see INSTALLING_GCC.md)
-
 
 ### Starting a Project
 
@@ -61,7 +58,6 @@ You will find a few files:
 
 Clone "demo" folder into "myproject" (or whatever), 
 then write your MCU code!
-
 
 ### Sketch.ino
 
@@ -82,14 +78,12 @@ will cause the CPU to lock up and
 freeze, so always call it at least 
 once in a thread!
 
-
 ### Sketch.hpp
 
 Inside sketch.hpp you can link 
 libraries that you want to have 
 includedin your project and also 
 set program definitions. 
-
 
 ### Building
 
@@ -122,7 +116,6 @@ to save it for the future. Otherwise
 it will be destroyed the next time 
 make runs with "clean" enabled.
 
-
 ### USB Firmware Upgrade
 
 After you have installed the BIOS
@@ -138,7 +131,6 @@ other hackers who don't have debug
 tools.
 
 x42 DFU usb device id is 1337:c0de
-
 
 ### Employing ion beam researchers
 
@@ -174,7 +166,6 @@ To enable firmware encryption, use:
 
     sudo make SRC=demo USE_ENCRYPTION=1 clean upload-all
 
-
 ### Supported MCU
 
 Right now, only the 32F103 and 
@@ -191,7 +182,6 @@ Where $FAMILY is one of:
     f103c8
     f103rc
     f40x
-
 
 ### Debugging a project
 
