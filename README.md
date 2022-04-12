@@ -4,24 +4,30 @@
 
 This is an operating system for small microcontrollers.
 It allows you to run multiple threads and call both 
-ST HAL and arduino bindings. 
+ST HAL and arduino functions. 
 
-It has a BIOS that lets you flash new code over
+STM42 lets you talk over a USB virtual serial port 
+to a host computer over USB. It can emulate a 
+keyboard also.
+
+STM42 has a BIOS that lets you flash new code over
 USB so you don't need a special programmer.
 
 You can do tons of awesome stuff in 5k of ram. 
 Honestly it's the best thing ever. No really,
 you can automate your labor with this by making 
 tiny robots or even a whole village of them. 
+After doing that you can live your best life 
+on starship earth.
 
+An install script is not written yet. 
 
-An install script is not written yet. You will need:
+You will need:
 
 - make
 - vscode
 - openocd
 - dfu-util
-- "cortex-debug" add-on for vscode
 - python3 (and whatever libraries it complains about wanting when you try to compile)
 - arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 (see INSTALLING_GCC.md)
 
@@ -116,6 +122,16 @@ Where $FAMILY is one of the following:
 
 ### Debugging a project
 
-You can use cortex-debug in vscode, but it only works when read out protection 
-is turned off. SVD and configuration files should be already present for the 
+You can inspect variables in real time and pause
+Execution of your program with "cortex-debug" add-on 
+for vscode. This is extremely useful. Like really
+really makes you a better programmer. 
+
+ST-Link V2 programmwrs have been tested with 
+openocd and work great!
+
+Debugging only works when read out protection 
+is turned off. 
+
+SVD and configuration files should be already present for the 
 STM32F1 family and the STM32F4 family in this repository.
