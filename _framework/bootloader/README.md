@@ -52,14 +52,15 @@ to flash the encrypted file:
 
     sudo dfu-util -a 0 -s 0x08000000:leave -D ./_build/sample/fw.snap
 
-Obviously, you must enable read out 
+Of course, you must enable read out 
 protection or your AES key stored 
-in the bootloader will be leaked and 
+in the BIOS will be readable and 
 the encryption is broken! As well, 
 RDP should be enabled, otherwise 
 the firmware can be read out in 
 plaintext after successful 
-decryption.
+decryption defeating the point 
+of encryption anyway.
 
 
 ## Features
