@@ -15,6 +15,9 @@ keyboard also.
 x42 has a BIOS that lets you flash new code over
 USB so you don't need a special programmer.
 
+This is a stable OS. Code you write on the x42 
+operating system will be usable forever.
+
 You can do tons of awesome stuff in 5k of ram. 
 Honestly it's the best thing ever. No really,
 you can automate your labor with this by making 
