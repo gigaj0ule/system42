@@ -3,7 +3,7 @@
 (c) ~j0ule 2019-2022
 
 This is an operating system for small microcontrollers.
-It allows you to run multiple threads and call both 
+It allows you to run multiple FreeRTOS threads and call both 
 ST HAL and arduino functions, as well as arduino libraries.
 
 STM42 lets you talk over a USB virtual serial port 
