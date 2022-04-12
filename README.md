@@ -71,7 +71,7 @@ This is where all of your program
 should go. You can do whatever
 you want inside this thread, but be 
 sure to call os_delay(milliseconds) 
-insteadof delay(milliseconds), or 
+instead of delay(milliseconds), or 
 you will waste valuable CPU cycles. 
 
 Never calling os_delay(milliseconds) 
