@@ -19,8 +19,8 @@ You can do tons of awesome stuff in 5k of ram.
 Honestly it's the best thing ever. No really,
 you can automate your labor with this by making 
 tiny robots or even a whole village of them. 
-After doing that you can live your best life 
-on starship earth.
+These robot villages can help you live your 
+best life on starship earth.
 
 An install script is not written yet. 
 
@@ -107,8 +107,8 @@ To enable firmware encryption, use:
 
 ## Supported MCU
 
-Right now, only the STM32F103 and STM32F405/7 MCUs are supported. By default
-the build system will use the STM32F103C8T6. If you are building for something
+Right now, only the 32F103 and 32F405/7 MCUs are supported. By default
+the build system will use the 32F103C8T6. If you are building for something
 else, use the following command:
 
     sudo make SRC=demo MCU_FAMILY=$FAMILY clean upload-all
