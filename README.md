@@ -22,6 +22,10 @@ tiny robots or even a whole village of them.
 These robot villages can help you live your 
 best life on starship earth.
 
+x42 is a stable platform. Code you write on 
+this operating system will be usable 
+independently.
+
 An install script is not written yet. 
 
 You will need:
