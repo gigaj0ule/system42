@@ -57,7 +57,7 @@ You will find a few files:
 - sketch.ino, which contains your "main" function
 - sketch.hpp, which is your project header file
 
-Clone "demo" folder into "myproject" (or whatever), 
+Clone "demo" folder into "projects/myproject" (or whatever), 
 then write your MCU code!
 
 ### Sketch.ino
