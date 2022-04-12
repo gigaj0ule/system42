@@ -112,7 +112,7 @@ Check if you were successful with:
     sudo lsusb
 
 You should see something in lsusb 
-from 0x1337:0xC0DE. 
+with the usb device ID 1337:C0DE. 
 
 For 32F405/7 family cpus, use...
 
