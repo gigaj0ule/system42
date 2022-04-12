@@ -2,7 +2,7 @@
 
 (c) ~j0ule 2019-2022
 
-This is an operating system for small microcontrollers.
+This is an operating system for n42 microcontrollers.
 It allows you to run multiple FreeRTOS threads and call both 
 ST HAL and arduino functions, as well as arduino libraries.
 
