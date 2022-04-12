@@ -51,12 +51,18 @@ Inside sketch.ino you will find some threads. One of them is named:
     
     static void worker_thread(void* arg)
     
-This is where all the meat of your program should go. You can do whatever
+This is where all of your program should go. You can do whatever
 you want inside this thread, but be sure to call os_delay(milliseconds) instead
 of delay(milliseconds), or you will waste valuable CPU cycles. 
 
 Never calling os_delay(milliseconds) will cause the CPU to lock up and freeze, 
 so always call it at least once in a thread!
+
+
+### Sketch.hpp
+
+Inside sketch.hpp you can link libraries that you want to have included
+in your project and also set program definitions. 
 
 
 ### Building a project
@@ -133,5 +139,5 @@ openocd and work great!
 Debugging only works when read out protection 
 is turned off. 
 
-SVD and configuration files should be already present for the 
-STM32F1 family and the STM32F4 family in this repository.
+SVD and configuration files should be already 
+present for the 32F1 family and 32F4 family in this repository.
