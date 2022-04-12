@@ -1,6 +1,6 @@
 # x42: The answer to life, the universe, and everything MCU
 
-~j0ule 2019-2022
+~j0ule 2019-2022 - alpha release
 
 This is an operating system for 
 STM/CKS/GD 32 Bit microcontrollers.
