@@ -121,12 +121,9 @@ make runs with "clean" enabled.
 Sometimes you'd like to prevent the 
 firmware from being read out of the 
 MCU, if it stores private data for
-example. You can enable "read out 
-protection" to (theoretically) 
-prevent this, but, it doesn't 
-actually prevent a determined
-hacker in most cases. It just makes 
-it slightly harder. 
+example. But it won't save your 
+secret from a focused ion beam. 
+Nothing will, really.
 
 To enable readout protection, use:
 
