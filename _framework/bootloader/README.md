@@ -1,20 +1,21 @@
 # STM32Fx DFUse Bootloader
-# (c) Adam Munich 2020, 2021, All Rights Reserved
 
-This is part of an STM32 Framework organized by Adam Munich for hobby projects. 
+~j0ule 2020-2022 All Rights Reserved
+
+This is part of an 32 Bit framework by ~j0ule for hobby projects. 
 It is a work in progress. It is for non-commercial use only, unless explicit 
 permission and usage terms of use are given.
 
 This bootloader closely emulates the behavior of the built-in DFUse bootloader
-on most STM32 devices, but provides extra features and customizations.
+on most m32 devices, but provides extra features and customizations.
 
 It expects that the firmware is built to execute with the end of the bootloader
 sector as the starting address. Firmware linked for 0x8000000 will not execute 
 properly.
 
-For STM32F1, this is 0x8002000 (8k).
+For 32F1, this is 0x8002000 (8k).
 
-For STM32F4, this is 0x8004000 (16k).
+For 32F4, this is 0x8004000 (16k).
 
 To flash a file to the bootloader, use either:
 
