@@ -1,16 +1,18 @@
-# STM42: The answer to life, the universe, and everything
+# x42: The answer to life, the universe, and everything
 
 (c) ~j0ule 2019-2022
 
-This is an operating system for n42 microcontrollers.
-It allows you to run multiple FreeRTOS threads and call both 
+This is an operating system for STM/CKS/GD 32 Bit 
+microcontrollers.
+
+x42 allows you to run multiple FreeRTOS threads and call both 
 ST HAL and arduino functions, as well as arduino libraries.
 
-STM42 lets you talk over a USB virtual serial port 
+x42 lets you talk over a USB virtual serial port 
 to a host computer over USB. It can emulate a 
 keyboard also.
 
-STM42 has a BIOS that lets you flash new code over
+x42 has a BIOS that lets you flash new code over
 USB so you don't need a special programmer.
 
 You can do tons of awesome stuff in 5k of ram. 
