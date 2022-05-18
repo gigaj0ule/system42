@@ -3,8 +3,6 @@
 #include "sketch_only_statics.hpp"
 #include "Wire.h"
 
-#include "bq76952.h"
-
 #include "protocol.hpp"
 
 #if defined(USBD_USE_HID_COMPOSITE)
@@ -13,28 +11,17 @@
 #endif
 
 
-extern TwoWire myWire;
+TwoWire myWire (PB11, PB10);
 
-//void find_i2c_devices();
+void find_i2c_devices();
 
 
 static void worker_thread(void* arg) {
     while(true) {
 	    // Do something every second
         os_delay(1000);
-		//find_i2c_devices();
+		find_i2c_devices();
         //send_system_interrupt(SYSINT_USER_BUTTON_RISING);
-		
-		//BQ76952.setup();
-
-		uint8_t pData[4] = {0};
-		readRegister(LP_REGISTER_CTL_STATUS, pData, 2);
-		
-		//uint16_t ctl_status = 0;
-		//BQ76952.getCtlStatus(&ctl_status);
-		
-		//uint8_t register_address = LP_REGISTER_CTL_STATUS;
-		//i2c_tx(LP_I2C_ADDRESS, &register_address, 1);
     }
 }
 
@@ -44,16 +31,24 @@ void setup() {
         Mouse.begin();
         Keyboard.begin();
     #endif
-        
+
+	pinMode(PC14, OUTPUT);
+	digitalWrite(PC14, LOW);
+
+	pinMode(PB12, OUTPUT);
+	digitalWrite(PB12, HIGH);
+
+	// Power Enable
+	pinMode(PA0, OUTPUT);
+	digitalWrite(PA0, HIGH);
+
     // Init communication
     early_setup();
 
 	myWire.begin();
-
-	BQ76952.begin(false);
     
     // Launch program!
-    create_threads(worker_thread, 5, 3);
+    create_threads(worker_thread);
 };
 
 
@@ -67,7 +62,6 @@ void loop(){
 };
 
 
-/*
 void find_i2c_devices()
 {	
 	volatile uint8_t error, address;
@@ -128,4 +122,3 @@ void find_i2c_devices()
 	// Scan complete
 	send_event_to_host(communicable.scan_complete_event);
 }
-*/

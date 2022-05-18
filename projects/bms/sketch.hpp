@@ -26,7 +26,7 @@
 
             char i2c_addresses[127*6] = {0};
 
-            int32_t reg_staus = 0;
+            uint8_t i2c_device_count = 0;
 
             char i2c_states[5][16] = {
                 "SUCCESS",
@@ -39,19 +39,17 @@
             auto customized_volatile_objects() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
-                        &reg_staus,
-                        property_name = "reg_staus",
+                        &i2c_device_count,
+                        property_name = "i2c_device_count",
                         property_is_read_only = true
-                    )
-                    
-                    /*,
+                    ),
 
                     make_protocol_string_kw(
                         &i2c_addresses, 
                         property_name = "i2c_addresses", 
                         property_length = sizeof(i2c_addresses),
                         property_is_read_only = true
-                    )*/
+                    )
                 );
 
             };
