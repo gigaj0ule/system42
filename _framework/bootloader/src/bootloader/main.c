@@ -9,6 +9,7 @@
 #include "bootloader_dfuse.h"
 #include "bootloader_usb_descriptor.h"
 #include "bootloader_usb.h"
+#include "gpio_common_all.h"
 
 #include <libopencm3/usb/usbd.h>
 
@@ -30,6 +31,10 @@ int main(void) {
 	// Enable basic I/O
 	set_up_led_and_button();
 
+	// Enable "power good" output
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO0);
+	gpio_set(GPIOA, GPIO0);
+
 	// Test to see if this is was a dumb clone
 	check_set_device_unique();
 
@@ -39,9 +44,33 @@ int main(void) {
 	#endif
 
 	// Do some tests to see if we should enter DFU mode
-	volatile bool button_state = test_button_state();
 	volatile bool app_is_missing = test_if_user_app_is_missing(application_start_address_);
 	volatile bool boot_token_in_ram = dfu_boot_token();
+	volatile bool button_state = test_button_state();
+
+	// If the button is being held...
+	if(button_state) {
+
+		// Wait to see if it is released early
+		int j = 0;
+		while (j < 200000UL) {
+			// Delay before test button state
+			j++;
+
+			// Indicate that button is held with flashes
+			if(j % 5000UL == 0) {
+				gpio_toggle(LED_BANK, LED_PIN);
+			}
+
+			// If button is released early...
+			if(test_button_state() == 0) {
+
+				// Button test has failed
+				button_state = 0;
+				break;
+			}
+		}
+	}
 
 	bool enter_dfu_mode = boot_token_in_ram || app_is_missing || button_state;
 

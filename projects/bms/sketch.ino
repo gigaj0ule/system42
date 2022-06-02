@@ -13,15 +13,36 @@
 
 TwoWire myWire (PB11, PB10);
 
+
+#define PIN_POWER_ENABLE PA0
+#define PIN_CELL_EXCITER PA10
+#define PIN_DATA_BUS_0   PB4
+#define PIN_DATA_BUS_1   PB5
+#define PIN_DATA_BUS_2   PA15
+#define PIN_DATA_BUS_3   PB3
+
 void find_i2c_devices();
+
+
+void data_bus_write (uint8_t address) {
+	digitalWrite(PIN_DATA_BUS_0, (address & 0b0001) > 0);
+	digitalWrite(PIN_DATA_BUS_1, (address & 0b0010) > 0);
+	digitalWrite(PIN_DATA_BUS_2, (address & 0b0100) > 0);
+	digitalWrite(PIN_DATA_BUS_3, (address & 0b1000) > 0);
+}
+
+
+float get_cell_voltage(int cell_number) {
+	data_bus_write(cell_number);
+}
 
 
 static void worker_thread(void* arg) {
     while(true) {
 	    // Do something every second
-        os_delay(1000);
-		find_i2c_devices();
-        //send_system_interrupt(SYSINT_USER_BUTTON_RISING);
+        os_delay(100);
+
+		get_cell_voltage(0);
     }
 }
 
@@ -32,15 +53,20 @@ void setup() {
         Keyboard.begin();
     #endif
 
-	pinMode(PC14, OUTPUT);
-	digitalWrite(PC14, LOW);
-
-	pinMode(PB12, OUTPUT);
-	digitalWrite(PB12, HIGH);
-
 	// Power Enable
-	pinMode(PA0, OUTPUT);
-	digitalWrite(PA0, HIGH);
+	pinMode(PIN_POWER_ENABLE, OUTPUT);
+	digitalWrite(PIN_POWER_ENABLE, HIGH);
+
+	// Data Bus Pins
+	pinMode(PIN_DATA_BUS_0, OUTPUT);
+	pinMode(PIN_DATA_BUS_1, OUTPUT);
+	pinMode(PIN_DATA_BUS_2, OUTPUT);
+	pinMode(PIN_DATA_BUS_3, OUTPUT);
+
+	// Exciter
+	pinMode(PIN_CELL_EXCITER, OUTPUT);
+	analogWriteFrequency(32768);
+	analogWrite(PIN_CELL_EXCITER, 128);
 
     // Init communication
     early_setup();
@@ -54,11 +80,6 @@ void setup() {
 
 void loop(){    
     __asm__ volatile("nop");
-    //os_delay(1);
-    
-    #if defined(USBD_USE_CDC)
-    //SerialUSB.print("Hi");
-    #endif
 };
 
 

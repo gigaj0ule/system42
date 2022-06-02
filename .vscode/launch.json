@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         /*
         {
             // For the Cortex-Debug extension
@@ -49,6 +50,7 @@
                 "${workspaceRoot}/_framework/_debug_tools/stm32f1.cfg"
             ],  
             "cwd": "${workspaceRoot}",
+            "showDevDebugOutput": true,
             "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F103.svd",
             "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
         },

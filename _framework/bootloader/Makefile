@@ -143,7 +143,7 @@ ifeq ($(COREFILES_FAMILY), f1)
 
 	OPENOCD_CFG := _build_tools/openocd/stm32f1x.cfg
 	
-	OPENOCD_UNLOCK := -c "init" -c "reset" -c "halt 0" -c "stm32f1x unlock 0"
+	OPENOCD_UNLOCK := -c "init" c "stm32f1x unlock 0"
 	#OPENOCD_UNLOCK := -c "init" -c "reset" -c "halt 0" -c "mww 0x40022004 0x45670123" -c "mww 0x40022004 0xcdef89ab" -c "mww 0x40022008 0x45670123" -c "mww 0x40022008 0xcdef89ab" -c "mdw 0x40022010" -c "mdh 0x1ffff800 8" -c "mww 0x40022010 0x0210" -c "mwh 0x1ffff800 0x5aa5" -c "mdw 0x4002200c"
 
 	OPENOCD_ERASE :=  -c "init" -c "reset" -c "halt 0" -c "stm32f1x mass_erase 0"
@@ -194,9 +194,10 @@ all: $(TARGET).hex $(TARGET).bin $(TARGET).asm
 build: $(TARGET).elf
 
 upload: $(TARGET).bin
-	openocd -c 'debug_level 2' -f interface/stlink-v2.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_UNLOCK) -c "exit"
+	openocd -c 'debug_level 2' -f interface/stlink-v2.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_ERASE) $(OPENOCD_UNLOCK) -c "exit"
+	#openocd -c 'debug_level 2' -f interface/stlink-v2.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_UNLOCK) -c "exit"
 	openocd -c 'debug_level 2' -f interface/stlink-v2.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG)  $(OPENOCD_PROGRAM)
-#$(OPENOCD_ERASE)
+
 read-options:
 	openocd -f interface/stlink-v2.cfg -c 'set CPUTAPID $(CPUID)' -f target/stm32f1x.cfg init -c "halt" -c "stm32f1x options_read 0"
 

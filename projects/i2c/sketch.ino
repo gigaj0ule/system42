@@ -11,9 +11,10 @@
 #endif
 
 
-TwoWire myWire (PB11, PB10);
+TwoWire myWire (PB7, PB6);
 
 void find_i2c_devices();
+
 
 
 static void worker_thread(void* arg) {

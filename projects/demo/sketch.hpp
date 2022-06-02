@@ -21,7 +21,6 @@
     class communication {
 
         public:
-            char device_make[16] = "demo";
             char device_model[16]  = "stm32f103";
 
             bool bool_property = false;

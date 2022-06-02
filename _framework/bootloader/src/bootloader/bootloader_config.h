@@ -51,12 +51,12 @@
 
 	// LED Bank
     #elif defined(STM32F1)  
-        //#define LED_BANK              GPIOA
-        //#define LED_PIN               GPIO1
+        #define LED_BANK              GPIOA
+        #define LED_PIN               GPIO1
         
         // Blue Pill
-        #define LED_BANK              GPIOC
-        #define LED_PIN               GPIO13
+        //#define LED_BANK              GPIOC
+        //#define LED_PIN               GPIO13
         
         // Use Boot1 PB2 as the button, as hardly anyone uses this pin as GPIO
         #define BUTTON_BANK           GPIOB
