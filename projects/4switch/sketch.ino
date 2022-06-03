@@ -6,8 +6,8 @@
 #include "protocol.hpp"
 
 #if defined(USBD_USE_HID_COMPOSITE)
-    #include "Keyboard.h"
-    #include "Mouse.h"
+	#include "Keyboard.h"
+	#include "Mouse.h"
 #endif
 
 const uint8_t g_LP_cie_8bit[513] = {
@@ -105,20 +105,20 @@ void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c)
 // @ingroup low_level
 void start_pwm(TIM_HandleTypeDef* htim) 
 {
-    // Preload the timer registers to 50%
-    // except for channel 4 which we don't use for PWM
-    set_pwm(htim, 10, 128, 128);
+	// Preload the timer registers to 50%
+	// except for channel 4 which we don't use for PWM
+	set_pwm(htim, 10, 128, 128);
 
-    // Start up all the timers in PWM mode using the HAL
-    HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
-    HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
-    HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_2);
-    //HAL_TIM_PWM_Start(htim, TIM_CHANNEL_3);
-    //HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_3);
+	// Start up all the timers in PWM mode using the HAL
+	HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
+	HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
+	HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_2);
+	//HAL_TIM_PWM_Start(htim, TIM_CHANNEL_3);
+	//HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_3);
 
-    // Ecept for channel 4... wait why do we bother with this?
-    // HAL_TIM_PWM_Start_IT(htim, TIM_CHANNEL_4);
+	// Ecept for channel 4... wait why do we bother with this?
+	// HAL_TIM_PWM_Start_IT(htim, TIM_CHANNEL_4);
 }
 
 
@@ -127,9 +127,9 @@ static void worker_thread(void* arg)
 	int i = 0;
 	int j = 1;
 
-    while(true) {
+	while(true) {
 		// SM72242 Loop Task
-        os_delay(1);
+		os_delay(1);
 
 		i += j;
 
@@ -137,18 +137,18 @@ static void worker_thread(void* arg)
 		if(i < 1) j = 1;
 
 		set_pwm(&htim1, g_LP_cie_8bit[i], g_LP_cie_8bit[512-i], 0);
-    }
+	}
 }
 
 void setup() {
 
-    #if defined(USBD_USE_HID_COMPOSITE)
-        Mouse.begin();
-        Keyboard.begin();
-    #endif
-        
-    // Init communication
-    early_setup();
+	#if defined(USBD_USE_HID_COMPOSITE)
+		Mouse.begin();
+		Keyboard.begin();
+	#endif
+		
+	// Init communication
+	early_setup();
 
 	// TIM1 
 	__HAL_RCC_TIM1_CLK_ENABLE();
@@ -217,29 +217,29 @@ void setup() {
 	__HAL_RCC_GPIOA_CLK_ENABLE();
   	__HAL_RCC_GPIOB_CLK_ENABLE();
 
-    GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitTypeDef GPIO_InitStruct;
 
-    /**TIM1 GPIO Configuration    
-    PB13     ------> TIM1_CH1N
-    PB14     ------> TIM1_CH2N
-    PB15     ------> TIM1_CH3N
-    PA8     ------> TIM1_CH1
-    PA9     ------> TIM1_CH2
-    PA10     ------> TIM1_CH3 
-    */
-    GPIO_InitStruct.Pin 		= GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
-    GPIO_InitStruct.Mode 		= GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull 		= GPIO_NOPULL;
-    GPIO_InitStruct.Speed 		= GPIO_SPEED_FREQ_LOW;
-    //GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	/**TIM1 GPIO Configuration	
+	PB13	 ------> TIM1_CH1N
+	PB14	 ------> TIM1_CH2N
+	PB15	 ------> TIM1_CH3N
+	PA8	 ------> TIM1_CH1
+	PA9	 ------> TIM1_CH2
+	PA10	 ------> TIM1_CH3 
+	*/
+	GPIO_InitStruct.Pin 		= GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+	GPIO_InitStruct.Mode 		= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull 		= GPIO_NOPULL;
+	GPIO_InitStruct.Speed 		= GPIO_SPEED_FREQ_LOW;
+	//GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin 		= GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
-    GPIO_InitStruct.Mode 		= GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull 		= GPIO_NOPULL;
-    GPIO_InitStruct.Speed 		= GPIO_SPEED_FREQ_LOW;
-    //GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin 		= GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+	GPIO_InitStruct.Mode 		= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull 		= GPIO_NOPULL;
+	GPIO_InitStruct.Speed 		= GPIO_SPEED_FREQ_LOW;
+	//GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	// Begin PWM
 	start_pwm(&htim1);
@@ -275,20 +275,20 @@ void setup() {
 	HAL_ADC_Start(&hadc1);
 
 	// IRQ?
-    HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(ADC_IRQn);
+	HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
+	HAL_NVIC_EnableIRQ(ADC_IRQn);
 
 
-    // Launch program!
-    create_threads(worker_thread);
+	// Launch program!
+	create_threads(worker_thread);
 };
 
 
-void loop(){    
-    __asm__ volatile("nop");
-    //os_delay(1);
-    
-    #if defined(USBD_USE_CDC)
-    //SerialUSB.print("Hi");
-    #endif
+void loop(){	
+	__asm__ volatile("nop");
+	//os_delay(1);
+	
+	#if defined(USBD_USE_CDC)
+	//SerialUSB.print("Hi");
+	#endif
 };
