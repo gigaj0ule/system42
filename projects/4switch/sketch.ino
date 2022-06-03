@@ -160,25 +160,18 @@ void setup() {
     htim1.Init.ClockDivision         = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter     = 3;
 
-    if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_Base_Init(&htim1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
     
     sClockSourceConfig.ClockSource     = TIM_CLOCKSOURCE_INTERNAL;
     
-    if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
-    
-    if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
-
-    if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_PWM_Init(&htim1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_OC_Init(&htim1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sMasterConfig.MasterOutputTrigger     = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode         = TIM_MASTERSLAVEMODE_DISABLE;
 
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sConfigOC.OCMode         = TIM_OCMODE_PWM2;
     sConfigOC.Pulse          = 0;
@@ -188,34 +181,27 @@ void setup() {
     sConfigOC.OCIdleState    = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState   = TIM_OCNIDLESTATE_RESET;
 
-    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
-
-    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
-
-    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sConfigOC.OCMode = TIM_OCMODE_TIMING;
 
-    if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sBreakDeadTimeConfig.OffStateRunMode     = TIM_OSSR_ENABLE;
-    sBreakDeadTimeConfig.OffStateIDLEMode     = TIM_OSSI_ENABLE;
-    sBreakDeadTimeConfig.LockLevel             = TIM_LOCKLEVEL_OFF;
-    sBreakDeadTimeConfig.DeadTime             = 3;
-    sBreakDeadTimeConfig.BreakState         = TIM_BREAK_DISABLE;
-    sBreakDeadTimeConfig.BreakPolarity         = TIM_BREAKPOLARITY_HIGH;
+    sBreakDeadTimeConfig.OffStateIDLEMode    = TIM_OSSI_ENABLE;
+    sBreakDeadTimeConfig.LockLevel           = TIM_LOCKLEVEL_OFF;
+    sBreakDeadTimeConfig.DeadTime            = 3;
+    sBreakDeadTimeConfig.BreakState          = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakPolarity       = TIM_BREAKPOLARITY_HIGH;
     sBreakDeadTimeConfig.AutomaticOutput     = TIM_AUTOMATICOUTPUT_DISABLE;
 
-    if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     // GPIO
     __HAL_RCC_GPIOA_CLK_ENABLE();
-      __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
 
     GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -258,8 +244,7 @@ void setup() {
     hadc1.Init.DataAlign                 = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion             = 1;
 
-    if (HAL_ADC_Init(&hadc1) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+    if (HAL_ADC_Init(&hadc1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sConfigInjected.InjectedChannel                 = ADC_CHANNEL_6;
     sConfigInjected.InjectedRank                     = 1;
@@ -269,15 +254,14 @@ void setup() {
     sConfigInjected.AutoInjectedConv                 = DISABLE;
     sConfigInjected.InjectedDiscontinuousConvMode     = DISABLE;
     sConfigInjected.InjectedOffset                     = 0;
-    if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
-        _Error_Handler(__FILE__, __LINE__);
+
+    if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     HAL_ADC_Start(&hadc1);
 
     // IRQ?
     HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
-
 
     // Launch program!
     create_threads(worker_thread);
