@@ -93,18 +93,18 @@ ADC_InjectionConfTypeDef 		sConfigInjected;
 
 #define TIM1_PERIOD (SystemCoreClock / OUTPUT_FREQ)
 
-void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
-
+void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) 
+{
 	htim->Instance->CCR1 = map(a, 0, 255, 0, TIM1_PERIOD);
-    htim->Instance->CCR2 = map(b, 0, 255, 0, TIM1_PERIOD);
-    htim->Instance->CCR3 = map(c, 0, 255, 0, TIM1_PERIOD);
-    htim->Instance->CCR4 = 1;
+	htim->Instance->CCR2 = map(b, 0, 255, 0, TIM1_PERIOD);
+	htim->Instance->CCR3 = map(c, 0, 255, 0, TIM1_PERIOD);
+	htim->Instance->CCR4 = 1;
 }
 
 // @breif Starts the desired PWM timer
 // @ingroup low_level
-void start_pwm(TIM_HandleTypeDef* htim) {
-
+void start_pwm(TIM_HandleTypeDef* htim) 
+{
     // Preload the timer registers to 50%
     // except for channel 4 which we don't use for PWM
     set_pwm(htim, 10, 128, 128);
@@ -122,8 +122,8 @@ void start_pwm(TIM_HandleTypeDef* htim) {
 }
 
 
-static void worker_thread(void* arg) {
-
+static void worker_thread(void* arg) 
+{
 	int i = 0;
 	int j = 1;
 
