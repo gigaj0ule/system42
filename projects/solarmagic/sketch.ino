@@ -43,7 +43,7 @@ static void worker_thread(void* arg) {
     while(true) {
 	    
 		// SM72242 Loop Task
-        os_delay(100);
+        os_delay(1000);
 
 		// Register 0
 		SM72442_readADC(
@@ -66,7 +66,7 @@ static void worker_thread(void* arg) {
 
 		// If communicable(desired) state changed, update SM72442 state
 		if(communicable.SM72242_override_adcprog != SM72242_STATE_override_adcprog) {
-			SM72442_setConfig_iout_max(communicable.SM72242_override_adcprog);
+			SM72442_setConfig_override_adcprog(communicable.SM72242_override_adcprog);
 		}
 		if(communicable.SM72242_iout_max != SM72242_STATE_iout_max) {
 			SM72442_setConfig_iout_max(communicable.SM72242_iout_max);
@@ -84,7 +84,6 @@ static void worker_thread(void* arg) {
 			SM72442_setConfig_override_soft_reset(communicable.SM72242_soft_reset);
 		}
 
-		
 		// Todo: Verify if state was updated
 		SM72442_readConfig(
 			&communicable.SM72242_override_adcprog, 
@@ -102,7 +101,6 @@ static void worker_thread(void* arg) {
 			&communicable.SM72242_open_loop_enable
 		);
 
-
 		// Register 4
 		SM72442_readOffsets(
 			&communicable.SM72242_vout_offset, 
@@ -118,6 +116,10 @@ static void worker_thread(void* arg) {
 			&communicable.SM72242_iout_hi_th,
 			&communicable.SM72242_iout_lo_th
 		);
+
+
+		// Tare
+		//SM72442_calibrateCurrentOffsets(os_delay);
     }
 }
 
