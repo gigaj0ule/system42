@@ -153,41 +153,40 @@ void setup() {
     // TIM1 
     __HAL_RCC_TIM1_CLK_ENABLE();
 
-    htim1.Instance                   = TIM1;
-    htim1.Init.Prescaler             = 0;
-    htim1.Init.CounterMode           = TIM_COUNTERMODE_CENTERALIGNED3;
-    htim1.Init.Period                = SystemCoreClock/OUTPUT_FREQ;
-    htim1.Init.ClockDivision         = TIM_CLOCKDIVISION_DIV1;
-    htim1.Init.RepetitionCounter     = 3;
+    htim1.Instance                        = TIM1;
+    htim1.Init.Prescaler                  = 0;
+    htim1.Init.CounterMode                = TIM_COUNTERMODE_CENTERALIGNED3;
+    htim1.Init.Period                     = SystemCoreClock/OUTPUT_FREQ;
+    htim1.Init.ClockDivision              = TIM_CLOCKDIVISION_DIV1;
+    htim1.Init.RepetitionCounter          = 3;
 
     if (HAL_TIM_Base_Init(&htim1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
-    
-    sClockSourceConfig.ClockSource     = TIM_CLOCKSOURCE_INTERNAL;
-    
-    if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
     if (HAL_TIM_PWM_Init(&htim1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
     if (HAL_TIM_OC_Init(&htim1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
+
+    sClockSourceConfig.ClockSource        = TIM_CLOCKSOURCE_INTERNAL;
+
+    if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sMasterConfig.MasterOutputTrigger     = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode         = TIM_MASTERSLAVEMODE_DISABLE;
 
     if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
-    sConfigOC.OCMode         = TIM_OCMODE_PWM2;
-    sConfigOC.Pulse          = 0;
-    sConfigOC.OCPolarity     = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCNPolarity    = TIM_OCNPOLARITY_HIGH;
-    sConfigOC.OCFastMode     = TIM_OCFAST_DISABLE;
-    sConfigOC.OCIdleState    = TIM_OCIDLESTATE_RESET;
-    sConfigOC.OCNIdleState   = TIM_OCNIDLESTATE_RESET;
+    sConfigOC.OCMode                      = TIM_OCMODE_PWM2;
+    sConfigOC.Pulse                       = 0;
+    sConfigOC.OCPolarity                  = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCNPolarity                 = TIM_OCNPOLARITY_HIGH;
+    sConfigOC.OCFastMode                  = TIM_OCFAST_DISABLE;
+    sConfigOC.OCIdleState                 = TIM_OCIDLESTATE_RESET;
+    sConfigOC.OCNIdleState                = TIM_OCNIDLESTATE_RESET;
 
     if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
     if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
     if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
-    sConfigOC.OCMode = TIM_OCMODE_TIMING;
-
-    if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
+    //sConfigOC.OCMode                      = TIM_OCMODE_TIMING;
+    //if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
     sBreakDeadTimeConfig.OffStateRunMode     = TIM_OSSR_ENABLE;
     sBreakDeadTimeConfig.OffStateIDLEMode    = TIM_OSSI_ENABLE;
@@ -213,18 +212,18 @@ void setup() {
     PA9     ------> TIM1_CH2
     PA10     ------> TIM1_CH3 
     */
-    GPIO_InitStruct.Pin         = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
-    GPIO_InitStruct.Mode         = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull         = GPIO_NOPULL;
-    GPIO_InitStruct.Speed         = GPIO_SPEED_FREQ_LOW;
-    //GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+    GPIO_InitStruct.Pin                     = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+    GPIO_InitStruct.Mode                    = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull                    = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                   = GPIO_SPEED_FREQ_LOW;
+    //GPIO_InitStruct.Alternate             = GPIO_AF1_TIM1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin         = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
-    GPIO_InitStruct.Mode         = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull         = GPIO_NOPULL;
-    GPIO_InitStruct.Speed         = GPIO_SPEED_FREQ_LOW;
-    //GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+    GPIO_InitStruct.Pin                    = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+    GPIO_InitStruct.Mode                   = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull                   = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                  = GPIO_SPEED_FREQ_LOW;
+    //GPIO_InitStruct.Alternate            = GPIO_AF1_TIM1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     // Begin PWM
@@ -237,23 +236,23 @@ void setup() {
 
     // ADC Setup
     hadc1.Instance                         = ADC1;
-    hadc1.Init.ScanConvMode             = DISABLE;
-    hadc1.Init.ContinuousConvMode         = DISABLE;
-    hadc1.Init.DiscontinuousConvMode     = DISABLE;
-    hadc1.Init.ExternalTrigConv         = ADC_SOFTWARE_START;
-    hadc1.Init.DataAlign                 = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.ScanConvMode                = DISABLE;
+    hadc1.Init.ContinuousConvMode          = DISABLE;
+    hadc1.Init.DiscontinuousConvMode       = DISABLE;
+    hadc1.Init.ExternalTrigConv            = ADC_SOFTWARE_START;
+    hadc1.Init.DataAlign                   = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion             = 1;
 
     if (HAL_ADC_Init(&hadc1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
-    sConfigInjected.InjectedChannel                 = ADC_CHANNEL_6;
-    sConfigInjected.InjectedRank                     = 1;
-    sConfigInjected.InjectedNbrOfConversion         = 1;
-    sConfigInjected.InjectedSamplingTime             = ADC_SAMPLETIME_3CYCLES;
-    sConfigInjected.ExternalTrigInjecConv             = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
-    sConfigInjected.AutoInjectedConv                 = DISABLE;
-    sConfigInjected.InjectedDiscontinuousConvMode     = DISABLE;
-    sConfigInjected.InjectedOffset                     = 0;
+    sConfigInjected.InjectedChannel                = ADC_CHANNEL_6;
+    sConfigInjected.InjectedRank                   = 1;
+    sConfigInjected.InjectedNbrOfConversion        = 1;
+    sConfigInjected.InjectedSamplingTime           = ADC_SAMPLETIME_3CYCLES;
+    sConfigInjected.ExternalTrigInjecConv          = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
+    sConfigInjected.AutoInjectedConv               = DISABLE;
+    sConfigInjected.InjectedDiscontinuousConvMode  = DISABLE;
+    sConfigInjected.InjectedOffset                 = 0;
 
     if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
