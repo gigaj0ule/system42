@@ -1,6 +1,6 @@
 ######################################################################
 # STM32Fx0x Arduino Makefile
-# (c) Adam Munich 2020, All Rights Reserved
+# (c) j0ule 2022, All Rights Reserved
 
 # This is part of an STM32 Framework organized by Adam Munich for 
 # hobby projects. It is a work in progress. 
@@ -263,12 +263,14 @@ PATCHESPATH 		= $(FRAMEWORKDIR)/_shared_libs/patches
 
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
-	VARIANTPATH := $(SOURCEPATH)/Board/v3
+	VARIANTPATH := $(SOURCEPATH)/Board/v3	
+	CUSTOM_VARIANTPATH := $(SOURCEPATH)/Board/v3	
 	BITSNAP_PATH := lib_bitsnap/protocol
 	NVMPATH := lib_bitsnap/nvm
 else
 	# Path location for STM32 variant
 	VARIANTPATH := $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/variants/$(STM_BOARD_VARIANT)
+	CUSTOM_VARIANTPATH := $(FRAMEWORKDIR)/_shared_libs/arduino_variants/$(STM_BOARD_VARIANT)
 	BITSNAP_PATH := lib_bitsnap
 endif
 
@@ -552,6 +554,8 @@ else
 
 	# Board variant
 	INC_DIRS += $(sort $(dir $(wildcard $(VARIANTPATH)/*)))
+	INC_DIRS += $(sort $(dir $(wildcard $(CUSTOM_VARIANTPATH)/*)))
+
 endif 
 
 
