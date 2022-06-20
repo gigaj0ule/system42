@@ -16,33 +16,91 @@ TwoWire myWire (PB11, PB10);
 
 #define PIN_POWER_ENABLE PA0
 #define PIN_CELL_EXCITER PA10
-#define PIN_DATA_BUS_0   PB4
-#define PIN_DATA_BUS_1   PB5
-#define PIN_DATA_BUS_2   PA15
-#define PIN_DATA_BUS_3   PB3
+#define PIN_CELL_V_ADC   PB1
+#define PIN_DATA_BUS_0   PB12
+#define PIN_DATA_BUS_1   PB13
+#define PIN_DATA_BUS_2   PB14
+#define PIN_DATA_BUS_3   PB15
 
 void find_i2c_devices();
 
 
 void data_bus_write (uint8_t address) {
-	digitalWrite(PIN_DATA_BUS_0, (address & 0b0001) > 0);
-	digitalWrite(PIN_DATA_BUS_1, (address & 0b0010) > 0);
-	digitalWrite(PIN_DATA_BUS_2, (address & 0b0100) > 0);
-	digitalWrite(PIN_DATA_BUS_3, (address & 0b1000) > 0);
+
+	bool bit_0 = (address & 0b0001);
+	bool bit_1 = (address & 0b0010);
+	bool bit_2 = (address & 0b0100);
+	bool bit_3 = (address & 0b1000);
+
+	digitalWrite(PIN_DATA_BUS_0, bit_0);
+	digitalWrite(PIN_DATA_BUS_1, bit_1);
+	digitalWrite(PIN_DATA_BUS_2, bit_2);
+	digitalWrite(PIN_DATA_BUS_3, bit_3);
 }
 
-
-float get_cell_voltage(int cell_number) {
+int32_t get_cell_voltage(int cell_number) {
 	data_bus_write(cell_number);
+	os_delay(5);
+	return analogRead(PIN_CELL_V_ADC);
 }
+
+float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+float roundf_2(float var)
+{
+    // 37.66666 * 100 =3766.66
+    // 3766.66 + .5 =3767.16    for rounding off value
+    // then type cast to int so value is 3767
+    // then divided by 100 so the value converted into 37.67
+    float value = (int)(var * 100 + .5);
+    return (float)value / 100;
+}
+
+void sample_cells () {
+	for (int i = 0; i < 14; i++){
+		communicable.v_cells[i] = get_cell_voltage(i);
+		//communicable.v_cells_f[i] = map(communicable.v_cells[i], 0, communicable.v_cells[i])
+	}
+
+	communicable.v_diode_bias += ((communicable.v_cells[12] - communicable.v_cells[13]) - communicable.v_diode_bias) * 0.1f;
+
+	communicable.v_diode_bias_f = mapf(
+		(float) communicable.v_diode_bias, 
+		0.0f, 
+		(float) communicable.v_cells[13], 
+		0.0f, 
+		3.29f
+	);
+
+	for (int i = 0; i < 14; i++){
+		// Subtract bias
+		communicable.v_cells_f[i] = mapf(
+			(float) communicable.v_cells[i], 
+			(float) 2 * communicable.v_diode_bias, 
+			(float) communicable.v_cells[13], 
+			0.0f, 
+			3.29f
+		);
+
+		if(i < 12) {
+			//communicable.v_cells_f[i] -= 3.0f * communicable.v_diode_bias_f;
+			communicable.v_cells_f[i] = roundf_2(communicable.v_cells_f[i]);
+		}
+	}
+	
+}
+
+
 
 
 static void worker_thread(void* arg) {
     while(true) {
 	    // Do something every second
-        os_delay(100);
+        os_delay(20);
 
-		get_cell_voltage(0);
+		sample_cells();
     }
 }
 
@@ -58,14 +116,17 @@ void setup() {
 	digitalWrite(PIN_POWER_ENABLE, HIGH);
 
 	// Data Bus Pins
-	pinMode(PIN_DATA_BUS_0, OUTPUT);
-	pinMode(PIN_DATA_BUS_1, OUTPUT);
-	pinMode(PIN_DATA_BUS_2, OUTPUT);
-	pinMode(PIN_DATA_BUS_3, OUTPUT);
+	pinMode(PIN_DATA_BUS_0, OUTPUT_OPEN_DRAIN);
+	pinMode(PIN_DATA_BUS_1, OUTPUT_OPEN_DRAIN);
+	pinMode(PIN_DATA_BUS_2, OUTPUT_OPEN_DRAIN);
+	pinMode(PIN_DATA_BUS_3, OUTPUT_OPEN_DRAIN);
+	
+	// ADC
+	pinMode(PIN_CELL_V_ADC, INPUT);
 
 	// Exciter
 	pinMode(PIN_CELL_EXCITER, OUTPUT);
-	analogWriteFrequency(32768);
+	analogWriteFrequency(0.5 * 32768);
 	analogWrite(PIN_CELL_EXCITER, 128);
 
     // Init communication

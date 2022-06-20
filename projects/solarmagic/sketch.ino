@@ -43,7 +43,7 @@ static void worker_thread(void* arg) {
     while(true) {
 	    
 		// SM72242 Loop Task
-        os_delay(1000);
+        os_delay(10);
 
 		// Register 0
 		SM72442_readADC(
@@ -83,6 +83,24 @@ static void worker_thread(void* arg) {
 		if(communicable.SM72242_soft_reset != SM72242_STATE_soft_reset) {
 			SM72442_setConfig_override_soft_reset(communicable.SM72242_soft_reset);
 		}
+
+		// Check config state
+		// SM72442_STATE_SYNC_config();
+
+		/*
+		communicable.SM72242_override_adcprog		= SM72242_STATE_override_adcprog;
+		communicable.SM72242_power_thresh_select    = SM72242_STATE_power_thresh_select;
+		communicable.SM72242_bb_in_ptmode_sel       = SM72242_STATE_bb_in_ptmode_sel;
+		communicable.SM72242_iout_max               = SM72242_STATE_iout_max;
+		communicable.SM72242_vout_max               = SM72242_STATE_vout_max;
+		communicable.SM72242_deadtime_off           = SM72242_STATE_deadtime_off;
+		communicable.SM72242_deadtime_on 			= SM72242_STATE_deadtime_on;
+		communicable.SM72242_duty_cycle_open        = SM72242_STATE_duty_cycle_open;
+		communicable.SM72242_pass_thru_select       = SM72242_STATE_pass_thru_select;
+		communicable.SM72242_pass_thru_manual       = SM72242_STATE_pass_thru_manual;
+		communicable.SM72242_soft_reset				= SM72242_STATE_soft_reset;
+		communicable.SM72242_pll_clock				= SM72242_STATE_pll_clock;
+		communicable.SM72242_open_loop_enable		= SM72242_STATE_open_loop_enable;*/
 
 		// Todo: Verify if state was updated
 		SM72442_readConfig(

@@ -93,7 +93,7 @@
 
             event_vector_t event_trigger = {1};
 
-            auto customized_event_triggers() {
+            auto customized_interrupts() {
                 return make_protocol_member_list(
 
                     make_event_trigger(

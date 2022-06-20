@@ -122,6 +122,34 @@ void start_pwm(TIM_HandleTypeDef* htim)
 }
 
 
+int timer_bootstrap_count = 0;
+
+void converter_pwm(TIM_HandleTypeDef * htim, int boost, int buck) {
+
+	int idle_value = 0;
+
+	if(timer_bootstrap_count == 5){
+		idle_value = 250;
+		timer_bootstrap_count = 0;
+	} else {
+		idle_value = 0;
+		timer_bootstrap_count ++;
+	}
+
+
+	if(buck) {
+		set_pwm(htim, buck, idle_value, 0);
+	}
+	else if(boost) {
+		set_pwm(htim, idle_value, boost, 0);
+	}
+	else {
+		set_pwm(0, 0, 0, 0);
+	}
+
+}
+
+
 static void worker_thread(void* arg) 
 {
     int i = 0;
@@ -204,14 +232,14 @@ void setup() {
 
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    /**TIM1 GPIO Configuration    
-    PB13     ------> TIM1_CH1N
-    PB14     ------> TIM1_CH2N
-    PB15     ------> TIM1_CH3N
-    PA8     ------> TIM1_CH1
-    PA9     ------> TIM1_CH2
-    PA10     ------> TIM1_CH3 
-    */
+    // TIM1 GPIO Configuration    
+    // PB13     ------> TIM1_CH1N
+    // PB14     ------> TIM1_CH2N
+    // PB15     ------> TIM1_CH3N
+    // PA8      ------> TIM1_CH1
+    // PA9      ------> TIM1_CH2
+    // PA10     ------> TIM1_CH3 
+    
     GPIO_InitStruct.Pin                     = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
     GPIO_InitStruct.Mode                    = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull                    = GPIO_NOPULL;
@@ -219,36 +247,36 @@ void setup() {
     //GPIO_InitStruct.Alternate             = GPIO_AF1_TIM1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin                    = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
-    GPIO_InitStruct.Mode                   = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull                   = GPIO_NOPULL;
-    GPIO_InitStruct.Speed                  = GPIO_SPEED_FREQ_LOW;
-    //GPIO_InitStruct.Alternate            = GPIO_AF1_TIM1;
+    GPIO_InitStruct.Pin                     = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+    GPIO_InitStruct.Mode                    = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull                    = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                   = GPIO_SPEED_FREQ_LOW;
+    //GPIO_InitStruct.Alternate             = GPIO_AF1_TIM1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     // Begin PWM
     start_pwm(&htim1);
 
-    /* Interrupt TIM1 */
+    // Interrupt TIM1
     // configure Update interrupt
-    //HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 5, 0);
-    //HAL_NVIC_EnableIRQ(TIM1_IRQn);
+    // HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 5, 0);
+    // HAL_NVIC_EnableIRQ(TIM1_IRQn);
 
     // ADC Setup
-    hadc1.Instance                         = ADC1;
-    hadc1.Init.ScanConvMode                = DISABLE;
-    hadc1.Init.ContinuousConvMode          = DISABLE;
-    hadc1.Init.DiscontinuousConvMode       = DISABLE;
-    hadc1.Init.ExternalTrigConv            = ADC_SOFTWARE_START;
-    hadc1.Init.DataAlign                   = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion             = 1;
+    hadc1.Instance                                 = ADC1;
+    hadc1.Init.ScanConvMode                        = DISABLE;
+    hadc1.Init.ContinuousConvMode                  = DISABLE;
+    hadc1.Init.DiscontinuousConvMode               = DISABLE;
+    hadc1.Init.ExternalTrigConv                    = ADC_SOFTWARE_START;
+    hadc1.Init.DataAlign                           = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.NbrOfConversion                     = 1;
 
     if (HAL_ADC_Init(&hadc1) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
-    sConfigInjected.InjectedChannel                = ADC_CHANNEL_6;
+    sConfigInjected.InjectedChannel                = ADC_CHANNEL_1;
     sConfigInjected.InjectedRank                   = 1;
     sConfigInjected.InjectedNbrOfConversion        = 1;
-    sConfigInjected.InjectedSamplingTime           = ADC_SAMPLETIME_3CYCLES;
+    sConfigInjected.InjectedSamplingTime           = ADC_SAMPLETIME_1CYCLE_5;
     sConfigInjected.ExternalTrigInjecConv          = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
     sConfigInjected.AutoInjectedConv               = DISABLE;
     sConfigInjected.InjectedDiscontinuousConvMode  = DISABLE;
@@ -256,9 +284,16 @@ void setup() {
 
     if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK) _Error_Handler(__FILE__, __LINE__);
 
+	// ADC GPIO
+    GPIO_InitStruct.Pin    = GPIO_PIN_1;
+	GPIO_InitStruct.Mode   = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull   = GPIO_NOPULL;
+	GPIO_InitStruct.Speed  = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     HAL_ADC_Start(&hadc1);
 
-    // IRQ?
+    // ADC IRQ
     HAL_NVIC_SetPriority(ADC_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
 

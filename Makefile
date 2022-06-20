@@ -8,16 +8,17 @@
 # and terms of use are given.
 
 # The name of your project (used to name the compiled .hex file)
-TARGET = "fw"
+TARGET = fw
 
 # Directories
 PROJECTSDIR = projects
-FRAMEWORKDIR = _framework
+FRAMEWORKDIR = system32
+LIBRARIESDIR = libraries
 
 # ==================================================================
 # Family
 ifndef MCU_FAMILY
-	MCU_FAMILY := f103c8
+	MCU_FAMILY := f103cb
 endif
 
 # Path of project source, set from command line
@@ -27,51 +28,21 @@ else
     $(warning Building SRC "$(SRC)")
 endif
 
+ifeq ($(PNTP), 1)
+	USE_PNTP := 1
+endif
+
+SOURCEPATH := $(PROJECTSDIR)/$(SRC)
 
 # moto, or inverter, uses STM32F4
-###
-ifeq ($(SRC),$(filter $(SRC),moto inverter))
+ifeq ($(SRC),$(filter $(SRC),moto))
 	MCU_FAMILY := f40x
 	ODRIVE_CODEBASE := 1
 endif
-###
 
-# Use bitsnap?
-ifeq ($(BITSNAP), 1)
-	USE_BITSNAP := 1
-endif
-
-# ==================================================================
-# What microcontroller?
-ifeq ($(MCU_FAMILY), f103c8)
-    $(warning Building for MCU_FAMILY "f103c8")
-	COREFILES_FAMILY    := f1
-	STM_BOARD_VARIANT   := BLUEPILL_F103XX
-	CPUID 				:= 0x1ba01477
-#	CPUID 				:= 0x2ba01477
-	FLASH_SIZE          := 131072
-	RAM_SIZE			:= 20480
-else ifeq ($(MCU_FAMILY), f103rc)
-    $(warning Building for MCU_FAMILY "f103rc")
-	COREFILES_FAMILY    := f1
-	STM_BOARD_VARIANT   := TAIDACENT_F103RC
-	CPUID				:= 0x1ba01477
-	FLASH_SIZE          := 262144
-	RAM_SIZE			:= 65536
-else
-    $(warning Building for MCU_FAMILY "f40x")
-	COREFILES_FAMILY    := f4
-	CPUID				:= 0x2ba01477
-	STM_BOARD_VARIANT   := DISCO_F407VG
-	RAM_SIZE			:= 196608
-endif
-
-CPUID := 0
-
-# ==================================================================
 # Check if the file is buildable
 #ifneq ("$(wildcard $(PROJECTSDIR)/$(SRC)/*.ino)","")
-SOURCEPATH := $(PROJECTSDIR)/$(SRC)
+#	SOURCEPATH := $(PROJECTSDIR)/$(SRC)
 #else
 #    $(error No '.ino' file found in source path, there is nothing to build...)
 #endif
@@ -79,24 +50,87 @@ SOURCEPATH := $(PROJECTSDIR)/$(SRC)
 # Some libraries will require this to be defined
 ARDUINO = 110035
 
-
-######################################################################
-# Defines 
-
 USBD_USE_CDC = 1
-USBD_USE_HID_COMPOSITE = 0
-USBD_USE_AUDIO = 0
+
+
+# ==================================================================
+# Configurable GCC Options
+OPTIONS := 
+
+# What microcontroller?
+ifeq ($(MCU_FAMILY), f103cb)
+    $(warning Building for MCU_FAMILY "f103cb")
+	COREFILES_FAMILY    := f1
+	CPUID               := 0x1ba01477
+	FLASH_SIZE          := 131072
+	RAM_SIZE            := 20480
+	OPTIONS             += -DARDUINO_BLUEPILL_F103CB
+	OPTIONS				+= -DSTM32F103xB
+	VARIANT 			:= variant_PILL_F103Cx
+	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F1xx/F103C8T_F103CB(T-U)
+	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
+
+else ifeq ($(MCU_FAMILY), f103rc)
+    $(warning Building for MCU_FAMILY "f103rc")
+	COREFILES_FAMILY    := f1
+	CPUID               := 0x1ba01477
+	FLASH_SIZE          := 262144
+	RAM_SIZE            := 65536
+	OPTIONS             += -DARDUINO_BLUEBUTTON_F103RCT
+	#OPTIONS            += -DARDUINO_GENERIC_F103RCTX
+	OPTIONS				+= -DSTM32F103xE
+	VARIANT 			:= variant_BLUEBUTTON_F103RCT
+	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F1xx/F103R(C-D-E)T
+	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
+
+else
+    $(warning Building for MCU_FAMILY "f40x")
+	COREFILES_FAMILY    := f4
+	CPUID               := 0x2ba01477
+	FLASH_SIZE 			:= 1048576
+	RAM_SIZE            := 196608
+	OPTIONS             += -DARDUINO_DISCO_F407VG
+	OPTIONS				+= -DSTM32F407xx
+	VARIANT 			:= variant_DISCO_F407VG
+	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F4xx/F407V(E-G)T_F417V(E-G)T
+	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
+endif
+
+# Ignore CPUID
+CPUID := 0
+
+# CPU Specific Modifiers
+ifeq ($(COREFILES_FAMILY), f1)
+	CPU_VARIANT := STM32F1xx
+	OPTIONS     += -DBOARD_NAME="\"BLUEPILL_F103C8\"" 
+	OPTIONS     += -DSTM32F10X_MD -D__STM32F1__
+	OPTIONS     += -DARDUINO_ARCH_STM32F1
+
+	BOOTLOADER_SIZE := 0x2800
+
+else ifeq ($(COREFILES_FAMILY), f4)
+	CPU_VARIANT := STM32F4xx
+	OPTIONS     += -DBOARD_NAME="\"DISCO_F407VG\"" 
+	OPTIONS     += -D'__UNALIGNED_UINT32_READ(addr)=(*((const __packed uint32_t *)(addr)))'
+	OPTIONS     += -D'__UNALIGNED_UINT32_WRITE(addr, val)=((*((__packed uint32_t *)(addr))) = (val))'
+	#OPTIONS    += -DARDUINO_ARCH_STM32F4
+
+	BOOTLOADER_SIZE := 0x4000
+endif
+
+ifdef CPU_VARIANT
+	OPTIONS += -D$(CPU_VARIANT)
+endif
 
 # Configurable Options
-OPTIONS =  -DHAL_UART_MODULE_ENABLED 
-OPTIONS += -DUSBCON 
+OPTIONS += -DHAL_UART_MODULE_ENABLED 
 OPTIONS += -DHAL_PCD_MODULE_ENABLED
-OPTIONS += -DUSB_MANUFACTURER="\"Civil Electric\"" 
-OPTIONS += -DUSB_PRODUCT="\"Bitsnap\""
-OPTIONS += -DARDUINO_BLUEPILL_F103C8 
-OPTIONS += -DARDUINO_GENERIC_STM32F103C 
+
 OPTIONS += -DARDUINO_ARCH_STM32
 
+OPTIONS += -DUSBCON 
+
+# USB Data
 USB_VENDOR_ID = 1337
 USB_PRODUCT_ID = c0de
 
@@ -112,43 +146,16 @@ ifdef META
 endif
 
 OPTIONS += -DUSBD_VID=0x$(USB_VENDOR_ID) 
-
-
-ifeq ($(USBD_USE_HID_COMPOSITE), 1)
-OPTIONS += -DUSBD_USE_HID_COMPOSITE
-endif 
+OPTIONS += -DUSBD_PID=0x$(USB_PRODUCT_ID)
+OPTIONS += -DUSB_PRODUCT_STRING="\"x42 Node\"" 
+OPTIONS += -DUSB_MANUFACTURER_STRING="\"Civil Electric\""
 
 ifeq ($(USBD_USE_CDC), 1)
-OPTIONS += -DUSBD_USE_CDC 
+	OPTIONS += -DUSBD_USE_CDC 
 endif
 
-ifeq ($(USBD_USE_AUDIO), 1)
-OPTIONS += -DUSBD_USE_AUDIO
-endif
-
-ifeq ($(USE_BITSNAP), 1)
+ifeq ($(PNTP), 1)
 	OPTIONS += -DUSE_BITSNAP
-endif
-
-# Library specific options
-
-ifeq ($(COREFILES_FAMILY), f1)
-
-	OPTIONS += -DSTM32F1xx -DSTM32F103xB
-	OPTIONS += -DBOARD_NAME="BLUEPILL_F103C8" 
-	OPTIONS += -DSTM32F10X_MD -D__STM32F1__
-	OPTIONS += -DARDUINO_ARCH_STM32F1
-
-	BOOTLOADER_SIZE := 0x2800
-
-else ifeq ($(COREFILES_FAMILY), f4)
-	OPTIONS += -DSTM32F4xx -DSTM32F407xx
-	OPTIONS += -DBOARD_NAME="DISCO_F407VG" 
-	OPTIONS += -D'__UNALIGNED_UINT32_READ(addr)=(*((const __packed uint32_t *)(addr)))'
-	OPTIONS += -D'__UNALIGNED_UINT32_WRITE(addr, val)=((*((__packed uint32_t *)(addr))) = (val))'
-	OPTIONS += -DARDUINO_ARCH_STM32F4
-
-	BOOTLOADER_SIZE := 0x4000
 endif
 
 ifdef ODRIVE_CODEBASE
@@ -200,12 +207,7 @@ BUILDDIR = $(abspath $(CURDIR)/__build)
 RELEASEDIR = $(BUILDDIR)/$(SRC)
 
 # Where bootloader keys are stored
-KEYDIR_BASE = $(abspath $(CURDIR)/__bootloader_keys)
-
-# Should we enable debugging? (set in bootloader)
-#ifeq ($(DEBUG), 1)
-#	RDP := 0
-#endif
+KEYDIR_BASE = $(BUILDDIR)/_bootloader_keys
 
 # RDP enabled?
 ifeq ($(USE_RDP), 1)
@@ -226,50 +228,42 @@ else
 endif
 
 # Path location for arduino core
-COREPATH 			= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/cores/arduino
+PATH_ARDUINO_CORE_STM32 = $(FRAMEWORKDIR)/Arduino_Core_STM32/cores/arduino
 
 # Path location for arduino libraries
-SPI_LIBRARYPATH 		= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/libraries/SPI/src
-WIRE_LIBRARYPATH 		= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/libraries/Wire/src
-SERVO_LIBRARYPATH 		= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/libraries/Servo/src
-KEYBOARD_LIBRARYPATH 	= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/libraries/Keyboard/src
-MOUSE_LIBRARYPATH 		= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/libraries/Mouse/src
+PATH_LIBRARY_SPI        = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/SPI/src
+PATH_LIBRARY_WIRE       = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/Wire/src
+PATH_LIBRARY_SERVO      = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/Servo/src
+PATH_LIBRARY_KEYBOARD   = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/Keyboard/src
+PATH_LIBRARY_MOUSE      = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/Mouse/src
+PATH_LIBRARY_SRCWRAPPER = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/SrcWrapper/src
 
+# External libraries
+PATH_LIBRARY_ETHERNET   = $(LIBRARIESDIR)/Ethernet/src
+PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/MDNS_Generic
+#PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/ArduinoMDNS
 
-# Path location for STM32 f103c8 (blue pill) system
-ifeq ($(COREFILES_FAMILY), f1)
-	HALPATH				= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Drivers/STM32F1xx_HAL_Driver
-	HALCONFPATH			= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/STM32F1xx
-	SYSTEMHEADERSPATH	= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/STM32F1xx/Include
-	STARTUPFILESPATH	= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc
-
-# Path location for STM32 f407 (discovery) system
-else ifeq ($(COREFILES_FAMILY), f4)
-	HALPATH				= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Drivers/STM32F4xx_HAL_Driver
-	HALCONFPATH			= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/STM32F4xx
-	SYSTEMHEADERSPATH	= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/STM32F4xx/Include
-	STARTUPFILESPATH	= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc
-endif
-
-MIDDLEWARESPATH		= $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/system/Middlewares/ST
-CMSISPATH			= $(FRAMEWORKDIR)/_shared_libs/CMSIS
+PATH_ST_HAL             = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Drivers/$(CPU_VARIANT)_HAL_Driver
+PATH_SYSTEM_HEADERS     = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/$(CPU_VARIANT)/Include
+PATH_STARTUP_FILES      = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/$(CPU_VARIANT)/Source/Templates/gcc
+PATH_ST_HAL_CONF	    = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/$(CPU_VARIANT)
+PATH_MIDDLEWARES	    = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Middlewares/ST
+PATH_CMSIS              = $(FRAMEWORKDIR)/CMSIS
 
 # Path location for FreeRTOS
-FREERTOSPATH 		= $(FRAMEWORKDIR)/_shared_libs/STM32FreeRTOS/src
+PATH_FREERTOS           = $(FRAMEWORKDIR)/STM32FreeRTOS/src
 
 # Patches to arduino core
-PATCHESPATH 		= $(FRAMEWORKDIR)/_shared_libs/patches
+PATCHESPATH            = $(FRAMEWORKDIR)/arduino_patches
 
 
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
-	VARIANTPATH := $(SOURCEPATH)/Board/v3
-	BITSNAP_PATH := lib_bitsnap/protocol
-	NVMPATH := lib_bitsnap/nvm
+	VARIANTPATH          := $(SOURCEPATH)/Board/v3
+	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_bitsnap/protocol
+	NVMPATH              := $(LIBRARIESDIR)/lib_bitsnap/nvm
 else
-	# Path location for STM32 variant
-	VARIANTPATH := $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/variants/$(STM_BOARD_VARIANT)
-	BITSNAP_PATH := lib_bitsnap
+	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_bitsnap
 endif
 
 # Target Path
@@ -292,7 +286,9 @@ CPPFLAGS += -Wall -Wdouble-promotion -Wfloat-conversion
 
 # Special compiler flags for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
-	CPPFLAGS += -Og -g
+
+	CPPFLAGS += -Og 
+	CPPFLAGS += -g
 	CPPFLAGS += -fno-finite-math-only
 	CPPFLAGS += -Wformat=0
 	CPPFLAGS += -D__weak="__attribute__((weak))" 
@@ -309,13 +305,15 @@ endif
 
 # Special compiler flags for STM32F1
 ifeq ($(COREFILES_FAMILY), f1)
+
 	CPPFLAGS += -mcpu=cortex-m3
 	CPPFLAGS += -mfloat-abi=softfp
 
 # Special compiler flags for STM32F4
 else ifeq ($(COREFILES_FAMILY), f4)
+
 	CPPFLAGS += -mcpu=cortex-m4
-	CPPFLAGS += -mfpu=fpv4-sp-d16 
+	CPPFLAGS += -mfpu=fpv4-sp-d16
 	CPPFLAGS += -mfloat-abi=hard
 endif
 
@@ -341,7 +339,12 @@ CFLAGS := -std=c99
 # Linker configuration
 
 # Linker flags
-LDFLAGS := -mthumb -g 
+LDFLAGS := -mthumb 
+LDFLAGS += -g
+LDFLAGS += -lm
+LDFLAGS += -lc 
+LDFLAGS += -lnosys 
+LDFLAGS += -lstdc++ 
 LDFLAGS += -specs=nano.specs -specs=nosys.specs 
 LDFLAGS += -u _printf_float
 LDFLAGS += -Wl,--cref 
@@ -352,10 +355,6 @@ LDFLAGS += -Wl,--entry=Reset_Handler
 LDFLAGS += -Wl,--unresolved-symbols=report-all 
 #LDFLAGS += -Wl,--warn-common
 LDFLAGS += -Wl,-Map,$(BUILDDIR)/$(TARGET_PATH).map
-LDFLAGS += -lm
-LDFLAGS += -lc 
-LDFLAGS += -lnosys 
-
 LDFLAGS += -Wl,--start-group 
 LDFLAGS += -Wl,--no-whole-archive 
 LDFLAGS += -Wl,--end-group
@@ -366,16 +365,15 @@ ifeq ($(COREFILES_FAMILY), f1)
 	LDFLAGS += -mcpu=cortex-m3 
 	LDFLAGS += -Wl,--defsym=LD_MAX_DATA_SIZE=$(RAM_SIZE)
 	LDFLAGS += -Wl,--library=arm_cortexM3l_math
-	LDFLAGS += -lstdc++
 
 	LDSCRIPT := $(FRAMEWORKDIR)/_build_tools/linker_scripts/stm32f1xx.ld
 
 # Special linker flags for STM32F4
 else ifeq ($(COREFILES_FAMILY), f4)
-	FLASH_SIZE := 1048576
 	
 	LDFLAGS += -mcpu=cortex-m4
-	LDFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+	LDFLAGS += -mfpu=fpv4-sp-d16
+	LDFLAGS += -mfloat-abi=hard
 	LDFLAGS += -Wl,--defsym=LD_MAX_DATA_SIZE=$(RAM_SIZE)
 	LDFLAGS += -Wl,--library=arm_cortexM4lf_math
 
@@ -384,10 +382,8 @@ endif
 
 # Special linker flags for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
-	FLASH_SIZE :=  1048576
 
-	LDFLAGS += -lstdc++
-	LDFLAGS += -L$(VARIANTPATH)/Drivers/CMSIS/Lib
+	LDFLAGS += -L"$(VARIANTPATH)/Drivers/CMSIS/Lib"
 	LDFLAGS += -Wl,--undefined=uxTopUsedPriority
 
 	LDSCRIPT := $(FRAMEWORKDIR)/_build_tools/linker_scripts/STM32F405RGTx_FLASH.ld
@@ -429,9 +425,9 @@ ifdef ODRIVE_CODEBASE
 	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/test/*.cpp), $(CPP_FILES))
 	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/cpp/posix*.cpp), $(CPP_FILES))
 
-	ifeq ($(USE_BITSNAP), 1)
-	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
-	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
+	ifeq ($(USE_PNTP), 1)
+	C_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.cpp)
 	endif
 
 	# Assembly
@@ -439,7 +435,7 @@ ifdef ODRIVE_CODEBASE
 
 	INC_DIRS := $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(SOURCEPATH), *)))
 	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(NVMPATH), *)))
-	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(BITSNAP_PATH), *)))
+	INC_DIRS += $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(PATH_LIBRARY_PNTP), *)))
 
 
 # If not ODRIVE_CODEBASE, source for everything else...
@@ -450,104 +446,108 @@ else
 	CPP_FILES := $(filter-out %examples%, $(call rwildcard, $(SOURCEPATH), *.cpp))
 
 	# ST HAL
-	C_FILES += $(filter-out %template.c, $(call rwildcard, $(HALPATH), *.c))
-	CPP_FILES += $(call rwildcard, $(HALPATH), *.cpp)
+	ifeq ($(USE_OLD_CORE), 1)
+		C_FILES += $(filter-out %template.c, $(call rwildcard, $(PATH_ST_HAL), *.c))
+		CPP_FILES += $(call rwildcard, $(PATH_ST_HAL), *.cpp)
+	endif
 
 	# Arduino std libraries use max 2 to 3 directory levels
-	C_FILES   += $(call rwildcard, $(SPI_LIBRARYPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(SPI_LIBRARYPATH), *.cpp)
-	C_FILES   += $(call rwildcard, $(WIRE_LIBRARYPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(WIRE_LIBRARYPATH), *.cpp)
-	C_FILES   += $(call rwildcard, $(SERVO_LIBRARYPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(SERVO_LIBRARYPATH), *.cpp)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_SPI), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_SPI), *.cpp)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_WIRE), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_WIRE), *.cpp)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_SERVO), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_SERVO), *.cpp)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_SRCWRAPPER), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_SRCWRAPPER), *.cpp)
+
+	C_FILES += $(call rwildcard, $(PATH_LIBRARY_ETHERNET), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_ETHERNET), *.cpp)
+	C_FILES += $(call rwildcard, $(PATH_LIBRARY_BONJOUR), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_BONJOUR), *.cpp)
 
 	ifeq ($(USBD_USE_HID_COMPOSITE), 1)
-	C_FILES   += $(call rwildcard, $(KEYBOARD_LIBRARYPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(KEYBOARD_LIBRARYPATH), *.cpp)
-	C_FILES   += $(call rwildcard, $(MOUSE_LIBRARYPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(MOUSE_LIBRARYPATH), *.cpp)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_KEYBOARD), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_KEYBOARD), *.cpp)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_MOUSE), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_MOUSE), *.cpp)
 	endif
 
 	# FreeRTOS
-	C_FILES += $(call rwildcard, $(FREERTOSPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(FREERTOSPATH), *.cpp)
-	C_FILES += $(call rwildcard, $(CMSISPATH), *.c)
-	CPP_FILES += $(call rwildcard, $(CMSISPATH), *.cpp)
+	C_FILES += $(call rwildcard, $(PATH_FREERTOS), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_FREERTOS), *.cpp)
+	C_FILES += $(call rwildcard, $(PATH_CMSIS), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_CMSIS), *.cpp)
 
-	ifeq ($(USE_BITSNAP), 1)
+	ifeq ($(USE_PNTP), 1)
 	# Comms
-	C_FILES += $(call rwildcard, $(BITSNAP_PATH), *.c)
-	CPP_FILES += $(call rwildcard, $(BITSNAP_PATH), *.cpp)
+	C_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.cpp)
 	endif
 
 	# Core
-	C_FILES += $(call rwildcard, $(COREPATH), *.c)
+	C_FILES += $(call rwildcard, $(PATH_ARDUINO_CORE_STM32), *.c)
 	C_FILES += $(wildcard $(VARIANTPATH)/*.c)
-	CPP_FILES += $(call rwildcard, $(COREPATH), *.cpp)
+	CPP_FILES += $(call rwildcard, $(PATH_ARDUINO_CORE_STM32), *.cpp)
 	CPP_FILES += $(wildcard $(VARIANTPATH)/*.cpp)
 
 	# Remove files we patched
-	C_FILES := $(filter-out %hw_config.c, $(C_FILES))
-
-	C_FILES := $(filter-out %usbd_ep_conf.c, $(C_FILES))
-	C_FILES := $(filter-out %usbd_desc.c, $(C_FILES))
-
-	C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
-	C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
-	C_FILES := $(filter-out %cdc_queue.c, $(C_FILES))	
-
-	C_FILES := $(filter-out %usbd_hid_composite.c, $(C_FILES))
-	C_FILES := $(filter-out %usbd_hid_composite_if.c, $(C_FILES))
-
-	C_FILES := $(filter-out %usbd_audio.c, $(C_FILES))
-
-
-	#C_FILES := $(filter-out %usb_device_core.c, $(C_FILES))
-	#C_FILES := $(filter-out %usb_device_ioreq.c, $(C_FILES))
-	#C_FILES := $(filter-out %usb_device_ctlreq.c, $(C_FILES))
+	#C_FILES := $(filter-out %hw_config.c, $(C_FILES))
+	#C_FILES := $(filter-out %usbd_ep_conf.c, $(C_FILES))
+	#C_FILES := $(filter-out %usbd_desc.c, $(C_FILES))
+	#C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
+	#C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
+	#C_FILES := $(filter-out %cdc_queue.c, $(C_FILES))	
 	#C_FILES := $(filter-out %usbd_hid_composite.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_hid_composite_if.c, $(C_FILES))
-	
+	#C_FILES := $(filter-out %usbd_audio.c, $(C_FILES))
+
 	# Files we Patched
-	C_FILES += $(call rwildcard, $(PATCHESPATH), *.c)
-	#C_FILES += $(call rwildcard, $(PATCHESPATH)/cdc, *.c)
+	#C_FILES += $(call rwildcard, $(PATCHESPATH), *.c)
 
 	# Hack to fix someone's bad hack
-	C_FILES := $(filter-out %usbd_core.c, $(C_FILES))
-	C_FILES := $(filter-out %usbd_ioreq.c, $(C_FILES))
+	#C_FILES := $(filter-out %usbd_core.c, $(C_FILES))
+	#C_FILES := $(filter-out %usbd_ioreq.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_ctlreq.c, $(C_FILES))
 
 	# Assembly
-	ASM_FILES := $(call rwildcard, $(COREPATH), *.s)
+	ASM_FILES := $(call rwildcard, $(PATH_ARDUINO_CORE_STM32), *.s)
 
 	# Entry
-	S_FILES := $(FRAMEWORKDIR)/_shared_libs/Arduino_Core_STM32/cores/arduino/stm32/startup_stm32yyxx.S
+	S_FILES := $(FRAMEWORKDIR)/Arduino_Core_STM32/cores/arduino/stm32/startup_stm32yyxx.S
 
 	######################################################################
 	# Create file arrays for the c++ and c compiler, and linker
 
-	# Core
+	# Program
 	INC_DIRS := $(sort $(PROJECTSDIR)/$(dir $(call rwildcard, $(SOURCEPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(COREPATH), *)))
-	INC_DIRS := $(filter-out %usb/cdc%, $(INC_DIRS))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(HALPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(HALCONFPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(SYSTEMHEADERSPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(STARTUPFILESPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(MIDDLEWARESPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(FREERTOSPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(BITSNAP_PATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(CMSISPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATCHESPATH), *)))
+
+	# Core
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_ARDUINO_CORE_STM32), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_ST_HAL), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_ST_HAL_CONF), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_SYSTEM_HEADERS), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_STARTUP_FILES), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_MIDDLEWARES), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_FREERTOS), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_CMSIS), *)))
+
+	#INC_DIRS += $(sort $(dir $(call rwildcard, $(PATCHESPATH), *)))
 
 	# Libs
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(SPI_LIBRARYPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(WIRE_LIBRARYPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(SERVO_LIBRARYPATH), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_SPI), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_WIRE), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_SERVO), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_SRCWRAPPER), *)))
+
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_ETHERNET), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_BONJOUR), *)))
+
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_PNTP), *)))
 
 	ifeq ($(USBD_USE_HID_COMPOSITE), 1)
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(KEYBOARD_LIBRARYPATH), *)))
-	INC_DIRS += $(sort $(dir $(call rwildcard, $(MOUSE_LIBRARYPATH), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_KEYBOARD), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_MOUSE), *)))
 	endif
 
 	# Board variant
@@ -564,8 +564,11 @@ SOURCE_OBJS := $(S_FILES:.S=.o) $(ASM_FILES:.s=.o) $(C_FILES:.c=.o) $(CPP_FILES:
 OBJECTS := $(foreach obj, $(SOURCE_OBJS), $(BUILDDIR)/$(obj))
 
 # Include paths for header files and libraries
-LIBRARIES := $(foreach lib, $(INC_DIRS), -I$(lib))
-LD_LIBRARIES := $(foreach lib, $(INC_DIRS), -L$(lib))
+LIBRARIES := $(foreach lib, $(INC_DIRS), -I"$(lib)")
+LD_LIBRARIES := $(foreach lib, $(INC_DIRS), -L"$(lib)")
+
+# Whitespace
+space := $(subst ,, )
 
 
 ######################################################################
@@ -585,11 +588,11 @@ all: build
 #	dfu-util -a 0 -s 0x08002000:leave -D $(BUILDDIR)/$(TARGET_PATH).bin
 
 readback-f1:
-	openocd -f interface/stlink-v2.cfg -c 'set CPUTAPID $(CPUID)' -f target/stm32f1x.cfg -c "init" -c "reset init" -c "dump_image $(SRC).bin 0x8000000 $(FLASH_SIZE)" -c "exit"
+	openocd -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f target/stm32f1x.cfg -c "init" -c "reset init" -c "dump_image $(SRC).bin 0x8000000 $(FLASH_SIZE)" -c "exit"
 
 define build-key
 	@echo "\nMAKE: Generating boot key...\n"
-	@./$(FRAMEWORKDIR)/_build_tools/keygen.py $(KEYDIR_BASE) $(PROJECTSDIR) $(SRC)
+	@python3 ./$(FRAMEWORKDIR)/_build_tools/keygen.py $(KEYDIR_BASE) $(PROJECTSDIR) $(SRC)
 endef
 
 define build-upload-bootloader
@@ -600,17 +603,21 @@ endef
 
 define snappack
 	@echo "\nMAKE: Packing $(TARGET_PATH).bin...\n"
-	./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(BOOT_KEY_FILE)
+	python3 ./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(BOOT_KEY_FILE)
 endef
 
 define upload-dfuse
 	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-	@dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap
+	@-dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap
 endef
 
 define upload-dfuse-v
 	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
 	dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap -v -v
+endef
+
+define bell
+	@echo "\a"
 endef
 
 upload-bootloader:
@@ -620,6 +627,7 @@ upload-bootloader:
 upload-dfu: $(TARGET_PATH).bin
 	$(snappack)
 	$(upload-dfuse)
+	$(bell)
 
 upload-verbose: $(TARGET_PATH).bin
 	$(snappack)
@@ -630,6 +638,7 @@ upload-all: $(TARGET_PATH).bin
 	$(snappack)
 	$(build-upload-bootloader)
 	$(upload-dfuse)
+	$(bell)
 
 #upload-dfu-aes:  $(TARGET_PATH).bin
 #	@echo "\nMAKE: Locking down $(TARGET_PATH).bin...\n"
@@ -668,7 +677,7 @@ $(BUILDDIR)/%.o: %.s
 
 $(TARGET_PATH).elf: $(OBJECTS)
 	@echo "\nMAKE: Linking $(TARGET_PATH).elf..."
-	@$(CC) -o $(BUILDDIR)/"$@" $^ $(LDFLAGS) $(LD_LIBRARIES) -T$(LDSCRIPT) 
+	@$(CC) -o "$(BUILDDIR)/$@" "$(subst $(space)," ",$^)" $(LDFLAGS) $(LD_LIBRARIES) -T$(LDSCRIPT) 
 
 %.hex: %.elf
 	@echo "\nMAKE: Copying $(TARGET_PATH).hex..."

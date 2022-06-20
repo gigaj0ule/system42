@@ -4,40 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-        /*
-        {
-            // For the Cortex-Debug extension
-            "type": "cortex-debug",
-            "servertype": "openocd",
-            "request": "launch",
-            "name": "Debug Moto",
-            "executable": "${workspaceRoot}/__build/fw.elf",
-            "configFiles": [
-                "interface/stlink-v2.cfg",
-                "target/stm32f4x_stlink.cfg",
-            ],
-            "cwd": "${workspaceRoot}",
-            "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F405.svd",
-            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
-        },
-        {
-            // For the Cortex-Debug extension
-            /*
-            "type": "cortex-debug",
-            "servertype": "openocd",
-            "request": "launch",
-            "name": "Debug Moto - FreeRTOS",
-            "executable": "${workspaceRoot}/__build/fw.elf",
-            "rtos": "FreeRTOS",
-            "configFiles": [
-                "interface/stlink-v2.cfg",
-                "target/stm32f4x_stlink.cfg",
-            ],
-            "cwd": "${workspaceRoot}",
-            "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F405.svd",
-            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
-        },*/
         {
             // For the Cortex-Debug extension
             "type": "cortex-debug",
@@ -45,61 +11,32 @@
             "request": "launch",
             "name": "Debug F103 (STM32)",
             "executable": "${workspaceRoot}/__build/fw.elf",
-            "device": "STM32F103C8",
+            //"device": "STM32F103C8",
             "configFiles": [
-                "${workspaceRoot}/_framework/_debug_tools/stm32f1.cfg"
-            ],  
+                //"${workspaceRoot}/system32/_debug_tools/stm32f1x.cfg"
+                "interface/stlink.cfg",
+                "${workspaceRoot}/system32/bootloader/_build_tools/openocd/stm32f1x.cfg"
+            ],
             "cwd": "${workspaceRoot}",
-            "showDevDebugOutput": true,
-            "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F103.svd",
-            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+            "showDevDebugOutput": "raw",
+            "svdFile": "${workspaceRoot}/system32/_debug_tools/STM32F103.svd"//,
+            //"overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
         },
-        /*,{
-            // For the Cortex-Debug extension
-            "type": "cortex-debug",
-            "servertype": "openocd",
-            "request": "launch",
-            "name": "Debug F103 (CKS32)",
-            "executable": "${workspaceRoot}/__build/fw.elf",
-            "device": "STM32F103C8",
-            "configFiles": [
-                "${workspaceRoot}/_framework/_debug_tools/cks32f1.cfg"
-            ],  
-            "cwd": "${workspaceRoot}",
-            "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F103.svd",
-            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
-        },*/
         {
             // For the Cortex-Debug extension
             "type": "cortex-debug",
             "servertype": "openocd",
             "request": "launch",
-            "name": "Debug F103 Bootloader (STM32)",
-            "executable": "${workspaceRoot}/_framework/bootloader/__build/fw.elf",
+            "name": "Debug Bootloader F103 (STM32)",
+            "executable": "${workspaceRoot}/system32/bootloader/__build/fw.elf",
             "device": "STM32F103C8",
             "configFiles": [
-                "${workspaceRoot}/_framework/_debug_tools/stm32f1.cfg"
+                "${workspaceRoot}/system32/_debug_tools/stm32f1x.cfg"
             ],  
             "cwd": "${workspaceRoot}",
-            "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F103.svd",
+            "showDevDebugOutput": "raw",
+            "svdFile": "${workspaceRoot}/system32/_debug_tools/STM32F103.svd",
             "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
         }
-        
-        /*,{
-            // For the Cortex-Debug extension
-            "type": "cortex-debug",
-            "servertype": "openocd",
-            "request": "launch",
-            "name": "Debug F103 Bootloader (CKS32)",
-            "executable": "${workspaceRoot}/_framework/bootloader/__build/fw.elf",
-            "device": "STM32F103C8",
-            "configFiles": [
-                "${workspaceRoot}/_framework/_debug_tools/cks32f1.cfg"
-            ],  
-            "cwd": "${workspaceRoot}",
-            "svdFile": "${workspaceRoot}/_framework/_debug_tools/STM32F103.svd",
-            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
-        }
-        */
     ]
 }

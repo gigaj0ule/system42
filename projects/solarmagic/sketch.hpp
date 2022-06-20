@@ -72,55 +72,55 @@
                 return make_protocol_member_list(
 
                     // Register 0
-                    make_protocol_object("ADC", 
+                    make_protocol_object("adc", 
                         make_protocol_number_kw(
                             &SM72242_adc6,
-                            property_name = "ADC6",
+                            property_name = "adc6",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
                             &SM72242_adc4,
-                            property_name = "ADC4",
+                            property_name = "adc4",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
                             &SM72242_adc2,
-                            property_name = "ADC2",
+                            property_name = "adc2",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
                             &SM72242_adc0,
-                            property_name = "ADC0",
+                            property_name = "adc0",
                             property_is_read_only = true
                         )
                     ),
 
                     // Register 1
-                    make_protocol_object("IV",
+                    make_protocol_object("iv",
                         make_protocol_number_kw(
                             &SM72242_vout,
-                            property_name = "VOUT",
+                            property_name = "vout",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
                             &SM72242_iout,
-                            property_name = "IOUT",
+                            property_name = "iout",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
                             &SM72242_vin,
-                            property_name = "VIN",
+                            property_name = "vin",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
                             &SM72242_iin,
-                            property_name = "IIN",
+                            property_name = "iin",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = true
@@ -128,110 +128,110 @@
                     ),
 
                     // Register 4
-                    make_protocol_object("CONFIG",
+                    make_protocol_object("config",
                         make_protocol_number_kw(
                             &SM72242_override_adcprog,
-                            property_name = "OR_ADC",
+                            property_name = "or_adc",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_power_thresh_select,
-                            property_name = "P_TH_SEL",
+                            property_name = "p_th_sel",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_bb_in_ptmode_sel,
-                            property_name = "BB_PT_MODE_SEL",
+                            property_name = "bb_pt_mode_sel",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_iout_max,
-                            property_name = "IOUT_MAX",
+                            property_name = "iout_max",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_vout_max,
-                            property_name = "VOUT_MAX",
+                            property_name = "vout_max",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_deadtime_off,
-                            property_name = "DT_OFF",
+                            property_name = "dt_off",
                             property_min_value = 0,
                             property_max_value = 7,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_deadtime_on,
-                            property_name = "DT_ON",
+                            property_name = "dt_on",
                             property_min_value = 0,
                             property_max_value = 7,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_duty_cycle_open,
-                            property_name = "DUTY_OPEN",
+                            property_name = "duty_open",
                             property_min_value = 0,
                             property_max_value = 511,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_pass_thru_select,
-                            property_name = "PASSTRHU_SEL",
+                            property_name = "passthru_sel",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_pass_thru_manual,
-                            property_name = "PASSTHRU_MAN",
+                            property_name = "passthru_man",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_soft_reset,
-                            property_name = "RESET",
+                            property_name = "reset",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_pll_clock,
-                            property_name = "PLL_CLK",
+                            property_name = "pll_clk",
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_open_loop_enable,
-                            property_name = "OL_EN",
+                            property_name = "ol_en",
                             property_is_read_only = false
                         )
                     ),
 
                     // Register 4
-                    make_protocol_object("OFFSET",
+                    make_protocol_object("offset",
                         make_protocol_number_kw(
                             &SM72242_vout_offset,
-                            property_name = "VOUT_OS",
+                            property_name = "vout_os",
                             property_min_value = 0,
                             property_max_value = 255,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_iout_offset,
-                            property_name = "IOUT_OS",
+                            property_name = "iout_os",
                             property_min_value = 0,
                             property_max_value = 255,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_vin_offset,
-                            property_name = "VIN_OS",
+                            property_name = "vin_os",
                             property_min_value = 0,
                             property_max_value = 255,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_iin_offset,
-                            property_name = "IIN_OS",
+                            property_name = "iin_os",
                             property_min_value = 0,
                             property_max_value = 255,
                             property_is_read_only = false
@@ -239,38 +239,38 @@
                     ),
 
                     // Register 5
-                    make_protocol_object("THRESHOLDS",
+                    make_protocol_object("thresholds",
                         make_protocol_number_kw(
                             &SM72242_iin_hi_th,
-                            property_name = "IIN_HI",
+                            property_name = "iin_hi",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_iin_lo_th,
-                            property_name = "IIN_LO",
+                            property_name = "iin_lo",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_iout_hi_th,
-                            property_name = "IOUT_HI",
+                            property_name = "iout_hi",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = false
                         ),
                         make_protocol_number_kw(
                             &SM72242_iout_lo_th,
-                            property_name = "IOUT_LO",
+                            property_name = "iout_lo",
                             property_min_value = 0,
                             property_max_value = 1023,
                             property_is_read_only = false
                         )
                     ),
 
-                    make_protocol_object("TARE",
+                    make_protocol_object("tare",
                         make_protocol_number_kw(
                             &SM72442_tare_Vout,
                             property_name = "tare_vout",
@@ -313,7 +313,7 @@
 
             event_vector_t scan_complete_event = {1};
 
-            auto customized_event_triggers() {
+            auto customized_interrupts() {
                 return make_protocol_member_list(
 
                     make_event_trigger(
