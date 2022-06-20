@@ -11,8 +11,7 @@ HAL and arduino functions, as well
 as arduino libraries.
 
 x42 lets you talk over a tty USB 
-port to a host computer. x42 can 
-emulate a keyboard also.
+port to a host computer.
 
 x42 has a BIOS that lets you flash 
 new code over USB with dfu-util 
