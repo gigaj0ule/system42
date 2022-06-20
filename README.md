@@ -179,9 +179,14 @@ following command:
 
 Where $FAMILY is one of:
 
-    f103c8
+    f103cb
     f103rc
     f40x
+    
+It should be possible to compile for 
+all other STM targets but the correct 
+paths will need to be added to MAKEFILE
+for them first.
 
 ### Debugging a project
 
