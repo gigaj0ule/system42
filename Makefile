@@ -1,6 +1,6 @@
 ######################################################################
 # STM32Fx0x Arduino Makefile
-# (c) Adam Munich 2020, All Rights Reserved
+# (c) j0ule 2022, All Rights Reserved
 
 # This is part of an STM32 Framework organized by Adam Munich for 
 # hobby projects. It is a work in progress. 
@@ -255,7 +255,6 @@ PATH_FREERTOS           = $(FRAMEWORKDIR)/STM32FreeRTOS/src
 
 # Patches to arduino core
 PATCHESPATH            = $(FRAMEWORKDIR)/arduino_patches
-
 
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
@@ -552,6 +551,8 @@ else
 
 	# Board variant
 	INC_DIRS += $(sort $(dir $(wildcard $(VARIANTPATH)/*)))
+	INC_DIRS += $(sort $(dir $(wildcard $(CUSTOM_VARIANTPATH)/*)))
+
 endif 
 
 
