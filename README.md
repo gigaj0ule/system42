@@ -187,6 +187,12 @@ It should be possible to compile for
 all other STM targets but the correct 
 paths will need to be added to MAKEFILE
 for them first.
+    
+The bootloader presently only supports
+F1 and F4, since all families have
+different flash memory controllers 
+more #define logic must be added for 
+other FMCs.
 
 ### Debugging a project
 
