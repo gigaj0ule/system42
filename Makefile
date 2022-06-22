@@ -99,6 +99,12 @@ endif
 # Ignore CPUID
 CPUID := 0
 
+ifeq ($(PNTP), 1)
+	OPTIONS				+= -DINCLUDE_PNTP
+	OPTIONS				+= -DPNTP_USING_TCP
+	OPTIONS				+= -DPNTP_USING_TTY
+endif
+
 # CPU Specific Modifiers
 ifeq ($(COREFILES_FAMILY), f1)
 	CPU_VARIANT := STM32F1xx
@@ -152,10 +158,6 @@ OPTIONS += -DUSB_MANUFACTURER_STRING="\"Civil Electric\""
 
 ifeq ($(USBD_USE_CDC), 1)
 	OPTIONS += -DUSBD_USE_CDC 
-endif
-
-ifeq ($(PNTP), 1)
-	OPTIONS += -DUSE_BITSNAP
 endif
 
 ifdef ODRIVE_CODEBASE
@@ -240,8 +242,9 @@ PATH_LIBRARY_SRCWRAPPER = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/SrcWrappe
 
 # External libraries
 PATH_LIBRARY_ETHERNET   = $(LIBRARIESDIR)/Ethernet/src
-PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/MDNS_Generic
-#PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/ArduinoMDNS
+#PATH_LIBRARY_ETHERNET   = $(LIBRARIESDIR)/Ethernet_Generic/src
+#PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/MDNS_Generic/src
+PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/ArduinoMDNS
 
 PATH_ST_HAL             = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Drivers/$(CPU_VARIANT)_HAL_Driver
 PATH_SYSTEM_HEADERS     = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Drivers/CMSIS/Device/ST/$(CPU_VARIANT)/Include

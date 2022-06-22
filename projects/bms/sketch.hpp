@@ -1,7 +1,7 @@
 #ifndef __SKETCH_HPP_
     #define __SKETCH_HPP_
 
-    #ifdef USE_BITSNAP
+    #ifdef INCLUDE_PNTP
     #include "communication.h"
 
 
@@ -18,7 +18,7 @@
     // See README.md for information about how to construct 
     // this class
 
-    class communication {
+    class PntpCommunicable {
 
         public:
             char device_make[16] = "i2c_scan";

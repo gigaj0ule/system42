@@ -18,7 +18,7 @@ endif
 # Configurable options
 OPTIONS := -DVERSION=5
 
-ifeq ($(MCU_FAMILY), f103c8)
+ifeq ($(MCU_FAMILY), f103cb)
 	OPTIONS += -DSTM32F1
 	COREFILES_FAMILY := f1
 

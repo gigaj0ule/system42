@@ -7,6 +7,12 @@
 #include "STM32FreeRTOSConfig.h"
 #include "STM32FreeRTOS.h"
 
+#include "communication.h"
+
+#if defined(PNTP_USING_TCP)
+  #include "tcp_transport.h"
+#endif
+
 #if defined(ARDUINO_ARCH_STM32)
     #define RED_LED_PIN PB6
     #define GREEN_LED_PIN PB7
@@ -41,18 +47,13 @@ static void os_delay(uint32_t milliseconds) {
 // respond to said requests
 // 
 static void communication_thread(void* arg) {
+  
   while(true) {
 
-    #if defined(USBD_USE_CDC)
-      if (serialEventUSB && SerialUSB.available()) {
-        serialEventUSB();
-      }
-
-    #if defined(USE_BITSNAP)
-    host_interrupt_event_handler();
+    #if defined(INCLUDE_PNTP)
+      pntp_listen();
     #endif
 
-    #endif
     vTaskDelay(1);
   }
 }
@@ -111,14 +112,14 @@ static void ui_thread(void* arg) {
     }
 
     if(rising_edge) {
-      #ifdef USE_BITSNAP
+      #ifdef INCLUDE_PNTP
       send_system_interrupt(SYSINT_USER_BUTTON_RISING);
       #endif
 
       user_button_value_ = 1;
     }
     else if(falling_edge) {
-      #ifdef USE_BITSNAP
+      #ifdef INCLUDE_PNTP
       send_system_interrupt(SYSINT_USER_BUTTON_FALLING);
       #endif
 
@@ -139,9 +140,6 @@ static void ui_thread(void* arg) {
 // done with all projects
 //
 inline void early_setup(void) {
-  #ifdef USE_BITSNAP
-  init_communication();
-  #endif
 
   // Set-up GPIOs
   pinMode(USER_BUTTON, INPUT);
@@ -169,13 +167,13 @@ inline void create_threads(
 
     // Create communication task at priority 2 (medium)
     // Increase stack size if communication does not work
-    #ifdef USE_BITSNAP
+    #ifdef INCLUDE_PNTP
     portBASE_TYPE communication_thread_handle
       = xTaskCreate(communication_thread, NULL, communication_thread_stack_size * configMINIMAL_STACK_SIZE, NULL, 3, NULL);
     #endif
 
     // Create UI task at priority 2 (medium)
-    // Increase stack size if communication does not work
+    // Increase stack size if does not work
     portBASE_TYPE ui_thread_handle
       = xTaskCreate(ui_thread, NULL, configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 
@@ -184,7 +182,7 @@ inline void create_threads(
         catch_thread_fault();
     }
 
-    #ifdef USE_BITSNAP 
+    #ifdef INCLUDE_PNTP 
     if(communication_thread_handle != pdPASS) {
         catch_thread_fault();
     }
@@ -197,8 +195,8 @@ inline void create_threads(
     catch_kernel_fault();
 }
 
-#ifdef USE_BITSNAP
-communication communicable;
+#ifdef INCLUDE_PNTP
+PntpCommunicable pntp;
 #endif
 
 

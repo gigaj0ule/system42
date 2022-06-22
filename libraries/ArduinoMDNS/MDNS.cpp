@@ -241,7 +241,8 @@ int MDNS::startDiscoveringService(const char* serviceName,
 {   
    this->stopDiscoveringService();
    
-   char* n = (char*)my_malloc(strlen(serviceName) + 13);
+   //char* n = (char*)my_malloc(strlen(serviceName) + 13);
+   char* n = (char*)my_malloc(strlen(serviceName));
    if (NULL == n)
       return 0;
    
@@ -456,9 +457,11 @@ MDNSError_t MDNS::_sendMDNSMessage(uint32_t /*peerAddress*/, uint32_t xid, int t
          buf[1] = (type == MDNSPacketTypeServiceQuery) ? 0x0c : 0x01; 
          buf[3] = 0x1;
 
-         this->_udp->write((uint8_t*)buf, sizeof(DNSHeader_t));
-         ptr += sizeof(DNSHeader_t);
-         
+         //this->_udp->write((uint8_t*)buf, sizeof(DNSHeader_t));
+         //ptr += sizeof(DNSHeader_t);
+         this->_udp->write((uint8_t*)buf, 4);
+         ptr += 4;
+
          this->_resolveLastSendMillis[(type == MDNSPacketTypeServiceQuery) ? 1 : 0] = millis();
          
          break;

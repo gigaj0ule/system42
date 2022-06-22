@@ -1,7 +1,7 @@
 #ifndef __SKETCH_HPP_
     #define __SKETCH_HPP_
 
-    #ifdef USE_BITSNAP
+    #ifdef INCLUDE_PNTP
     #include "communication.h"
 
 
@@ -18,20 +18,17 @@
     // See README.md for information about how to construct 
     // this class
 
-    class communication {
+    class PntpCommunicable {
 
         public:
-            char device_model[16]  = "stm32f103";
 
-            char local_ip[16] = "ipaddr";
+            int32_t property = 0;
 
             auto customized_volatile_objects() {
                 return make_protocol_member_list(
-
-                    make_protocol_string_kw(
-                        &local_ip, 
-                        property_name = "local_ip",
-                        property_length = sizeof(local_ip)
+                    make_protocol_number_kw(
+                        &property,
+                        property_name = "sample_property"
                     )
                 );
             };
@@ -47,7 +44,7 @@
                         property_name = "sample_nv_property"
                     )
                 );
-            }
+            };
 
             event_vector_t event_trigger = {1};
 

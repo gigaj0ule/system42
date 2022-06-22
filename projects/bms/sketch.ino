@@ -60,33 +60,33 @@ float roundf_2(float var)
 
 void sample_cells () {
 	for (int i = 0; i < 14; i++){
-		communicable.v_cells[i] = get_cell_voltage(i);
-		//communicable.v_cells_f[i] = map(communicable.v_cells[i], 0, communicable.v_cells[i])
+		pntp.v_cells[i] = get_cell_voltage(i);
+		//pntp.v_cells_f[i] = map(pntp.v_cells[i], 0, pntp.v_cells[i])
 	}
 
-	communicable.v_diode_bias += ((communicable.v_cells[12] - communicable.v_cells[13]) - communicable.v_diode_bias) * 0.1f;
+	pntp.v_diode_bias += ((pntp.v_cells[12] - pntp.v_cells[13]) - pntp.v_diode_bias) * 0.1f;
 
-	communicable.v_diode_bias_f = mapf(
-		(float) communicable.v_diode_bias, 
+	pntp.v_diode_bias_f = mapf(
+		(float) pntp.v_diode_bias, 
 		0.0f, 
-		(float) communicable.v_cells[13], 
+		(float) pntp.v_cells[13], 
 		0.0f, 
 		3.29f
 	);
 
 	for (int i = 0; i < 14; i++){
 		// Subtract bias
-		communicable.v_cells_f[i] = mapf(
-			(float) communicable.v_cells[i], 
-			(float) 2 * communicable.v_diode_bias, 
-			(float) communicable.v_cells[13], 
+		pntp.v_cells_f[i] = mapf(
+			(float) pntp.v_cells[i], 
+			(float) 2 * pntp.v_diode_bias, 
+			(float) pntp.v_cells[13], 
 			0.0f, 
 			3.29f
 		);
 
 		if(i < 12) {
-			//communicable.v_cells_f[i] -= 3.0f * communicable.v_diode_bias_f;
-			communicable.v_cells_f[i] = roundf_2(communicable.v_cells_f[i]);
+			//pntp.v_cells_f[i] -= 3.0f * pntp.v_diode_bias_f;
+			pntp.v_cells_f[i] = roundf_2(pntp.v_cells_f[i]);
 		}
 	}
 	
@@ -148,7 +148,7 @@ void find_i2c_devices()
 {	
 	volatile uint8_t error, address;
 
-	communicable.i2c_device_count = 0;
+	pntp.i2c_device_count = 0;
 
 	for(address = 1; address < 127; address++ ) {
 		// The i2c_scanner uses the return value of
@@ -163,44 +163,44 @@ void find_i2c_devices()
 		error = myWire.endTransmission();
 		
 		// Device address
-		communicable.i2c_addresses[ (address * 6) + 0 ] = (address / 100) % 10 + 48;
-		communicable.i2c_addresses[ (address * 6) + 1 ] = (address / 10 ) % 10 + 48;
-		communicable.i2c_addresses[ (address * 6) + 2 ] = (address / 1  ) % 10 + 48;
-		communicable.i2c_addresses[ (address * 6) + 3 ] = ':';
+		pntp.i2c_addresses[ (address * 6) + 0 ] = (address / 100) % 10 + 48;
+		pntp.i2c_addresses[ (address * 6) + 1 ] = (address / 10 ) % 10 + 48;
+		pntp.i2c_addresses[ (address * 6) + 2 ] = (address / 1  ) % 10 + 48;
+		pntp.i2c_addresses[ (address * 6) + 3 ] = ':';
 
 		// Newline
-		communicable.i2c_addresses[ (address * 6) + 5 ] = ' ';
+		pntp.i2c_addresses[ (address * 6) + 5 ] = ' ';
 
 		switch(error) {
 
 			// Success
 			case 0:				
-				communicable.i2c_addresses[ (address * 6) + 4 ] = 'Y';
-				communicable.i2c_device_count++;
+				pntp.i2c_addresses[ (address * 6) + 4 ] = 'Y';
+				pntp.i2c_device_count++;
 			break;
 
 			// Buffer Overflow
 			case 1:
-				communicable.i2c_addresses[ (address * 6) + 4 ] = 'X';
+				pntp.i2c_addresses[ (address * 6) + 4 ] = 'X';
 			break;
 
 			// NACK ADDR
 			case 2:
-				communicable.i2c_addresses[ (address * 6) + 4 ] = 'N';
+				pntp.i2c_addresses[ (address * 6) + 4 ] = 'N';
 			break;
 
 			// NACK DATA
 			case 3:
-				communicable.i2c_addresses[ (address * 6) + 4 ] = 'D';
+				pntp.i2c_addresses[ (address * 6) + 4 ] = 'D';
 			break;
 
 			// MISC
 			case 4:
-				communicable.i2c_addresses[ (address * 6) + 4 ] = '?';
+				pntp.i2c_addresses[ (address * 6) + 4 ] = '?';
 			break;
 		}
 	}
 
 	// Scan complete
-	send_event_to_host(communicable.scan_complete_event);
+	send_event_to_host(pntp.scan_complete_event);
 }

@@ -1,9 +1,7 @@
 #ifndef __SKETCH_HPP_
     #define __SKETCH_HPP_
 
-    #ifdef USE_BITSNAP
-    #include "communication.h"
-
+    #ifdef INCLUDE_PNTP
     //void remote_update_occured(void *);
 
     static void host_wrote_data_callback(void *) {
@@ -17,7 +15,7 @@
     // See README.md for information about how to construct 
     // this class
 
-    class communication {
+    class PntpCommunicable {
 
         public:
             char device_model[16]  = "stm42";
