@@ -11,8 +11,7 @@ HAL and arduino functions, as well
 as arduino libraries.
 
 x42 lets you talk over a tty USB 
-port to a host computer. x42 can 
-emulate a keyboard also.
+port to a host computer.
 
 x42 has a BIOS that lets you flash 
 new code over USB with dfu-util 
@@ -180,9 +179,20 @@ following command:
 
 Where $FAMILY is one of:
 
-    f103c8
+    f103cb
     f103rc
     f40x
+    
+It should be possible to compile for 
+all other STM targets but the correct 
+paths will need to be added to MAKEFILE
+for them first.
+    
+The bootloader presently only supports
+F1 and F4, since all families have
+different flash memory controllers 
+more #define logic must be added for 
+other FMCs.
 
 ### Debugging a project
 
