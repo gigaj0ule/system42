@@ -5,15 +5,14 @@
 This is an operating system for 
 STM/CKS/GD 32 Bit microcontrollers.
 
-x42 allows you to run multiple 
-FreeRTOS threads and call both ST 
-HAL and arduino functions, as well 
-as arduino libraries.
+x42 is a multithreaded operating 
+system that supports arduino, st-hal, 
+and freeRTOS simultaneously.
 
-x42 lets you talk over a tty USB 
-port to a host computer.
+x42 supports both TTY and TCP 
+communication.
 
-x42 has a BIOS that lets you flash 
+x42 has a BIOS that can flash 
 new code over USB with dfu-util 
 so you don't need a special 
 programmer.
@@ -32,6 +31,7 @@ whole village of them. These robot
 villages can help you live your 
 best life on starship earth.
 
+
 ### Toolchain
 
 An install script is not written yet. 
@@ -44,6 +44,7 @@ You will need:
 - dfu-util
 - python3 (and whatever libraries it complains about wanting when you try to compile)
 - arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 (see INSTALLING_GCC.md)
+
 
 ### Starting a Project
 
@@ -58,6 +59,7 @@ You will find a few files:
 
 Clone "demo" folder into "projects/myproject" (or whatever), 
 then write your MCU code!
+
 
 ### Sketch.ino
 
@@ -78,12 +80,14 @@ will cause the CPU to lock up and
 freeze, so always call it at least 
 once in a thread!
 
+
 ### Sketch.hpp
 
 Inside sketch.hpp you can link 
 libraries that you want to have 
 includedin your project and also 
 set program definitions. 
+
 
 ### Building
 
@@ -166,12 +170,13 @@ To enable firmware encryption, use:
 
     sudo make SRC=demo USE_ENCRYPTION=1 clean upload-all
 
-### Supported MCU
+    
+### Supported Cores
 
 Right now, only the 32F103 and 
 32F405/7 MCUs are supported. By 
 default the build system will use 
-the 32F103C8T6. If you are building 
+the 32F103CBT6. If you are building 
 for something else, use the 
 following command:
 
@@ -194,6 +199,7 @@ different flash memory controllers
 more #define logic must be added for 
 other FMCs.
 
+    
 ### Debugging a project
 
 You can inspect variables in real 
