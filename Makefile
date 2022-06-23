@@ -266,10 +266,10 @@ PATCHESPATH            = $(FRAMEWORKDIR)/arduino_patches
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
 	VARIANTPATH          := $(SOURCEPATH)/Board/v3
-	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_bitsnap/protocol
-	NVMPATH              := $(LIBRARIESDIR)/lib_bitsnap/nvm
+	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_powernet/protocol
+	NVMPATH              := $(LIBRARIESDIR)/lib_powernet/nvm
 else
-	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_bitsnap
+	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_powernet
 endif
 
 # Target Path
