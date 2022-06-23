@@ -28,10 +28,6 @@ else
     $(warning Building SRC "$(SRC)")
 endif
 
-ifeq ($(PNTP), 1)
-	USE_PNTP := 1
-endif
-
 SOURCEPATH := $(PROJECTSDIR)/$(SRC)
 
 # moto, or inverter, uses STM32F4
@@ -99,11 +95,19 @@ endif
 # Ignore CPUID
 CPUID := 0
 
-ifeq ($(PNTP), 1)
+ifeq ($(PNTP_TCP), 1)
+	USE_PNTP 			:= 1
 	OPTIONS				+= -DINCLUDE_PNTP
 	OPTIONS				+= -DPNTP_USING_TCP
 	OPTIONS				+= -DPNTP_USING_TTY
 endif
+
+ifeq ($(PNTP_TTY), 1)
+	USE_PNTP 			:= 1
+	OPTIONS				+= -DINCLUDE_PNTP
+	OPTIONS				+= -DPNTP_USING_TTY
+endif
+
 
 # CPU Specific Modifiers
 ifeq ($(COREFILES_FAMILY), f1)

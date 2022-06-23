@@ -9,10 +9,12 @@
 
 #include "communication.h"
 
-#if defined(PNTP_USING_TCP)
-  #include "tcp_transport.h"
+// =========================================================================
+#ifdef INCLUDE_PNTP
+PntpCommunicable pntp;
 #endif
 
+// =========================================================================
 #if defined(ARDUINO_ARCH_STM32)
     #define RED_LED_PIN PB6
     #define GREEN_LED_PIN PB7
@@ -85,7 +87,7 @@ static void catch_thread_fault() {
         SerialUSB.println("Thread allocation problem");
       #endif
 
-      delay(1000);
+      delay(2000);
     }
 }
 
@@ -179,12 +181,12 @@ inline void create_threads(
 
     // Check for thread creation errors
     if (worker_thread_handle != pdPASS || ui_thread_handle != pdPASS) {
-        catch_thread_fault();
+        //catch_thread_fault();
     }
 
     #ifdef INCLUDE_PNTP 
     if(communication_thread_handle != pdPASS) {
-        catch_thread_fault();
+        //catch_thread_fault();
     }
     #endif 
 
@@ -194,10 +196,6 @@ inline void create_threads(
     // We should not reach this point unless there was an error
     catch_kernel_fault();
 }
-
-#ifdef INCLUDE_PNTP
-PntpCommunicable pntp;
-#endif
 
 
 // =========================================================================
