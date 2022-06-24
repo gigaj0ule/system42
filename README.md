@@ -2,31 +2,27 @@
 
 ~j0ule 2019-2022 - alpha release
 
-x42 is a multithreaded operating 
-system that supports arduino, st-hal, 
-and freeRTOS simultaneously.
-
-This is an operating system for 
+I am an operating system for 
 STM/CKS/GD 32 Bit microcontrollers.
 
-x42 supports both TTY and TCP 
+I support arduino, st-hal, 
+and freeRTOS simultaneously.
+
+I support TTY and Ethernet
 communication.
 
-x42 has a BIOS that can flash 
-new code over USB with dfu-util 
+I have a BIOS that can accept 
+new code via USB with dfu-util 
 so you don't need a special 
 programmer.
 
-This is a stable OS. Code you write 
-on the x42 operating system will 
-be usable forever because all the 
-dependencies are included in-tree.
+I am solid. Code you write 
+will be usable forever because 
+all my dependencies are 
+included in-tree.
 
-You can do tons of awesome stuff 
-in 5k of ram. Honestly it's the 
-best thing ever. No really, you 
-can automate your labor with this 
-by making tiny robots or even a 
+I can automate your labor with  
+by running tiny robots or even a 
 whole village of them. These robot 
 villages can help you live your 
 best life on starship earth.
