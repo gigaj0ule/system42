@@ -1,13 +1,13 @@
-# x42: The answer to life, the universe, and everything MCU
+# system42
 
 ~j0ule 2019-2022 - alpha release
-
-This is an operating system for 
-STM/CKS/GD 32 Bit microcontrollers.
 
 x42 is a multithreaded operating 
 system that supports arduino, st-hal, 
 and freeRTOS simultaneously.
+
+This is an operating system for 
+STM/CKS/GD 32 Bit microcontrollers.
 
 x42 supports both TTY and TCP 
 communication.
