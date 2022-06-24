@@ -181,12 +181,12 @@ inline void create_threads(
 
     // Check for thread creation errors
     if (worker_thread_handle != pdPASS || ui_thread_handle != pdPASS) {
-        //catch_thread_fault();
+        catch_thread_fault();
     }
 
     #ifdef INCLUDE_PNTP 
     if(communication_thread_handle != pdPASS) {
-        //catch_thread_fault();
+        catch_thread_fault();
     }
     #endif 
 

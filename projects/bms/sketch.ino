@@ -48,68 +48,22 @@ float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-float roundf_2(float var)
-{
-    // 37.66666 * 100 =3766.66
-    // 3766.66 + .5 =3767.16    for rounding off value
-    // then type cast to int so value is 3767
-    // then divided by 100 so the value converted into 37.67
-    float value = (int)(var * 100 + .5);
-    return (float)value / 100;
-}
-
-void sample_cells () {
-	for (int i = 0; i < 14; i++){
-		pntp.v_cells[i] = get_cell_voltage(i);
-		//pntp.v_cells_f[i] = map(pntp.v_cells[i], 0, pntp.v_cells[i])
-	}
-
-	pntp.v_diode_bias += ((pntp.v_cells[12] - pntp.v_cells[13]) - pntp.v_diode_bias) * 0.1f;
-
-	pntp.v_diode_bias_f = mapf(
-		(float) pntp.v_diode_bias, 
-		0.0f, 
-		(float) pntp.v_cells[13], 
-		0.0f, 
-		3.29f
-	);
-
-	for (int i = 0; i < 14; i++){
-		// Subtract bias
-		pntp.v_cells_f[i] = mapf(
-			(float) pntp.v_cells[i], 
-			(float) 2 * pntp.v_diode_bias, 
-			(float) pntp.v_cells[13], 
-			0.0f, 
-			3.29f
-		);
-
-		if(i < 12) {
-			//pntp.v_cells_f[i] -= 3.0f * pntp.v_diode_bias_f;
-			pntp.v_cells_f[i] = roundf_2(pntp.v_cells_f[i]);
-		}
-	}
-	
-}
-
-
-
 
 static void worker_thread(void* arg) {
-    while(true) {
+	//SerialUSB.println("hmm");
+    
+	while(true) {
 	    // Do something every second
-        os_delay(20);
-
-		sample_cells();
+        os_delay(100);
+    	__asm__ volatile("nop");
+		//find_i2c_devices();
+		//while(SerialUSB.available()){
+		//	SerialUSB.print(SerialUSB.read());
+		//}
     }
 }
 
 void setup() {
-
-    #if defined(USBD_USE_HID_COMPOSITE)
-        Mouse.begin();
-        Keyboard.begin();
-    #endif
 
 	// Power Enable
 	pinMode(PIN_POWER_ENABLE, OUTPUT);
@@ -122,12 +76,12 @@ void setup() {
 	pinMode(PIN_DATA_BUS_3, OUTPUT_OPEN_DRAIN);
 	
 	// ADC
-	pinMode(PIN_CELL_V_ADC, INPUT);
+	//pinMode(PIN_CELL_V_ADC, INPUT);
 
 	// Exciter
-	pinMode(PIN_CELL_EXCITER, OUTPUT);
-	analogWriteFrequency(0.5 * 32768);
-	analogWrite(PIN_CELL_EXCITER, 128);
+	//pinMode(PIN_CELL_EXCITER, OUTPUT);
+	//analogWriteFrequency(0.5 * 32768);
+	//analogWrite(PIN_CELL_EXCITER, 128);
 
     // Init communication
     early_setup();
@@ -135,7 +89,7 @@ void setup() {
 	myWire.begin();
     
     // Launch program!
-    create_threads(worker_thread);
+    //create_threads(worker_thread);
 };
 
 
@@ -146,6 +100,7 @@ void loop(){
 
 void find_i2c_devices()
 {	
+	/*
 	volatile uint8_t error, address;
 
 	pntp.i2c_device_count = 0;
@@ -203,4 +158,5 @@ void find_i2c_devices()
 
 	// Scan complete
 	send_event_to_host(pntp.scan_complete_event);
+	*/
 }

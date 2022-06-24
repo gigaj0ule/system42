@@ -96,6 +96,7 @@ endif
 CPUID := 0
 
 ifeq ($(PNTP_TCP), 1)
+    $(warning Building with PNTP TCP Support")
 	USE_PNTP 			:= 1
 	OPTIONS				+= -DINCLUDE_PNTP
 	OPTIONS				+= -DPNTP_USING_TCP
@@ -103,11 +104,23 @@ ifeq ($(PNTP_TCP), 1)
 endif
 
 ifeq ($(PNTP_TTY), 1)
+    $(warning Building with PNTP TTY Support")
 	USE_PNTP 			:= 1
 	OPTIONS				+= -DINCLUDE_PNTP
 	OPTIONS				+= -DPNTP_USING_TTY
 endif
 
+# More Options
+OPTIONS += -DHAL_UART_MODULE_ENABLED 
+OPTIONS += -DHAL_PCD_MODULE_ENABLED
+
+OPTIONS += -DARDUINO_ARCH_STM32
+OPTIONS += -DUSBCON 
+
+ifeq ($(USBD_USE_CDC), 1)
+	OPTIONS += -DUSBD_USE_CDC 
+	OPTIONS += -DUSBD_CDC_USE_SINGLE_BUFFER
+endif
 
 # CPU Specific Modifiers
 ifeq ($(COREFILES_FAMILY), f1)
@@ -132,14 +145,6 @@ ifdef CPU_VARIANT
 	OPTIONS += -D$(CPU_VARIANT)
 endif
 
-# Configurable Options
-OPTIONS += -DHAL_UART_MODULE_ENABLED 
-OPTIONS += -DHAL_PCD_MODULE_ENABLED
-
-OPTIONS += -DARDUINO_ARCH_STM32
-
-OPTIONS += -DUSBCON 
-
 # USB Data
 USB_VENDOR_ID = 1337
 USB_PRODUCT_ID = c0de
@@ -159,10 +164,6 @@ OPTIONS += -DUSBD_VID=0x$(USB_VENDOR_ID)
 OPTIONS += -DUSBD_PID=0x$(USB_PRODUCT_ID)
 OPTIONS += -DUSB_PRODUCT_STRING="\"x42 Node\"" 
 OPTIONS += -DUSB_MANUFACTURER_STRING="\"Civil Electric\""
-
-ifeq ($(USBD_USE_CDC), 1)
-	OPTIONS += -DUSBD_USE_CDC 
-endif
 
 ifdef ODRIVE_CODEBASE
 	# Firmware version macros
@@ -261,7 +262,7 @@ PATH_CMSIS              = $(FRAMEWORKDIR)/CMSIS
 PATH_FREERTOS           = $(FRAMEWORKDIR)/STM32FreeRTOS/src
 
 # Patches to arduino core
-PATCHESPATH            = $(FRAMEWORKDIR)/arduino_patches
+PATH_PATCHES            = $(FRAMEWORKDIR)/Arduino_Core_STM32_patches
 
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
@@ -499,7 +500,8 @@ else
 
 	# Remove files we patched
 	#C_FILES := $(filter-out %hw_config.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_ep_conf.c, $(C_FILES))
+	C_FILES := $(filter-out %usbd_ep_conf.c, $(C_FILES))
+	
 	#C_FILES := $(filter-out %usbd_desc.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
@@ -509,7 +511,7 @@ else
 	#C_FILES := $(filter-out %usbd_audio.c, $(C_FILES))
 
 	# Files we Patched
-	#C_FILES += $(call rwildcard, $(PATCHESPATH), *.c)
+	C_FILES += $(call rwildcard, $(PATH_PATCHES), *.c)
 
 	# Hack to fix someone's bad hack
 	#C_FILES := $(filter-out %usbd_core.c, $(C_FILES))
@@ -537,8 +539,7 @@ else
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_MIDDLEWARES), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_FREERTOS), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_CMSIS), *)))
-
-	#INC_DIRS += $(sort $(dir $(call rwildcard, $(PATCHESPATH), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_PATCHES), *)))
 
 	# Libs
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_SPI), *)))
