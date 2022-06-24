@@ -58,7 +58,7 @@ Clone "demo" folder into "projects/myproject" (or whatever),
 then write your MCU code!
 
 
-### Sketch.ino
+### Threading
 
 Inside sketch.ino you will find some 
 threads. One of them is named:
@@ -76,14 +76,6 @@ Never calling os_delay(milliseconds)
 will cause the CPU to lock up and 
 freeze, so always call it at least 
 once in a thread!
-
-
-### Sketch.hpp
-
-Inside sketch.hpp you can link 
-libraries that you want to have 
-includedin your project and also 
-set program definitions. 
 
 
 ### Building
