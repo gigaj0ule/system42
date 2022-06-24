@@ -99,7 +99,7 @@ ifeq ($(PNTP_TCP), 1)
     $(warning Building with PNTP TCP Support")
 	USE_PNTP 			:= 1
 	OPTIONS				+= -DINCLUDE_PNTP
-	OPTIONS				+= -DPNTP_USING_TCP
+	OPTIONS				+= -DPNTP_USING_ETH0
 	OPTIONS				+= -DPNTP_USING_TTY
 endif
 
