@@ -2,20 +2,12 @@
     #define __SKETCH_HPP_
 
     #ifdef INCLUDE_PNTP
-    //void remote_update_occured(void *);
 
-    static void host_wrote_data_callback(void *) {
-        // Stuff
-    }
-
-    static void host_read_data_callback(void *) {
-        // Stuff
-    }
 
     // See README.md for information about how to construct 
     // this class
 
-    class PntpCommunicable {
+    class PowernetNamespace {
 
         public:
             char device_model[16]  = "stm42";
@@ -66,7 +58,7 @@
             int32_t SM72442_tare_Iin    = 0;
 
 
-            auto customized_volatile_objects() {
+            auto volatile_properties() {
                 return make_protocol_member_list(
 
                     // Register 0
@@ -305,13 +297,13 @@
                 int32_t nv_property = 0;
             } non_volatile_properties;
 
-            auto customized_nonvolatile_objects() {
+            auto nonvolatile_properties() {
                 return make_protocol_member_list();
             }
 
             event_vector_t scan_complete_event = {1};
 
-            auto customized_interrupts() {
+            auto interrupt_properties() {
                 return make_protocol_member_list(
 
                     make_event_trigger(

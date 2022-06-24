@@ -1,4 +1,4 @@
-#if !defined(__SKETCH_HPP_) || defined(__SKETCH_ONLY_STATICS)
+#if defined(__SKETCH_ONLY_STATICS)
     #error __base_file__ should be included in sketch.ino only, after sketch.hpp
 #else
     #define __SKETCH_ONLY_STATICS
@@ -7,12 +7,8 @@
 #include "STM32FreeRTOSConfig.h"
 #include "STM32FreeRTOS.h"
 
-#include "communication.h"
+#include "powernet.h"
 
-// =========================================================================
-#ifdef INCLUDE_PNTP
-PntpCommunicable pntp;
-#endif
 
 // =========================================================================
 #if defined(ARDUINO_ARCH_STM32)
@@ -141,7 +137,7 @@ static void ui_thread(void* arg) {
 // This initializes things that are run-once operations
 // done with all projects
 //
-inline void early_setup(void) {
+inline void ui_setup(void) {
 
   // Set-up GPIOs
   pinMode(USER_BUTTON, INPUT);
@@ -157,6 +153,22 @@ inline void early_setup(void) {
 // This boots up the operating system and launches the 
 // worker thread
 //
+
+static void worker_thread(void* arg) {
+	//SerialUSB.println("hmm");
+    
+	while(true) {
+	    // Do something every second
+        os_delay(100);
+    	__asm__ volatile("nop");
+		//find_i2c_devices();
+		//while(SerialUSB.available()){
+		//	SerialUSB.print(SerialUSB.read());
+		//}
+    }
+}
+
+
 inline void create_threads(
   void (*worker_thread)(void *), 
   uint8_t worker_thread_stack_size = 5, 

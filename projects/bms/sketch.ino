@@ -49,20 +49,6 @@ float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
 }
 
 
-static void worker_thread(void* arg) {
-	//SerialUSB.println("hmm");
-    
-	while(true) {
-	    // Do something every second
-        os_delay(100);
-    	__asm__ volatile("nop");
-		//find_i2c_devices();
-		//while(SerialUSB.available()){
-		//	SerialUSB.print(SerialUSB.read());
-		//}
-    }
-}
-
 void setup() {
 
 	// Power Enable
@@ -84,17 +70,16 @@ void setup() {
 	//analogWrite(PIN_CELL_EXCITER, 128);
 
     // Init communication
-    early_setup();
-
 	myWire.begin();
-    
-    // Launch program!
-    //create_threads(worker_thread);
+
+	pntp_begin("stm32 bonjour")
 };
 
 
 void loop(){    
-    __asm__ volatile("nop");
+
+	pntp_listen();
+
 };
 
 
