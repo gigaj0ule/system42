@@ -49,10 +49,9 @@ To begin a new program you just copy
 the projects/demo folder and then view
 the files inside. 
 
-You will find a few files:
+You will find:
 
 - sketch.ino, which contains your "main" function
-- sketch.hpp, which is your project header file
 
 Clone "demo" folder into "projects/myproject" (or whatever), 
 then write your MCU code!
