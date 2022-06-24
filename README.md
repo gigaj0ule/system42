@@ -17,10 +17,13 @@ new code via USB with dfu-util
 so you don't need a special 
 programmer.
 
-I am solid. Code you write 
-will be usable forever because 
-all my dependencies are 
-included in-tree.
+I am my own build system. Just 
+type $ make.
+
+I am solid. All my dependencies 
+are included in-tree which means 
+you will always be able to build 
+and deploy me.
 
 I can automate your labor with  
 by running tiny robots or even a 
@@ -57,26 +60,6 @@ Clone "demo" folder into "projects/myproject" (or whatever),
 then write your MCU code!
 
 
-### Threading
-
-Inside sketch.ino you will find some 
-threads. One of them is named:
-    
-    static void daughter_thread(void* arg)
-    
-This is where all of your program 
-should go. You can do whatever
-you want inside this thread, but be 
-sure to call os_delay(milliseconds) 
-instead of delay(milliseconds), or 
-you will waste valuable CPU cycles. 
-
-Never calling os_delay(milliseconds) 
-will cause the CPU to lock up and 
-freeze, so always call it at least 
-once in a thread!
-
-
 ### Building
 
 To build a project, make does all 
@@ -108,6 +91,22 @@ to save it for the future. Otherwise
 it will be destroyed the next time 
 make runs with "clean" enabled.
 
+
+### Threading
+
+To create a thread:
+    
+    static void daughter_thread(void* arg)
+   
+You must call vTaskDekay(milliseconds) 
+instead of delay(milliseconds), or
+your CPU will waste useful cycles. 
+
+Always call vTaskDelay() at least
+once in a thread. If you don't, then
+the thread will crash your core.
+
+
 ### USB Firmware Upgrade
 
 After you have installed the BIOS
@@ -123,6 +122,7 @@ other hackers who don't have debug
 tools.
 
 x42 DFU usb device id is 1337:c0de
+
 
 ### Employing ion beam researchers
 
