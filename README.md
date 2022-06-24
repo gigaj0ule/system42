@@ -2,8 +2,9 @@
 
 ~j0ule 2019-2022 - alpha release
 
-I am an operating system for 
-STM/CKS/GD 32 Bit microcontrollers.
+I am a multithreaded operating 
+system for STM/CKS/GD 32 Bit 
+microcontrollers.
 
 I support arduino, st-hal, 
 and freeRTOS simultaneously.
