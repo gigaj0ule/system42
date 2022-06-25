@@ -62,17 +62,17 @@ void setup() {
 	pinMode(PIN_DATA_BUS_3, OUTPUT_OPEN_DRAIN);
 	
 	// ADC
-	//pinMode(PIN_CELL_V_ADC, INPUT);
+	pinMode(PIN_CELL_V_ADC, INPUT);
 
 	// Exciter
-	//pinMode(PIN_CELL_EXCITER, OUTPUT);
-	//analogWriteFrequency(0.5 * 32768);
-	//analogWrite(PIN_CELL_EXCITER, 128);
+	pinMode(PIN_CELL_EXCITER, OUTPUT);
+	analogWriteFrequency(0.5 * 32768);
+	analogWrite(PIN_CELL_EXCITER, 128);
 
     // Init communication
 	myWire.begin();
 
-	pntp_begin("stm32 bonjour")
+	pntp_begin("stm32 bms")
 };
 
 
