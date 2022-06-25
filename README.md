@@ -1,32 +1,32 @@
-# x42: The answer to life, the universe, and everything MCU
+# system42
 
 ~j0ule 2019-2022 - alpha release
 
-This is an operating system for 
-STM/CKS/GD 32 Bit microcontrollers.
+I am a multithreaded operating 
+system for STM/CKS/GD 32 Bit 
+microcontrollers.
 
-x42 is a multithreaded operating 
-system that supports arduino, st-hal, 
+I support arduino, st-hal, 
 and freeRTOS simultaneously.
 
-x42 supports both TTY and TCP 
+I support TTY and Ethernet
 communication.
 
-x42 has a BIOS that can flash 
-new code over USB with dfu-util 
+I have a BIOS that can accept 
+new code via USB with dfu-util 
 so you don't need a special 
 programmer.
 
-This is a stable OS. Code you write 
-on the x42 operating system will 
-be usable forever because all the 
-dependencies are included in-tree.
+I am my own build system. Just 
+type $ make.
 
-You can do tons of awesome stuff 
-in 5k of ram. Honestly it's the 
-best thing ever. No really, you 
-can automate your labor with this 
-by making tiny robots or even a 
+I am solid. All my dependencies 
+are included in-tree which means 
+you will always be able to build 
+and deploy me.
+
+I can automate your labor with  
+by running tiny robots or even a 
 whole village of them. These robot 
 villages can help you live your 
 best life on starship earth.
@@ -52,41 +52,12 @@ To begin a new program you just copy
 the projects/demo folder and then view
 the files inside. 
 
-You will find a few files:
+You will find:
 
 - sketch.ino, which contains your "main" function
-- sketch.hpp, which is your project header file
 
 Clone "demo" folder into "projects/myproject" (or whatever), 
 then write your MCU code!
-
-
-### Sketch.ino
-
-Inside sketch.ino you will find some 
-threads. One of them is named:
-    
-    static void daughter_thread(void* arg)
-    
-This is where all of your program 
-should go. You can do whatever
-you want inside this thread, but be 
-sure to call os_delay(milliseconds) 
-instead of delay(milliseconds), or 
-you will waste valuable CPU cycles. 
-
-Never calling os_delay(milliseconds) 
-will cause the CPU to lock up and 
-freeze, so always call it at least 
-once in a thread!
-
-
-### Sketch.hpp
-
-Inside sketch.hpp you can link 
-libraries that you want to have 
-includedin your project and also 
-set program definitions. 
 
 
 ### Building
@@ -120,6 +91,22 @@ to save it for the future. Otherwise
 it will be destroyed the next time 
 make runs with "clean" enabled.
 
+
+### Threading
+
+To create a thread:
+    
+    static void daughter_thread(void* arg)
+   
+You must call vTaskDekay(milliseconds) 
+instead of delay(milliseconds), or
+your CPU will waste useful cycles. 
+
+Always call vTaskDelay() at least
+once in a thread. If you don't, then
+the thread will crash your core.
+
+
 ### USB Firmware Upgrade
 
 After you have installed the BIOS
@@ -135,6 +122,7 @@ other hackers who don't have debug
 tools.
 
 x42 DFU usb device id is 1337:c0de
+
 
 ### Employing ion beam researchers
 
