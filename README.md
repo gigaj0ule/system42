@@ -1,5 +1,5 @@
 # system42
-### answer to the mcu life, universe, and everything
+### answer to life, universe, and everything mcu
 
 ~j0ule 2019-2022 - alpha release
 
