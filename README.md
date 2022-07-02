@@ -26,8 +26,8 @@ are included in-tree which means
 you will always be able to build 
 and deploy me.
 
-I can automate your labor with  
-by running tiny robots or even a 
+I can automate your labor by 
+running tiny robots or even a 
 whole village of them. These robot 
 villages can help you live your 
 best life on starship earth.
