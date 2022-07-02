@@ -1,5 +1,6 @@
 # system42
-answer to the mcu life, universe, and everything
+# answer to the mcu life, universe, and everything
+
 ~j0ule 2019-2022 - alpha release
 
 I am a multithreaded operating 
