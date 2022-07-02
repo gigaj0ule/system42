@@ -121,7 +121,7 @@ new firmware distributions out to
 other hackers who don't have debug
 tools.
 
-x42 DFU usb device id is 1337:c0de
+The DFU usb device id is 1337:c0de
 
 
 ### Employing ion beam researchers
