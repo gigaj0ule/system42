@@ -289,6 +289,7 @@ CPPFLAGS += -fdata-sections
 CPPFLAGS += -MMD
 CPPFLAGS += -ffast-math 
 CPPFLAGS += -fno-math-errno
+CPPFLAGS += -Werror=return-type
 CPPFLAGS += -Wall -Wdouble-promotion -Wfloat-conversion
 
 # Special compiler flags for ODRIVE_CODEBASE

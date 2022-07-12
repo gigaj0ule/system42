@@ -252,9 +252,22 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop)
       case I2C_NACK_DATA:
         ret = 3;
         break;
+      
       case I2C_TIMEOUT:
       case I2C_BUSY:
       case I2C_ERROR:
+      
+      /*
+      case I2C_TIMEOUT:
+        ret = 8;
+        break;
+      case I2C_BUSY:
+        ret = 5;
+        break;
+      case I2C_ERROR:
+        ret = 6;
+        break;*/
+
       default:
         ret = 4;
         break;

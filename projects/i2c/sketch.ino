@@ -1,55 +1,58 @@
 // Headers
-#include "sketch.hpp"
 #include "sketch_only_statics.hpp"
+
+#include "sketch.hpp"
+
+#include "powernet.h"
 #include "Wire.h"
 
-#include "protocol.hpp"
-
-#if defined(USBD_USE_HID_COMPOSITE)
-    #include "Keyboard.h"
-    #include "Mouse.h"
-#endif
-
+PowernetNamespace pntp;
 
 TwoWire myWire (PB7, PB6);
 
 void find_i2c_devices();
 
+#define AFE_WAKE PB5
+#define AFE_RESET PB4
+#define AFE_ALERT PC15
 
+void afe_wake(){
+	pinMode(AFE_WAKE, OUTPUT);
+	digitalWrite(AFE_WAKE, HIGH);
+	delay(3);
+	digitalWrite(AFE_WAKE, LOW);
+}
 
-static void worker_thread(void* arg) {
-    while(true) {
-	    // Do something every second
-        os_delay(1000);
-		find_i2c_devices();
-        //send_system_interrupt(SYSINT_USER_BUTTON_RISING);
-    }
+void afe_reset() {
+	pinMode(AFE_RESET, OUTPUT);
+	digitalWrite(AFE_RESET, HIGH);
+	delay(1);
+	digitalWrite(AFE_RESET, LOW);
 }
 
 void setup() {
 
-    #if defined(USBD_USE_HID_COMPOSITE)
-        Mouse.begin();
-        Keyboard.begin();
-    #endif
-        
-    // Init communication
-    early_setup();
-
 	myWire.begin();
-    
+	
     // Launch program!
-    create_threads(worker_thread);
+    pntp_begin("i2c scanner");
 };
 
 
 void loop(){    
-    __asm__ volatile("nop");
-    //os_delay(1);
-    
-    #if defined(USBD_USE_CDC)
-    //SerialUSB.print("Hi");
-    #endif
+
+	if(pntp.afe_wake) {
+		pntp.afe_wake = 0;
+		afe_wake();
+	}
+
+	if(pntp.afe_reset) {
+		pntp.afe_reset = 0;
+		afe_reset();
+	}
+
+	pntp_listen();
+	find_i2c_devices();
 };
 
 
@@ -111,5 +114,5 @@ void find_i2c_devices()
 	}
 
 	// Scan complete
-	send_event_to_host(pntp.scan_complete_event);
+	//send_event_to_host(pntp.scan_complete_event);
 }

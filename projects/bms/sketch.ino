@@ -14,15 +14,18 @@
 TwoWire myWire (PB11, PB10);
 
 
+void find_i2c_devices();
+void data_bus_write (uint8_t address);
+
 #define PIN_POWER_ENABLE PA0
 #define PIN_CELL_EXCITER PA10
 #define PIN_CELL_V_ADC   PB1
+
+
 #define PIN_DATA_BUS_0   PB12
 #define PIN_DATA_BUS_1   PB13
 #define PIN_DATA_BUS_2   PB14
 #define PIN_DATA_BUS_3   PB15
-
-void find_i2c_devices();
 
 
 void data_bus_write (uint8_t address) {

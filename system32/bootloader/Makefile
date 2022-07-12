@@ -195,8 +195,8 @@ all: $(TARGET).hex $(TARGET).bin $(TARGET).asm
 build: $(TARGET).elf
 
 upload: $(TARGET).bin
-	openocd -c 'debug_level 3' -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_ERASE) $(OPENOCD_UNLOCK) -c "exit"
-	#openocd -c 'debug_level 2' -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_UNLOCK) -c "exit"
+	#openocd -c 'debug_level 3' -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_ERASE) $(OPENOCD_UNLOCK) -c "exit"
+	openocd -c 'debug_level 2' -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG) $(OPENOCD_UNLOCK) -c "exit"
 	openocd -c 'debug_level 2' -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f $(OPENOCD_CFG)  $(OPENOCD_PROGRAM)
 
 read-options:

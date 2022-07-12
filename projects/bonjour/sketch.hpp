@@ -5,7 +5,6 @@
     #include "powernet.h"
 
 
-
     // See README.md for information about how to construct 
     // this class
 
@@ -26,12 +25,12 @@
 
             struct NvmProperties_t {
                 int32_t nv_property = 0;
-            } non_volatile_properties;
+            } disk0;
 
-            auto nonvolatile_properties() {
+            auto non_volatile_properties() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
-                        &non_volatile_properties.nv_property,
+                        &disk0.nv_property,
                         property_name = "sample_nv_property"
                     )
                 );
