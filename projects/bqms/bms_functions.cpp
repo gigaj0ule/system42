@@ -212,7 +212,7 @@ void bq_balanceCells(void){
 		// by comparing the desired balance tolerance 
 		// to the mean
 		//
-		float cell_voltage_difference = pntp.b0_cell_voltage - pntp.b0_cell_voltage_mean;
+		float cell_voltage_difference = pntp.b0_cell_voltage[i] - pntp.b0_cell_voltage_mean;
 
 		// Balance this cell if the tolerance is exceeded
 		if(cell_voltage_difference > cell_voltage_tolerance) {
