@@ -199,19 +199,29 @@ void bq_balanceCells(void){
 	for(int i = 0 ; i < NUMBER_OF_CELLS ; i++) {
 
 		// Zero voltage cells should not be balanced or counted
-		//
 		if(enabled_adc_channels[i] == false) {
 			return;
 		}
 
 		// Disable this particular cell [i]
-		//
 		bq769x0_enableBalancing(i, false);
+
+		// Make sure the IC die temperature isn't too high.
+		// If it is then we cannot continue
+		for(int i = 0; i < 3; i++) {
+			pntp.b0_adc_temp[i] = bq769x0_readDieTemp(i);
+		}
+
+		// 50*C seems like a good limit
+		// any hotter and finger will burn
+		if(pntp.b0_adc_temp > 50.0f) {
+			// Too hot, must cool down
+			return;
+		}
 
 		// Now we calculate what cells need balancing
 		// by comparing the desired balance tolerance 
 		// to the mean
-		//
 		float cell_voltage_difference = pntp.b0_cell_voltage[i] - pntp.b0_cell_voltage_mean;
 
 		// Balance this cell if the tolerance is exceeded
@@ -237,5 +247,4 @@ void bq_balanceCells(void){
 			}
 		}
 	}
-
 }

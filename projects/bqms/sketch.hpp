@@ -22,7 +22,7 @@
 
             // Current (A)
             float b0_pack_i;
-            float b0_adc_temp;
+            float b0_adc_temp[3] = { 0.0f };
             float b0_i_max;
 
             // Cell voltages (V)
@@ -378,9 +378,27 @@
                             property_units = "A",
                             property_is_read_only = true
                         ),
+                    ),
+
+                    // ------------------------------
+                    // Analog Front End
+                    //
+                    make_protocol_object("afe",
                         make_protocol_number_kw(
-                            &b0_adc_temp,
-                            property_name = "adc_temp",
+                            &b0_adc_temp[0],
+                            property_name = "t_0",
+                            property_units = "*C",
+                            property_is_read_only = true
+                        )
+                        make_protocol_number_kw(
+                            &b0_adc_temp[1],
+                            property_name = "t_1",
+                            property_units = "*C",
+                            property_is_read_only = true
+                        )
+                        make_protocol_number_kw(
+                            &b0_adc_temp[2],
+                            property_name = "t_2",
                             property_units = "*C",
                             property_is_read_only = true
                         )

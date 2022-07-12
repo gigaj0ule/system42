@@ -83,6 +83,8 @@ void    bq769x0_wake(void);
 bool    bq769x0_listen(void);
 float   bq76940_roundf(float number, int precision);
 
+float    bq769x0_readDieTemp(int dieNumber);
+
 
 // My pack is a 15 cell lipo that runs at 48V. Your pack may vary. Read the datasheet!
 // This code is written for the bq76940. The bq76940 supports 9 to 15 cells.

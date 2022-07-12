@@ -496,6 +496,60 @@ int bq769x0_readTemp(byte thermistorNumber)
     return(-0);
 }
 
+
+
+// ---------------------------------------------------------------------
+// Given a thermistor number return the temperature in C
+// Valid thermistor numbers are 1 to 3 for external and 0 to read the internal die temp
+// If you switch between internal die and external TSs this function will delay 2 seconds
+//
+float bq769x0_readDieTemp(int thermistorNumber)
+{
+	// There are 3 internal temp readings
+	if(thermistorNumber > 2) {
+		// Return error
+		return(-0.0f);
+	}
+
+	// Check to see if we switched to internal temp and if not then do so
+	byte sysValue = bq769x0_registerRead(bq796x0_SYS_CTRL1);
+
+	// See if we need to switch between internal die temp and external thermistor
+	if((sysValue & 1<<3) != 0) {
+
+		// Bad news, we have to do a switch and wait 2 seconds
+		// Clear the TEMP_SEL bit
+		sysValue &= ~(1<<3);
+		bq769x0_registerWrite(bq796x0_SYS_CTRL1, sysValue);
+
+		// SerialUSB.println("Waiting 2 seconds to switch to internal die thermistors");
+		delay(2000);
+	}
+
+	// There are multiple internal die temperatures. We are only going to grab 1.
+	int registerNumber = bq796x0_TS1_HI + ((thermistorNumber - 1) * 2);
+	int thermValue = bq769x0_registerDoubleRead(registerNumber);
+
+	// Therm value should now contain a 14 bit value
+	// SerialUSB.print("Therm value: 0x");
+	// SerialUSB.println(thermValue, HEX);
+
+	// 0xC89 * 382 = 1,225,838uV. 0x233C * 382uV/LSB = 3,445,640uV
+	float thermVoltage = thermValue * (float)382;
+
+	// Convert to V
+	thermVoltage /= (float)1000000;
+
+	// SerialUSB.print("thermVoltage: ");
+	// SerialUSB.println(thermVoltage, 3);
+
+	float temperatureC = 25.0f - ((thermVoltage - 1.2f) / 0.0042f);
+
+	// Done
+	return(temperatureC);		
+}
+
+
 // ---------------------------------------------------------------------
 // Returns the coulomb counter value in microVolts
 // Example: 84,400uV

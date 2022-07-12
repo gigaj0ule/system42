@@ -161,10 +161,10 @@ void bms_thread(void * arg) {
 
 		// Get cell currents
 		bq_readCellTemps();
-			
-		// Get the ADC temperature
-		pntp.b0_adc_temp = bq769x0_readTemp(0);
 
+		// Balance cells
+		bq_balanceCells();
+			
 		// Get pack voltage
 		pntp.b0_cell_voltage_total = bq769x0_readPackVoltage();
 
