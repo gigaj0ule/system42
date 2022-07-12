@@ -1,4 +1,5 @@
 # system42
+### answer to life, universe, and everything m.c.u.
 
 ~j0ule 2019-2022 - alpha release
 
@@ -25,8 +26,8 @@ are included in-tree which means
 you will always be able to build 
 and deploy me.
 
-I can automate your labor with  
-by running tiny robots or even a 
+I can automate your labor by 
+running tiny robots or even a 
 whole village of them. These robot 
 villages can help you live your 
 best life on starship earth.
@@ -121,7 +122,7 @@ new firmware distributions out to
 other hackers who don't have debug
 tools.
 
-x42 DFU usb device id is 1337:c0de
+The DFU usb device id is 1337:c0de
 
 
 ### Employing ion beam researchers
