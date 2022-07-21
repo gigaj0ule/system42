@@ -24,7 +24,7 @@ bool enabled_adc_channels[15] = {
 	true, 	// 12
 	false,	// 13
 	true	// 14
-}
+};
 
 
 // ----------------------------------------------------
@@ -52,6 +52,7 @@ void data_bus_write (uint8_t address) {
 // Measure a thermistor channel
 //
 // Thermistor parameters:
+//
 #define TS_RT0 10000   // Ω
 #define TS_B 3977      // K
 #define TS_VCC 3.3    	// Supply voltage
@@ -98,7 +99,7 @@ float bq_measureThermistorChannel(byte channel) {
 //
 #define NUMBER_OF_THERMISTORS 12
 
-void bq_readCellTemps(void) {
+int bq_readCellTemps(void) {
 
 	// We multiplex the thermistors by having two
 	// analog grounds
@@ -107,7 +108,7 @@ void bq_readCellTemps(void) {
 	pinMode(PIN_TS_A_B, OUTPUT);
 
 	// Select ground A
-	digitalWrite(PIN_TS_A_B, LOW);
+	digitalWrite(PIN_TS_A_B, HIGH);
 
 	// Wait to settle
 	delay(1);
@@ -118,7 +119,7 @@ void bq_readCellTemps(void) {
 	}
 
 	// Select ground B
-	digitalWrite(PIN_TS_A_B, HIGH);
+	digitalWrite(PIN_TS_A_B, LOW);
 
 	// Wait to settle
 	delay(1);
@@ -129,20 +130,20 @@ void bq_readCellTemps(void) {
 	}
 
 	// Reset ground state
-	digitalWrite(PIN_TS_A_B, LOW);
-}
+	digitalWrite(PIN_TS_A_B, HIGH);
 
+	// Done
+	return 0;
+}
 
 // ----------------------------------------------------
 // Measure all cell V
 //
-
-// Cell voltage accumulator
 float cell_voltage_accumulator;
 float cell_voltage_min;
 float cell_voltage_max;
 
-void bq_readCellVoltages(void){
+int bq_readCellVoltages(void) {
 	
 	// Cell statistics reset
 	cell_voltage_accumulator = 0.0f;
@@ -155,7 +156,7 @@ void bq_readCellVoltages(void){
 	for(int i = 0 ; i < NUMBER_OF_CELLS ; i++) {
 
 		if(enabled_adc_channels[i] == false) {
-			return;
+			continue;
 		}
 
 		// Count this cell
@@ -180,6 +181,9 @@ void bq_readCellVoltages(void){
 
 	// Calculate mean cell voltage
 	pntp.b0_cell_voltage_mean = cell_voltage_accumulator / (float) num_cells;
+
+	// Done
+	return 0;
 }
 
 
@@ -193,30 +197,43 @@ void bq_readCellVoltages(void){
 bool balance_flip_flop = false;
 float cell_voltage_tolerance = 0.1f;
 
-void bq_balanceCells(void){
+int bq_balanceCells(void) {
 
 	// First disable all balanced cells
 	for(int i = 0 ; i < NUMBER_OF_CELLS ; i++) {
 
 		// Zero voltage cells should not be balanced or counted
 		if(enabled_adc_channels[i] == false) {
-			return;
+			continue;
 		}
 
 		// Disable this particular cell [i]
 		bq769x0_enableBalancing(i, false);
+		pntp.b0_cell_is_balancing[i] = 0;
 
 		// Make sure the IC die temperature isn't too high.
 		// If it is then we cannot continue
+		float adc_die_temp = 0.0f;
+
+		// Get die temp(s)
 		for(int i = 0; i < 3; i++) {
-			pntp.b0_adc_temp[i] = bq769x0_readDieTemp(i);
+
+			float new_die_temp = bq769x0_readDieTemp(i);
+
+			// Look for the maximum temperature
+			if(new_die_temp > adc_die_temp) {
+				adc_die_temp = new_die_temp;
+			}
 		}
 
+		// Debug
+		pntp.b0_adc_temp = adc_die_temp;
+
 		// 50*C seems like a good limit
-		// any hotter and finger will burn
-		if(pntp.b0_adc_temp > 50.0f) {
-			// Too hot, must cool down
-			return;
+		if(adc_die_temp > 50.0f) {
+
+			// Any hotter and finger will burn
+			return -1;
 		}
 
 		// Now we calculate what cells need balancing
@@ -239,12 +256,17 @@ void bq_balanceCells(void){
 			// Balance odd cells on flip_flop 1
 			if(cell_is_odd & balance_flip_flop) {
 				bq769x0_enableBalancing(i, true);
+				pntp.b0_cell_is_balancing[i] = 1;
 			}
 
 			// Balance even cells on flip_flop 0
 			if(!cell_is_odd & !balance_flip_flop) {
-				bq769x0_enableBalancing(i, true);				
+				bq769x0_enableBalancing(i, true);
+				pntp.b0_cell_is_balancing[i] = 1;		
 			}
 		}
 	}
+
+	// Done
+	return 0;
 }

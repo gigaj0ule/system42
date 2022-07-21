@@ -8,7 +8,7 @@
         public:
 
             // BIST I2C Scanner
-            char i2c_addresses[127*6] = {0};
+            //char i2c_addresses[127*6] = {0};
 
             uint8_t i2c_device_count = 0;
 
@@ -22,7 +22,7 @@
 
             // Current (A)
             float b0_pack_i;
-            float b0_adc_temp[3] = { 0.0f };
+            float b0_adc_temp = 0.0f;
             float b0_i_max;
 
             // Cell voltages (V)
@@ -30,6 +30,9 @@
             float b0_cell_voltage_min = 0.0f;
             float b0_cell_voltage_max = 0.0f;
             float b0_cell_voltage_mean = 0.0f;
+
+            // Balancing
+            bool b0_cell_is_balancing[15] = { 0 };
 
             // Pack
             float b0_cell_voltage_total = 0.0f;
@@ -48,6 +51,9 @@
             // Debugging
             int64_t loop_counter = 0;
 
+            #define TS_A_GND 0
+            #define TS_B_GND 1
+
             // Communicable Properties
             auto volatile_properties() {
 
@@ -65,15 +71,20 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][0],
+                            &b0_cell_temperatue[TS_A_GND][0],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][0],
+                            &b0_cell_temperatue[TS_B_GND][0],
                             property_name = "t_p",
                             property_units = "*C",
+                            property_is_read_only = true
+                        ),
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[0],
+                            property_name = "bal",
                             property_is_read_only = true
                         )
                     ),
@@ -90,15 +101,20 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][1],
+                            &b0_cell_temperatue[TS_B_GND][1],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][1],
+                            &b0_cell_temperatue[TS_A_GND][1],
                             property_name = "t_p",
                             property_units = "*C",
+                            property_is_read_only = true
+                        ),
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[1],
+                            property_name = "bal",
                             property_is_read_only = true
                         )
                     ),
@@ -115,15 +131,20 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][2],
+                            &b0_cell_temperatue[TS_A_GND][2],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][2],
+                            &b0_cell_temperatue[TS_B_GND][2],
                             property_name = "t_p",
                             property_units = "*C",
+                            property_is_read_only = true
+                        ),
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[2],
+                            property_name = "bal",
                             property_is_read_only = true
                         )
                     ),
@@ -143,15 +164,20 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][3],
+                            &b0_cell_temperatue[TS_B_GND][3],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][3],
+                            &b0_cell_temperatue[TS_A_GND][3],
                             property_name = "t_p",
                             property_units = "*C",
+                            property_is_read_only = true
+                        ),
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[3],
+                            property_name = "bal",
                             property_is_read_only = true
                         )
                     ),
@@ -168,17 +194,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][4],
+                            &b0_cell_temperatue[TS_A_GND][4],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][4],
+                            &b0_cell_temperatue[TS_B_GND][4],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[4],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -193,17 +225,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][5],
+                            &b0_cell_temperatue[TS_A_GND][5],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][5],
+                            &b0_cell_temperatue[TS_B_GND][5],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[6],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -218,17 +256,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][6],
+                            &b0_cell_temperatue[TS_B_GND][6],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][6],
+                            &b0_cell_temperatue[TS_A_GND][6],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[7],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -246,17 +290,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][7],
+                            &b0_cell_temperatue[TS_B_GND][7],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][7],
+                            &b0_cell_temperatue[TS_A_GND][7],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[9],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -271,17 +321,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][8],
+                            &b0_cell_temperatue[TS_A_GND][8],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][8],
+                            &b0_cell_temperatue[TS_B_GND][8],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[10],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -296,17 +352,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][9],
+                            &b0_cell_temperatue[TS_B_GND][9],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][9],
+                            &b0_cell_temperatue[TS_A_GND][9],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[11],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -315,23 +377,29 @@
                     //
                     make_protocol_object("cell_10",
                         make_protocol_number_kw(
-                            &b0_cell_voltage[6],
+                            &b0_cell_voltage[12],
                             property_name = "v",
                             property_units = "V",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][10],
+                            &b0_cell_temperatue[TS_A_GND][10],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][10],
+                            &b0_cell_temperatue[TS_B_GND][10],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[12],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -349,17 +417,23 @@
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[0][11],
+                            &b0_cell_temperatue[TS_B_GND][11],
                             property_name = "t_n",
                             property_units = "*C",
                             property_is_read_only = true
                         ),
                         make_protocol_number_kw(
-                            &b0_cell_temperatue[1][11],
+                            &b0_cell_temperatue[TS_A_GND][11],
                             property_name = "t_p",
                             property_units = "*C",
                             property_is_read_only = true
                         )
+                        /*,
+                        make_protocol_number_kw(
+                            &b0_cell_is_balancing[14],
+                            property_name = "shunted",
+                            property_is_read_only = true
+                        )*/
                     ),
 
                     // ------------------------------
@@ -378,27 +452,9 @@
                             property_units = "A",
                             property_is_read_only = true
                         ),
-                    ),
-
-                    // ------------------------------
-                    // Analog Front End
-                    //
-                    make_protocol_object("afe",
                         make_protocol_number_kw(
-                            &b0_adc_temp[0],
-                            property_name = "t_0",
-                            property_units = "*C",
-                            property_is_read_only = true
-                        )
-                        make_protocol_number_kw(
-                            &b0_adc_temp[1],
-                            property_name = "t_1",
-                            property_units = "*C",
-                            property_is_read_only = true
-                        )
-                        make_protocol_number_kw(
-                            &b0_adc_temp[2],
-                            property_name = "t_2",
+                            &b0_adc_temp,
+                            property_name = "adc_temp",
                             property_units = "*C",
                             property_is_read_only = true
                         )
@@ -419,17 +475,16 @@
                             &i2c_device_count,
                             property_name = "i2c_device_count",
                             property_is_read_only = true
-                        ),
-
+                        )
+                        /*,
                         make_protocol_string_kw(
                             &i2c_addresses,
                             property_name = "i2c_addresses",
                             property_length = sizeof(i2c_addresses),
                             property_is_read_only = true
-                        )
+                        )*/
                     )
                 );
-
             };
 
             struct NvmProperties_t {
@@ -440,15 +495,15 @@
                 return make_protocol_member_list();
             }
 
-            event_vector_t scan_complete_event = {1};
+            //event_vector_t scan_complete_event = {1};
 
             auto interrupt_properties() {
                 return make_protocol_member_list(
 
-                    make_event_trigger(
+                    /*make_event_trigger(
                         &scan_complete_event,
                         property_name = "scan_complete"
-                    )
+                    )*/
                 );
             };
     };

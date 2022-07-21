@@ -32,9 +32,8 @@ int main(void) {
 	set_up_led_and_button();
 
 	// Enable "power good" output
-	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO0);
-	gpio_set(GPIOA, GPIO0);
-
+	set_power_pin();
+	
 	// Test to see if this is was a dumb clone
 	check_set_device_unique();
 

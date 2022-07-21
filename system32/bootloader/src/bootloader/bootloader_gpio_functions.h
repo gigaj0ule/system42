@@ -34,4 +34,22 @@
 		#endif
 	}
 
+
+	static void set_power_pin(void) {
+		
+		#if defined(STM32F0)
+		#elif defined(STM32F1)
+		
+			gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO0);
+			gpio_set(GPIOA, GPIO0);
+		
+		#elif defined(STM32F4)
+
+			gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
+			gpio_set(GPIOA, GPIO0);
+
+		#endif
+	}
+
+
 #endif

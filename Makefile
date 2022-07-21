@@ -85,10 +85,10 @@ else
 	CPUID               := 0x2ba01477
 	FLASH_SIZE 			:= 1048576
 	RAM_SIZE            := 196608
-	OPTIONS             += -DARDUINO_DISCO_F407VG
-	OPTIONS				+= -DSTM32F407xx
-	VARIANT 			:= variant_DISCO_F407VG
-	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F4xx/F407V(E-G)T_F417V(E-G)T
+	OPTIONS             += -DARDUINO_GENERIC_F405RGTX
+	OPTIONS				+= -DSTM32F405xx
+	VARIANT 			:= variant_generic
+	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F4xx/F405RGT_F415RGT
 	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
 endif
 
@@ -126,7 +126,8 @@ endif
 ifeq ($(COREFILES_FAMILY), f1)
 	CPU_VARIANT := STM32F1xx
 	OPTIONS     += -DBOARD_NAME="\"BLUEPILL_F103C8\"" 
-	OPTIONS     += -DSTM32F10X_MD -D__STM32F1__
+	OPTIONS     += -DSTM32F10X_MD 
+	OPTIONS     += -D__STM32F1__
 	OPTIONS     += -DARDUINO_ARCH_STM32F1
 
 	BOOTLOADER_SIZE := 0x2800
@@ -136,6 +137,7 @@ else ifeq ($(COREFILES_FAMILY), f4)
 	OPTIONS     += -DBOARD_NAME="\"DISCO_F407VG\"" 
 	OPTIONS     += -D'__UNALIGNED_UINT32_READ(addr)=(*((const __packed uint32_t *)(addr)))'
 	OPTIONS     += -D'__UNALIGNED_UINT32_WRITE(addr, val)=((*((__packed uint32_t *)(addr))) = (val))'
+	OPTIONS     += -D__STM32F4__
 	#OPTIONS    += -DARDUINO_ARCH_STM32F4
 
 	BOOTLOADER_SIZE := 0x4000
@@ -500,13 +502,15 @@ else
 	CPP_FILES += $(wildcard $(VARIANTPATH)/*.cpp)
 
 	# Remove files we patched
-	#C_FILES := $(filter-out %hw_config.c, $(C_FILES))
 	C_FILES := $(filter-out %usbd_ep_conf.c, $(C_FILES))
-	
+	C_FILES := $(filter-out %cdc_queue.c, $(C_FILES))
+	C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
+	C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
+
+	#C_FILES := $(filter-out %hw_config.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_desc.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
-	#C_FILES := $(filter-out %cdc_queue.c, $(C_FILES))	
 	#C_FILES := $(filter-out %usbd_hid_composite.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_hid_composite_if.c, $(C_FILES))
 	#C_FILES := $(filter-out %usbd_audio.c, $(C_FILES))

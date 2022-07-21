@@ -40,8 +40,10 @@ static void catch_fault() {
 	pinMode(PA8, OUTPUT);
 
     while(1) {
+		serialEventUSB();
+
 		digitalWrite(PA8, !digitalRead(PA8));
-		delay(500);
+		delay(100);
     }
 }
 
@@ -51,9 +53,12 @@ static void catch_fault() {
 //
 void setup() {
 
+	pinMode(PA0, OUTPUT);
+	pinMode(PA0, HIGH);
+
 	// Initialize I2C Bus
 	myWire.begin();
-	
+
     // Launch program!
     pntp_begin("bq769x0 BMS");
 
@@ -66,10 +71,10 @@ void setup() {
 	loop_interval_timer = millis();
 
 	// Create worker task
-    portBASE_TYPE bms_thread_pointer = xTaskCreate(
+    /*portBASE_TYPE bms_thread_pointer = xTaskCreate(
 		bms_thread, 
 		NULL, 
-		5 * configMINIMAL_STACK_SIZE, 
+		2 * configMINIMAL_STACK_SIZE, 
 		NULL, 
 		1, 
 		NULL
@@ -98,12 +103,13 @@ void setup() {
 
     // We should not reach this point unless there was an error
     catch_fault();
+	*/
 }
 
 // Arduino.h run Forever
 //
 void loop() {
-
+	bool activity = pntp_listen();
 }
 
 
@@ -154,7 +160,7 @@ void bms_thread(void * arg) {
 		bq769x0_listen();
 
 		// Scan I2C
-		find_i2c_devices();
+		//find_i2c_devices();
 
 		// Get cell voltages
 		bq_readCellVoltages();
@@ -182,9 +188,9 @@ void bms_thread(void * arg) {
 }
 
 
-
 // Scan the I2C Bus
 // 
+/*
 void find_i2c_devices() {
 	
 	// SerialUSB.println("Looking for I2C Devices...");
@@ -249,3 +255,4 @@ void find_i2c_devices() {
 	// Scan complete
 	// send_event_to_host(pntp.scan_complete_event);
 }
+*/

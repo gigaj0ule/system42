@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    
         {
             // For the Cortex-Debug extension
             "type": "cortex-debug",
@@ -36,7 +37,39 @@
             "cwd": "${workspaceRoot}",
             "showDevDebugOutput": "raw",
             "svdFile": "${workspaceRoot}/system32/_debug_tools/STM32F103.svd",
-            "overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+            //"overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+        },
+
+        {
+            // For the Cortex-Debug extension
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "request": "launch",
+            "name": "Debug F405 (STM32)",
+            "executable": "${workspaceRoot}/__build/fw.elf",
+            "device": "STM32F405RG",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "${workspaceRoot}/system32/_debug_tools/stm32f4discovery.cfg"
+            ],
+            "cwd": "${workspaceRoot}",
+            "showDevDebugOutput": "raw"
+            //"overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
+        },
+        {
+            // For the Cortex-Debug extension
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "request": "launch",
+            "name": "Debug Bootloader F405 (STM32)",
+            "executable": "${workspaceRoot}/system32/bootloader/__build/fw.elf",
+            "device": "STM32F405RG",
+            "configFiles": [
+                "${workspaceRoot}/system32/_debug_tools/stm32f4discovery.cfg"
+            ],  
+            "cwd": "${workspaceRoot}",
+            "showDevDebugOutput": "raw",
+            //"overrideGDBServerStartedRegex": "Info\\s:\\s([^\\n\\.]*)\\.cpu([^\\n]*)"
         }
     ]
 }

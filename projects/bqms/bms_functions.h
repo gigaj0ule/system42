@@ -8,8 +8,8 @@
 
     float bq_measureThermistorChannel(byte channel);
 
-    void bq_readCellTemps(void);
-    void bq_readCellVoltages(void);
-    void bq_balanceCells(void);
+    int bq_readCellTemps(void);
+    int bq_readCellVoltages(void);
+    int bq_balanceCells(void);
 
 #endif // __BMS_FUNCTIONS_H__

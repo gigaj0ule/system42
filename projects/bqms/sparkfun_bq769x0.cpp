@@ -136,10 +136,6 @@ bool bq769x0_listen() {
     return 0;
 }
 
-double dround(double val, int dp) {
-
-}
-
 // ---------------------------------------------------------------------
 // Round X to Y places
 //
@@ -269,7 +265,7 @@ bool bq769x0_initBQ(TwoWire &passedWire, byte bq_irqPin) {
 // Enable or disable the balancing of a given cell
 // Give me a cell # and whether you want balancing or not
 //
-void enableBalancing(byte cellNumber, bool enabled) {
+void bq769x0_enableBalancing(byte cellNumber, bool enabled) {
 
 	byte startingBit, cellRegister;
 
@@ -527,7 +523,7 @@ float bq769x0_readDieTemp(int thermistorNumber)
 	}
 
 	// There are multiple internal die temperatures. We are only going to grab 1.
-	int registerNumber = bq796x0_TS1_HI + ((thermistorNumber - 1) * 2);
+	int registerNumber = bq796x0_TS1_HI + ((thermistorNumber) * 2);
 	int thermValue = bq769x0_registerDoubleRead(registerNumber);
 
 	// Therm value should now contain a 14 bit value
