@@ -30,22 +30,15 @@ void find_i2c_devices();
 uint64_t loop_interval_timer; 
 
 // Services
-void comms_thread(void * arg);
-void bms_thread(void * arg);
+void comms_thread_tty0(void const * args);
+void comms_thread_eth0(void const * args);
+void bms_thread(const void * args);
+
+void catch_fault(void);
+
 bool application_is_running = true;
 
 
-static void catch_fault() {
-
-	pinMode(PA8, OUTPUT);
-
-    while(1) {
-		serialEventUSB();
-
-		digitalWrite(PA8, !digitalRead(PA8));
-		delay(100);
-    }
-}
 
 
 // ----------------------------------------------------
@@ -71,39 +64,22 @@ void setup() {
 	loop_interval_timer = millis();
 
 	// Create worker task
-    /*portBASE_TYPE bms_thread_pointer = xTaskCreate(
-		bms_thread, 
-		NULL, 
-		2 * configMINIMAL_STACK_SIZE, 
-		NULL, 
-		1, 
-		NULL
-	);
+    osThreadDef(task_app, bms_thread, osPriorityHigh, 0, 512); 
+    osThreadId thread_app = osThreadCreate(osThread(task_app), NULL);
 
-	// Communication task
-    portBASE_TYPE communication_thread_pointer = xTaskCreate(
-		comms_thread, 
-		NULL, 
-		5 * configMINIMAL_STACK_SIZE, 
-		NULL, 
-		1, 
-		NULL
-	);
+	// Communication task 1
+    osThreadDef(task_tty0, comms_thread_tty0, osPriorityAboveNormal, 0, 1024); 
+    osThreadId thread_tty0 = osThreadCreate(osThread(task_tty0), NULL);
 
-    // Check for thread creation errors
-    if (
-		bms_thread_pointer != pdPASS
-		|| communication_thread_pointer != pdPASS
-	) {
-		catch_fault();
-    }
+	// Communication task 2
+    osThreadDef(task_eth0, comms_thread_eth0, osPriorityAboveNormal, 0, 1024); 
+    osThreadId thread_eth0 = osThreadCreate(osThread(task_eth0), NULL);
 
     // Start scheduler
-    vTaskStartScheduler();
+    osKernelStart();
 
     // We should not reach this point unless there was an error
     catch_fault();
-	*/
 }
 
 // Arduino.h run Forever
@@ -112,43 +88,12 @@ void loop() {
 	bool activity = pntp_listen();
 }
 
-
-// ----------------------------------------------------
-// Listen for communication
-//
-
-#define PIN_LED_ACTIVITY PA9
-
-void comms_thread(void * arg) {
-
-
-	pinMode(PIN_LED_ACTIVITY, OUTPUT);
-
-
-	while(application_is_running) {
-
-		// Listen for packets
-		bool activity = pntp_listen();
-
-		// Activity begin
-		if(activity) {
-			digitalWrite(PIN_LED_ACTIVITY, HIGH);
-		}
-
-		// Wait
-		vTaskDelay(1);
-
-		// Activity cease
-		digitalWrite(PIN_LED_ACTIVITY, LOW);
-	}
-}
-
 // ----------------------------------------------------
 // Observe Battery
 //
 #define PIN_LED_0 A1
 
-void bms_thread(void * arg) {
+void bms_thread(const void * arg) {
 
 	// Init status LED
 	pinMode(PIN_LED_0, OUTPUT);
@@ -187,6 +132,70 @@ void bms_thread(void * arg) {
 	}
 }
 
+
+// ----------------------------------------------------
+//
+#define PIN_LED_ACTIVITY PB6
+
+static void comms_thread_eth0(void const * args) {
+
+	pinMode(PIN_LED_ACTIVITY, OUTPUT);
+
+	while(application_is_running) {
+
+		// Listen for packets
+		bool activity = pntp_listen_eth0();
+
+		// Activity begin
+		if(activity) {
+			digitalWrite(PIN_LED_ACTIVITY, LOW);
+		}
+
+		// Wait
+		osDelay(1);
+
+		// Activity cease
+		digitalWrite(PIN_LED_ACTIVITY, HIGH);
+	}
+}
+
+// ----------------------------------------------------
+//
+static void comms_thread_tty0(void const * args) {
+
+	pinMode(PIN_LED_ACTIVITY, OUTPUT);
+
+	while(application_is_running) {
+
+		// Listen for packets
+		bool activity = pntp_listen_tty0();
+
+		// Activity begin
+		if(activity) {
+			digitalWrite(PIN_LED_ACTIVITY, LOW);
+		}
+
+		// Wait
+		osDelay(1);
+
+		// Activity cease
+		digitalWrite(PIN_LED_ACTIVITY, HIGH);
+	}
+}
+
+// ----------------------------------------------------
+//
+void catch_fault() {
+
+	pinMode(PA8, OUTPUT);
+
+    while(1) {
+		serialEventUSB();
+
+		digitalWrite(PA8, !digitalRead(PA8));
+		delay(100);
+    }
+}
 
 // Scan the I2C Bus
 // 
