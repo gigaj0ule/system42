@@ -19,138 +19,137 @@
     #include <stm32f4xx_hal_gpio.h>
     #include <stm32f4xx_hal_gpio_ex.h>
     #include <stm32f4xx_hal_adc.h>
+    #include <stm32f4xx_hal_adc_ex.h>
     #include <stm32f4xx_hal_rcc.h>
     #include <stm32f4xx_hal_rcc_ex.h>
     #include <stm32f4xx_hal_tim.h>
+    #include <stm32f4xx_hal_tim_ex.h>
 #endif
 
 #ifndef TIM_1_8_CLOCK_HZ
-    #define TIM_1_8_CLOCK_HZ 168000000
-    #define TIM_1_8_PERIOD_CLOCKS 3500
-    #define TIM_1_8_DEADTIME_CLOCKS 200
-    #define TIM_APB1_CLOCK_HZ 84000000
-    #define TIM_APB1_PERIOD_CLOCKS 4096
-    #define TIM_APB1_DEADTIME_CLOCKS 200
-    #define TIM_1_8_RCR 0
+    #define TIM_1_8_CLOCK_HZ            168000000
+    #define TIM_1_8_PERIOD_CLOCKS       3500
+    #define TIM_1_8_DEADTIME_CLOCKS     200
+    #define TIM_APB1_CLOCK_HZ           84000000
+    #define TIM_APB1_PERIOD_CLOCKS      4096
+    #define TIM_APB1_DEADTIME_CLOCKS    200
+    #define TIM_1_8_RCR                 0
 
-    #define M0_nCS_Pin GPIO_PIN_13
-    #define M0_nCS_GPIO_Port GPIOC
+    #define M0_nCS_Pin              GPIO_PIN_13
+    #define M0_nCS_GPIO_Port        GPIOC
 
     #ifndef USE_SINGLE_AXIS
-        #define M1_nCS_Pin GPIO_PIN_14
-        #define M1_nCS_GPIO_Port GPIOC
-        #define M1_ENC_Z_Pin GPIO_PIN_15
-        #define M1_ENC_Z_GPIO_Port GPIOC
+        #define M1_nCS_Pin          GPIO_PIN_14
+        #define M1_nCS_GPIO_Port    GPIOC
+        #define M1_ENC_Z_Pin        GPIO_PIN_15
+        #define M1_ENC_Z_GPIO_Port  GPIOC
     #endif 
 
-    #define M0_IB_Pin GPIO_PIN_0
-    #define M0_IB_GPIO_Port GPIOC
-    #define M0_IC_Pin GPIO_PIN_1
-    #define M0_IC_GPIO_Port GPIOC
+    #define M0_IB_Pin               GPIO_PIN_0
+    #define M0_IB_GPIO_Port         GPIOC
+    #define M0_IC_Pin               GPIO_PIN_1
+    #define M0_IC_GPIO_Port         GPIOC
 
     #ifndef USE_SINGLE_AXIS
-        #define M1_IC_Pin GPIO_PIN_2
-        #define M1_IC_GPIO_Port GPIOC
-        #define M1_IB_Pin GPIO_PIN_3
-        #define M1_IB_GPIO_Port GPIOC
+        #define M1_IC_Pin           GPIO_PIN_2
+        #define M1_IC_GPIO_Port     GPIOC
+        #define M1_IB_Pin           GPIO_PIN_3
+        #define M1_IB_GPIO_Port     GPIOC
     #endif
 
-    #define GPIO_1_Pin GPIO_PIN_0
-    #define GPIO_1_GPIO_Port GPIOA
-    #define GPIO_2_Pin GPIO_PIN_1
-    #define GPIO_2_GPIO_Port GPIOA
-    #define GPIO_3_Pin GPIO_PIN_2
-    #define GPIO_3_GPIO_Port GPIOA
-    #define GPIO_4_Pin GPIO_PIN_3
-    #define GPIO_4_GPIO_Port GPIOA
+    #define GPIO_1_Pin              GPIO_PIN_0
+    #define GPIO_1_GPIO_Port        GPIOA
+    #define GPIO_2_Pin              GPIO_PIN_1
+    #define GPIO_2_GPIO_Port        GPIOA
+    #define GPIO_3_Pin              GPIO_PIN_2
+    #define GPIO_3_GPIO_Port        GPIOA
+    #define GPIO_4_Pin              GPIO_PIN_3
+    #define GPIO_4_GPIO_Port        GPIOA
 
     #ifndef USE_SINGLE_AXIS
-        #define M1_TEMP_Pin GPIO_PIN_4
-        #define M1_TEMP_GPIO_Port GPIOA
+        #define M1_TEMP_Pin         GPIO_PIN_4
+        #define M1_TEMP_GPIO_Port   GPIOA
     #endif 
 
-    #define AUX_TEMP_Pin GPIO_PIN_5
-    #define AUX_TEMP_GPIO_Port GPIOA
-    #define VBUS_S_Pin GPIO_PIN_6
-    #define VBUS_S_GPIO_Port GPIOA
+    #define AUX_TEMP_Pin            GPIO_PIN_5
+    #define AUX_TEMP_GPIO_Port      GPIOA
+    #define VBUS_S_Pin              GPIO_PIN_6
+    #define VBUS_S_GPIO_Port        GPIOA
 
     #ifndef USE_SINGLE_AXIS
-        #define M1_AL_Pin GPIO_PIN_7
-        #define M1_AL_GPIO_Port GPIOA
+        #define M1_AL_Pin           GPIO_PIN_7
+        #define M1_AL_GPIO_Port     GPIOA
     #endif 
 
-    #define GPIO_5_Pin GPIO_PIN_4
-    #define GPIO_5_GPIO_Port GPIOC
-    #define M0_TEMP_Pin GPIO_PIN_5
-    #define M0_TEMP_GPIO_Port GPIOC
+    #define GPIO_5_Pin              GPIO_PIN_4
+    #define GPIO_5_GPIO_Port        GPIOC
+    #define M0_TEMP_Pin             GPIO_PIN_5
+    #define M0_TEMP_GPIO_Port       GPIOC
 
-        #ifndef USE_SINGLE_AXIS
-        #define M1_BL_Pin GPIO_PIN_0
-        #define M1_BL_GPIO_Port GPIOB
-        #define M1_CL_Pin GPIO_PIN_1
-        #define M1_CL_GPIO_Port GPIOB
+    #ifndef USE_SINGLE_AXIS
+        #define M1_BL_Pin           GPIO_PIN_0
+        #define M1_BL_GPIO_Port     GPIOB
+        #define M1_CL_Pin           GPIO_PIN_1
+        #define M1_CL_GPIO_Port     GPIOB
     #endif
 
-    #define GPIO_6_Pin GPIO_PIN_2
-    #define GPIO_6_GPIO_Port GPIOB
-    #define AUX_L_Pin GPIO_PIN_10
-    #define AUX_L_GPIO_Port GPIOB
-    #define AUX_H_Pin GPIO_PIN_11
-    #define AUX_H_GPIO_Port GPIOB
-    #define EN_GATE_Pin GPIO_PIN_12
-    #define EN_GATE_GPIO_Port GPIOB
-    #define M0_AL_Pin GPIO_PIN_13
-    #define M0_AL_GPIO_Port GPIOB
-    #define M0_BL_Pin GPIO_PIN_14
-    #define M0_BL_GPIO_Port GPIOB
-    #define M0_CL_Pin GPIO_PIN_15
-    #define M0_CL_GPIO_Port GPIOB
+    #define GPIO_6_Pin              GPIO_PIN_2
+    #define GPIO_6_GPIO_Port        GPIOB
+    #define AUX_L_Pin               GPIO_PIN_10
+    #define AUX_L_GPIO_Port         GPIOB
+    #define AUX_H_Pin               GPIO_PIN_11
+    #define AUX_H_GPIO_Port         GPIOB
+    #define EN_GATE_Pin             GPIO_PIN_12
+    #define EN_GATE_GPIO_Port       GPIOB
+    #define M0_AL_Pin               GPIO_PIN_13
+    #define M0_AL_GPIO_Port         GPIOB
+    #define M0_BL_Pin               GPIO_PIN_14
+    #define M0_BL_GPIO_Port         GPIOB
+    #define M0_CL_Pin               GPIO_PIN_15
+    #define M0_CL_GPIO_Port         GPIOB
 
     #ifndef USE_SINGLE_AXIS
-        #define M1_AH_Pin GPIO_PIN_6
-        #define M1_AH_GPIO_Port GPIOC
-        #define M1_BH_Pin GPIO_PIN_7
-        #define M1_BH_GPIO_Port GPIOC
-        #define M1_CH_Pin GPIO_PIN_8
-        #define M1_CH_GPIO_Port GPIOC
+        #define M1_AH_Pin           GPIO_PIN_6
+        #define M1_AH_GPIO_Port     GPIOC
+        #define M1_BH_Pin           GPIO_PIN_7
+        #define M1_BH_GPIO_Port     GPIOC
+        #define M1_CH_Pin           GPIO_PIN_8
+        #define M1_CH_GPIO_Port     GPIOC
     #endif 
 
-    #define M0_ENC_Z_Pin GPIO_PIN_9
-    #define M0_ENC_Z_GPIO_Port GPIOC
-    #define M0_AH_Pin GPIO_PIN_8
-    #define M0_AH_GPIO_Port GPIOA
-    #define M0_BH_Pin GPIO_PIN_9
-    #define M0_BH_GPIO_Port GPIOA
-    #define M0_CH_Pin GPIO_PIN_10
-    #define M0_CH_GPIO_Port GPIOA
-    #define GPIO_7_Pin GPIO_PIN_15
-    #define GPIO_7_GPIO_Port GPIOA
+    #define M0_ENC_Z_Pin            GPIO_PIN_9
+    #define M0_ENC_Z_GPIO_Port      GPIOC
+    #define M0_AH_Pin               GPIO_PIN_8
+    #define M0_AH_GPIO_Port         GPIOA
+    #define M0_BH_Pin               GPIO_PIN_9
+    #define M0_BH_GPIO_Port         GPIOA
+    #define M0_CH_Pin               GPIO_PIN_10
+    #define M0_CH_GPIO_Port         GPIOA
+    #define GPIO_7_Pin              GPIO_PIN_15
+    #define GPIO_7_GPIO_Port        GPIOA
 
     #ifdef USE_MOTO_PINS
-        #define nFAULT_Pin GPIO_PIN_1
-        #define nFAULT_GPIO_Port GPIOB
+        #define nFAULT_Pin          GPIO_PIN_1
+        #define nFAULT_GPIO_Port    GPIOB
     #else
-        #define nFAULT_Pin GPIO_PIN_2
-        #define nFAULT_GPIO_Port GPIOD
+        #define nFAULT_Pin          GPIO_PIN_2
+        #define nFAULT_GPIO_Port    GPIOD
     #endif
 
-    #define GPIO_8_Pin GPIO_PIN_3
-    #define GPIO_8_GPIO_Port GPIOB
-    #define M0_ENC_A_Pin GPIO_PIN_4
-    #define M0_ENC_A_GPIO_Port GPIOB
-    #define M0_ENC_B_Pin GPIO_PIN_5
-    #define M0_ENC_B_GPIO_Port GPIOB
+    #define GPIO_8_Pin              GPIO_PIN_3
+    #define GPIO_8_GPIO_Port        GPIOB
+    #define M0_ENC_A_Pin            GPIO_PIN_4
+    #define M0_ENC_A_GPIO_Port      GPIOB
+    #define M0_ENC_B_Pin GPIO_      PIN_5
+    #define M0_ENC_B_GPIO_Port      GPIOB
 
     #ifndef USE_SINGLE_AXIS
-        #define M1_ENC_A_Pin GPIO_PIN_6
-        #define M1_ENC_A_GPIO_Port GPIOB
-        #define M1_ENC_B_Pin GPIO_PIN_7
-        #define M1_ENC_B_GPIO_Port GPIOB
+        #define M1_ENC_A_Pin        GPIO_PIN_6
+        #define M1_ENC_A_GPIO_Port  GPIOB
+        #define M1_ENC_B_Pin GPIO_  PIN_7
+        #define M1_ENC_B_GPIO_Port  GPIOB
     #endif
 #endif
-
-// Prototypes
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 
 
 void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
@@ -158,7 +157,6 @@ void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
 
 void start_pwm(TIM_HandleTypeDef* htim) {
 }
-
 
 
 // Timer initialization ------------------------------------------------------
@@ -488,8 +486,8 @@ void DSP_TIM2_Init(void) {
     }
 
     // Configure triggers
-    sConfigOC.Pulse = TIM_APB1_PERIOD_CLOCKS+1;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.Pulse         = TIM_APB1_PERIOD_CLOCKS+1;
+    sConfigOC.OCPolarity    = TIM_OCPOLARITY_HIGH;
 
     if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) {
         _Error_Handler(__FILE__, __LINE__);
@@ -589,14 +587,7 @@ void DSP_DMA_Init(void) {
     // DMA1_Stream5_IRQn interrupt configuration
     HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
-    
-    // DMA2_Stream0_IRQn interrupt configuration
-    // Dear STM, no we _don't_ want to fire an interrupt for this DMA
-    // (it's not possible to deselect this in CubeMX)
-    //HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
-    //HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 }
-
 
 
 // ---------------------------------------------------------------------------
@@ -848,17 +839,12 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle) {
 #endif
 
 
-
-
-
-
-ADC_HandleTypeDef hadc1;
-ADC_HandleTypeDef hadc2;
-ADC_HandleTypeDef hadc3;
-DMA_HandleTypeDef hdma_adc1;
-
+// ---------------------------------------------------------------------------
 // ADC1 init function
 //
+//
+ADC_HandleTypeDef hadc1;
+
 void DSP_ADC1_Init(void) {
 
     ADC_ChannelConfTypeDef sConfig;
@@ -905,11 +891,13 @@ void DSP_ADC1_Init(void) {
     {
         _Error_Handler(__FILE__, __LINE__);
     }
-
 }
 
+// ---------------------------------------------------------------------------
+// ADC2 init function
+//
+ADC_HandleTypeDef hadc2;
 
-// ADC2 init function */
 void DSP_ADC2_Init(void) {
     
     ADC_ChannelConfTypeDef sConfig;
@@ -958,6 +946,10 @@ void DSP_ADC2_Init(void) {
     }
 }
 
+// ---------------------------------------------------------------------------
+// ADC3 Init
+//
+ADC_HandleTypeDef hadc3;
 
 void DSP_ADC3_Init(void) {
 
@@ -1006,6 +998,12 @@ void DSP_ADC3_Init(void) {
         _Error_Handler(__FILE__, __LINE__);
     }
 }
+
+
+// ---------------------------------------------------------------------------
+// ADC MSP Init
+//
+DMA_HandleTypeDef hdma_adc1;
 
 //void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
 void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
@@ -1058,7 +1056,7 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         hdma_adc1.Init.FIFOMode             = DMA_FIFOMODE_DISABLE;
 
         if (HAL_DMA_Init(&hdma_adc1) != HAL_OK) {
-        _Error_Handler(__FILE__, __LINE__);
+            _Error_Handler(__FILE__, __LINE__);
         }
 
         __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc1);
@@ -1130,6 +1128,9 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
     }
 }
 
+// ---------------------------------------------------------------------------
+//
+//
 //void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
 void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
 
@@ -1202,28 +1203,46 @@ void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
     }
 } 
 
-
-
+// ---------------------------------------------------------------------------
+//
+//
 void DSP_setup(void) {
 
+    // ADC DMA
     DSP_DMA_Init();
     
+    // M0
     DSP_TIM1_Init();
-    DSP_TIM8_Init();
-    DSP_TIM3_Init();
-    //DSP_TIM4_Init();
-    DSP_TIM2_Init();
-    DSP_TIM5_Init();
-    DSP_TIM13_Init();
 
+    // M1
+    DSP_TIM8_Init();
+    
+    // M0 Encoder
+    DSP_TIM3_Init();
+
+    // M1 Encoder
+    //DSP_TIM4_Init();
+    
+    // Brake Resistor
+    // DSP_TIM2_Init();
+    
+    // Input Capture?
+    DSP_TIM5_Init();
+
+    // uLTick
+    //DSP_TIM13_Init();
+
+    // ADC
     DSP_ADC1_Init();
     DSP_ADC2_Init();
     DSP_ADC3_Init();
 
+    // ADC GPIO
     DSP_HAL_ADC_MspInit(&hadc1);
     DSP_HAL_ADC_MspInit(&hadc2);
     DSP_HAL_ADC_MspInit(&hadc3);
 
+    // Somethin
     OC4_PWM_Override(&htim1);
     OC4_PWM_Override(&htim8);
 }
