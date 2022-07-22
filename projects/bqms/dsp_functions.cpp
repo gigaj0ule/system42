@@ -646,17 +646,17 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle) {
     else if(tim_encoderHandle->Instance==TIM4) {
         
         #ifndef USE_SINGLE_AXIS
-        __HAL_RCC_TIM4_CLK_ENABLE();
+            __HAL_RCC_TIM4_CLK_ENABLE();
 
-        // PB6     ------> TIM4_CH1
-        // PB7     ------> TIM4_CH2
+            // PB6     ------> TIM4_CH1
+            // PB7     ------> TIM4_CH2
 
-        GPIO_InitStruct.Pin         = M1_ENC_A_Pin|M1_ENC_B_Pin;
-        GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull        = GPIO_NOPULL;
-        GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate   = GPIO_AF2_TIM4;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            GPIO_InitStruct.Pin         = M1_ENC_A_Pin|M1_ENC_B_Pin;
+            GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Pull        = GPIO_NOPULL;
+            GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
+            GPIO_InitStruct.Alternate   = GPIO_AF2_TIM4;
+            HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
         #endif
     }
 }
@@ -737,33 +737,33 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle) {
     else if(timHandle->Instance==TIM8) {
     
         #ifndef USE_SINGLE_AXIS
-        // PA7     ------> TIM8_CH1N
-        // PB0     ------> TIM8_CH2N
-        // PB1     ------> TIM8_CH3N
-        // PC6     ------> TIM8_CH1
-        // PC7     ------> TIM8_CH2
-        // PC8     ------> TIM8_CH3 
-    
-        GPIO_InitStruct.Pin = M1_AL_Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
-        HAL_GPIO_Init(M1_AL_GPIO_Port, &GPIO_InitStruct);
+            // PA7     ------> TIM8_CH1N
+            // PB0     ------> TIM8_CH2N
+            // PB1     ------> TIM8_CH3N
+            // PC6     ------> TIM8_CH1
+            // PC7     ------> TIM8_CH2
+            // PC8     ------> TIM8_CH3 
+        
+            GPIO_InitStruct.Pin         = M1_AL_Pin;
+            GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Pull        = GPIO_NOPULL;
+            GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
+            GPIO_InitStruct.Alternate   = GPIO_AF3_TIM8;
+            HAL_GPIO_Init(M1_AL_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = M1_BL_Pin|M1_CL_Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
-        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            GPIO_InitStruct.Pin         = M1_BL_Pin|M1_CL_Pin;
+            GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Pull        = GPIO_NOPULL;
+            GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
+            GPIO_InitStruct.Alternate   = GPIO_AF3_TIM8;
+            HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = M1_AH_Pin|M1_BH_Pin|M1_CH_Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+            GPIO_InitStruct.Pin         = M1_AH_Pin|M1_BH_Pin|M1_CH_Pin;
+            GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Pull        = GPIO_NOPULL;
+            GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
+            GPIO_InitStruct.Alternate   = GPIO_AF3_TIM8;
+            HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
         #endif
     }
 }
@@ -881,15 +881,16 @@ void DSP_ADC1_Init(void) {
     }
 
     // Configures for the selected ADC injected channel its corresponding rank in the sequencer and its sample time 
-    sConfigInjected.InjectedChannel = ADC_CHANNEL_6;
-    sConfigInjected.InjectedRank = 1;
-    sConfigInjected.InjectedNbrOfConversion = 1;
-    sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_3CYCLES;
-    sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONVEDGE_RISING;
-    sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
-    sConfigInjected.AutoInjectedConv = DISABLE;
-    sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
-    sConfigInjected.InjectedOffset = 0;
+    sConfigInjected.InjectedChannel                 = ADC_CHANNEL_6;
+    sConfigInjected.InjectedRank                    = 1;
+    sConfigInjected.InjectedNbrOfConversion         = 1;
+    sConfigInjected.InjectedSamplingTime            = ADC_SAMPLETIME_3CYCLES;
+    sConfigInjected.ExternalTrigInjecConvEdge       = ADC_EXTERNALTRIGINJECCONVEDGE_RISING;
+    sConfigInjected.ExternalTrigInjecConv           = ADC_EXTERNALTRIGINJECCONV_T1_TRGO;
+    sConfigInjected.AutoInjectedConv                = DISABLE;
+    sConfigInjected.InjectedDiscontinuousConvMode   = DISABLE;
+    sConfigInjected.InjectedOffset                  = 0;
+
     if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
     {
         _Error_Handler(__FILE__, __LINE__);
@@ -1151,14 +1152,14 @@ void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
         // PC5     ------> ADC1_IN15 
 
         #ifndef USE_SINGLE_AXIS
-        HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin 
-                                |M0_TEMP_Pin);
+            HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin 
+                                    |M0_TEMP_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin);
+            HAL_GPIO_DeInit(GPIOA, M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin);
         #else
-        HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin);
+            HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, AUX_TEMP_Pin|VBUS_S_Pin);
+            HAL_GPIO_DeInit(GPIOA, AUX_TEMP_Pin|VBUS_S_Pin);
         #endif
 
         HAL_DMA_DeInit(adcHandle->DMA_Handle);
@@ -1177,14 +1178,14 @@ void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
         // PC5     ------> ADC2_IN15 
 
         #ifndef USE_SINGLE_AXIS
-        HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin 
-                                |M0_TEMP_Pin);
+            HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin 
+                                    |M0_TEMP_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin);
+            HAL_GPIO_DeInit(GPIOA, M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin);
         #else
-        HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin);
+            HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, AUX_TEMP_Pin|VBUS_S_Pin);
+            HAL_GPIO_DeInit(GPIOA, AUX_TEMP_Pin|VBUS_S_Pin);
         #endif
     }
 
@@ -1199,9 +1200,9 @@ void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
         // PC3     ------> ADC3_IN13 
 
         #ifndef USE_SINGLE_AXIS
-        HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin);
+            HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin);
         #else
-        HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin);
+            HAL_GPIO_DeInit(GPIOC, M0_IB_Pin|M0_IC_Pin);
         #endif
     }
 } 
