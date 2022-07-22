@@ -151,10 +151,15 @@
     #endif
 #endif
 
+// ---------------------------------------------------------------------------
 // Prototypes
+// 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 
 
+// ---------------------------------------------------------------------------
+// Methods
+//
 void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
 }
 
@@ -183,11 +188,9 @@ void OC4_PWM_Override(TIM_HandleTypeDef* htim) {
     HAL_TIM_OC_ConfigChannel(htim, &sConfigOC, TIM_CHANNEL_4);
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM1 Init
 //
-
 TIM_HandleTypeDef htim1;
 
 void DSP_TIM1_Init(void) {
@@ -286,11 +289,9 @@ void DSP_TIM1_Init(void) {
     HAL_TIM_MspPostInit(&htim1);
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM8 Init
 //
-
 TIM_HandleTypeDef htim8;
 
 void DSP_TIM8_Init(void) {
@@ -362,11 +363,9 @@ void DSP_TIM8_Init(void) {
     HAL_TIM_MspPostInit(&htim8);
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM3 Init
 //
-
 TIM_HandleTypeDef htim3;
 
 void DSP_TIM3_Init(void) {
@@ -404,11 +403,9 @@ void DSP_TIM3_Init(void) {
     }
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM4 Init
 //
-
 TIM_HandleTypeDef htim4;
 
 void DSP_TIM4_Init(void) {
@@ -448,11 +445,9 @@ void DSP_TIM4_Init(void) {
     #endif
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM2 Init
 //
-
 TIM_HandleTypeDef htim2;
 
 void DSP_TIM2_Init(void) {
@@ -500,11 +495,9 @@ void DSP_TIM2_Init(void) {
     HAL_TIM_MspPostInit(&htim2);
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM5 Init
 //
-
 TIM_HandleTypeDef htim5;
 
 void DSP_TIM5_Init(void) {
@@ -545,7 +538,6 @@ void DSP_TIM5_Init(void) {
     }
 }
 
-
 // ---------------------------------------------------------------------------
 // TIM13 Init
 //
@@ -565,8 +557,8 @@ void DSP_TIM13_Init(void) {
     }
 }
 
-
 // ---------------------------------------------------------------------------
+//
 //
 void DSP_DMA_Init(void) {
 
@@ -592,23 +584,86 @@ void DSP_DMA_Init(void) {
     HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 }
 
-
 // ---------------------------------------------------------------------------
+// HAL_TIM_Base_MspInit (already definied by Arduino.h)
 //
 #ifdef INC_MSPINIT
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle) {
+    void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle) {
 
-    if(tim_baseHandle->Instance==TIM1) {
-        __HAL_RCC_TIM1_CLK_ENABLE();
-    }
+        if(tim_baseHandle->Instance==TIM1) {
+            __HAL_RCC_TIM1_CLK_ENABLE();
+        }
 
-    else if(tim_baseHandle->Instance==TIM13) {
-        __HAL_RCC_TIM13_CLK_ENABLE();
+        else if(tim_baseHandle->Instance==TIM13) {
+            __HAL_RCC_TIM13_CLK_ENABLE();
+        }
     }
-}
 #endif
 
 // ---------------------------------------------------------------------------
+// HAL_TIM_Base_MspDeInit (already definied by Arduino.h)
+//
+#ifdef INC_MSPINIT
+    void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle) {
+
+        if(tim_baseHandle->Instance==TIM1) {
+            __HAL_RCC_TIM1_CLK_DISABLE();
+            HAL_NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
+        }
+
+        else if(tim_baseHandle->Instance==TIM13) {
+            __HAL_RCC_TIM13_CLK_DISABLE();
+        }
+    }
+#endif
+
+// ---------------------------------------------------------------------------
+// HAL_TIM_IC_MspInit (already definied by Arduino.h)
+//
+#ifdef INC_MSPINIT
+    void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle) {
+
+        GPIO_InitTypeDef GPIO_InitStruct;
+
+        if(tim_icHandle->Instance==TIM5) {
+            __HAL_RCC_TIM5_CLK_ENABLE();
+
+            // PA2     ------> TIM5_CH3
+            // PA3     ------> TIM5_CH4
+
+            GPIO_InitStruct.Pin         = GPIO_3_Pin|GPIO_4_Pin;
+            GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
+            GPIO_InitStruct.Pull        = GPIO_NOPULL;
+            GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
+            GPIO_InitStruct.Alternate   = GPIO_AF2_TIM5;
+            HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+            HAL_NVIC_SetPriority(TIM5_IRQn, 5, 0);
+            HAL_NVIC_EnableIRQ(TIM5_IRQn);
+        }
+    }
+#endif
+
+// ---------------------------------------------------------------------------
+// HAL_TIM_IC_MspDeInit (already definied by Arduino.h)
+//
+#ifdef INC_MSPINIT
+    void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle) {
+
+        if(tim_icHandle->Instance==TIM5) {
+            __HAL_RCC_TIM5_CLK_DISABLE();
+
+            // PA2     ------> TIM5_CH3
+            // PA3     ------> TIM5_CH4
+            HAL_GPIO_DeInit(GPIOA, GPIO_3_Pin|GPIO_4_Pin);
+
+            HAL_NVIC_DisableIRQ(TIM5_IRQn);
+        }
+    }
+#endif
+
+// ---------------------------------------------------------------------------
+//
 //
 void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle) {
 
@@ -624,6 +679,7 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle) {
 }
 
 // ---------------------------------------------------------------------------
+//
 //
 void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle) {
 
@@ -663,31 +719,6 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle) {
 
 // ---------------------------------------------------------------------------
 //
-#ifdef INC_MSPINIT
-void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle) {
-
-    GPIO_InitTypeDef GPIO_InitStruct;
-
-    if(tim_icHandle->Instance==TIM5) {
-        __HAL_RCC_TIM5_CLK_ENABLE();
-
-        // PA2     ------> TIM5_CH3
-        // PA3     ------> TIM5_CH4
-
-        GPIO_InitStruct.Pin         = GPIO_3_Pin|GPIO_4_Pin;
-        GPIO_InitStruct.Mode        = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull        = GPIO_NOPULL;
-        GPIO_InitStruct.Speed       = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate   = GPIO_AF2_TIM5;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-        HAL_NVIC_SetPriority(TIM5_IRQn, 5, 0);
-        HAL_NVIC_EnableIRQ(TIM5_IRQn);
-    }
-}
-#endif
-
-// ---------------------------------------------------------------------------
 //
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle) {
 
@@ -768,24 +799,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle) {
     }
 }
 
-
 // ---------------------------------------------------------------------------
 //
-#ifdef INC_MSPINIT
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle) {
-
-    if(tim_baseHandle->Instance==TIM1) {
-        __HAL_RCC_TIM1_CLK_DISABLE();
-        HAL_NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
-    }
-
-    else if(tim_baseHandle->Instance==TIM13) {
-        __HAL_RCC_TIM13_CLK_DISABLE();
-    }
-}
-#endif
-
-// ---------------------------------------------------------------------------
 //
 void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle) {
 
@@ -801,6 +816,7 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle) {
 }
 
 // ---------------------------------------------------------------------------
+//
 //
 void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle) {
 
@@ -824,27 +840,9 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle) {
     }
 }
 
-// ---------------------------------------------------------------------------
-//
-#ifdef INC_MSPINIT
-void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle) {
-
-    if(tim_icHandle->Instance==TIM5) {
-        __HAL_RCC_TIM5_CLK_DISABLE();
-
-        // PA2     ------> TIM5_CH3
-        // PA3     ------> TIM5_CH4
-        HAL_GPIO_DeInit(GPIOA, GPIO_3_Pin|GPIO_4_Pin);
-
-        HAL_NVIC_DisableIRQ(TIM5_IRQn);
-    }
-}
-#endif
-
 
 // ---------------------------------------------------------------------------
-// ADC1 init function
-//
+// ADC1 Init
 //
 ADC_HandleTypeDef hadc1;
 
@@ -898,7 +896,7 @@ void DSP_ADC1_Init(void) {
 }
 
 // ---------------------------------------------------------------------------
-// ADC2 init function
+// ADC2 Init
 //
 ADC_HandleTypeDef hadc2;
 
@@ -1003,9 +1001,8 @@ void DSP_ADC3_Init(void) {
     }
 }
 
-
 // ---------------------------------------------------------------------------
-// ADC MSP Init
+// HAL_ADC_MspInit (already definied by Arduino.h)
 //
 DMA_HandleTypeDef hdma_adc1;
 
@@ -1133,7 +1130,7 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
 }
 
 // ---------------------------------------------------------------------------
-//
+// DSP_HAL_ADC_MspDeInit (already definied by Arduino.h)
 //
 //void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
 void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
