@@ -1211,30 +1211,32 @@ void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
 //
 //
 void DSP_setup(void) {
-
-    // ADC DMA
-    DSP_DMA_Init();
     
     // M0
     DSP_TIM1_Init();
 
-    // M1
-    DSP_TIM8_Init();
-    
     // M0 Encoder
     DSP_TIM3_Init();
 
-    // M1 Encoder
-    //DSP_TIM4_Init();
-    
+    #ifndef USE_SINGLE_AXIS
+        // M1
+        DSP_TIM8_Init();
+
+        // M1 Encoder
+        DSP_TIM4_Init();
+    #endif 
+
     // Brake Resistor
-    // DSP_TIM2_Init();
+    DSP_TIM2_Init();
     
-    // Input Capture?
+    // Input Capture
     DSP_TIM5_Init();
 
-    // uLTick
-    //DSP_TIM13_Init();
+    // uLTick (already handled by arduino.h)
+    // DSP_TIM13_Init();
+
+    // ADC DMA
+    DSP_DMA_Init();
 
     // ADC
     DSP_ADC1_Init();
@@ -1246,7 +1248,7 @@ void DSP_setup(void) {
     DSP_HAL_ADC_MspInit(&hadc2);
     DSP_HAL_ADC_MspInit(&hadc3);
 
-    // Somethin
+    // Hack
     OC4_PWM_Override(&htim1);
     OC4_PWM_Override(&htim8);
 }
