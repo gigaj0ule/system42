@@ -275,6 +275,10 @@ else
 	PATH_LIBRARY_PNTP    := $(LIBRARIESDIR)/lib_powernet
 endif
 
+# DSP Library
+PATH_LIBRARY_DSP    	 := $(LIBRARIESDIR)/lib_dsp
+
+
 # Target Path
 TARGET_PATH = $(TARGET)
 
@@ -435,10 +439,8 @@ ifdef ODRIVE_CODEBASE
 	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/test/*.cpp), $(CPP_FILES))
 	CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/cpp/posix*.cpp), $(CPP_FILES))
 
-	ifeq ($(USE_PNTP), 1)
-	C_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.c)
+	C_FILES   += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.c)
 	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.cpp)
-	endif
 
 	# Assembly
 	ASM_FILES := $(call rwildcard, $(SOURCEPATH), *.s)
@@ -494,6 +496,10 @@ else
 	C_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.c)
 	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_PNTP), *.cpp)
 	endif
+
+	# DSP
+	C_FILES += $(call rwildcard, $(PATH_LIBRARY_DSP), *.c)
+	CPP_FILES += $(call rwildcard, $(PATH_LIBRARY_DSP), *.cpp)
 
 	# Core
 	C_FILES += $(call rwildcard, $(PATH_ARDUINO_CORE_STM32), *.c)
@@ -551,11 +557,10 @@ else
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_WIRE), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_SERVO), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_SRCWRAPPER), *)))
-
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_ETHERNET), *)))
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_BONJOUR), *)))
-
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_PNTP), *)))
+	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_DSP), *)))
 
 	ifeq ($(USBD_USE_HID_COMPOSITE), 1)
 	INC_DIRS += $(sort $(dir $(call rwildcard, $(PATH_LIBRARY_KEYBOARD), *)))
