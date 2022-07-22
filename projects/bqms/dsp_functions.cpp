@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include <interrupt.h>
 
+#ifdef __STM32F1__
+    #error "No F1 support yet in dsp_functions.cpp"
+#endif
+
 #ifndef __STM32F4__
     #define __STM32F4__
 #endif
