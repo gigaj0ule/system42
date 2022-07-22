@@ -140,16 +140,19 @@
     #define GPIO_8_GPIO_Port        GPIOB
     #define M0_ENC_A_Pin            GPIO_PIN_4
     #define M0_ENC_A_GPIO_Port      GPIOB
-    #define M0_ENC_B_Pin GPIO_      PIN_5
+    #define M0_ENC_B_Pin            GPIO_PIN_5
     #define M0_ENC_B_GPIO_Port      GPIOB
 
     #ifndef USE_SINGLE_AXIS
         #define M1_ENC_A_Pin        GPIO_PIN_6
         #define M1_ENC_A_GPIO_Port  GPIOB
-        #define M1_ENC_B_Pin GPIO_  PIN_7
+        #define M1_ENC_B_Pin        GPIO_PIN_7
         #define M1_ENC_B_GPIO_Port  GPIOB
     #endif
 #endif
+
+// Prototypes
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 
 
 void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
