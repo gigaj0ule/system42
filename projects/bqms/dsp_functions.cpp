@@ -1027,10 +1027,10 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         // PC5     ------> ADC1_IN15 
 
         #ifndef USE_SINGLE_AXIS
-        GPIO_InitStruct.Pin   = M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin 
+            GPIO_InitStruct.Pin   = M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin 
                                 |M0_TEMP_Pin;
         #else
-        GPIO_InitStruct.Pin   = M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin;
+            GPIO_InitStruct.Pin   = M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin;
         #endif
 
         GPIO_InitStruct.Mode    = GPIO_MODE_ANALOG;
@@ -1038,9 +1038,9 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
         #ifndef USE_SINGLE_AXIS
-        GPIO_InitStruct.Pin   = M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin;
+            GPIO_InitStruct.Pin   = M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin;
         #else
-        GPIO_InitStruct.Pin   = AUX_TEMP_Pin|VBUS_S_Pin;
+            GPIO_InitStruct.Pin   = AUX_TEMP_Pin|VBUS_S_Pin;
         #endif
         
         GPIO_InitStruct.Mode    = GPIO_MODE_ANALOG;
@@ -1082,9 +1082,9 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         // PC5     ------> ADC2_IN15 
 
         #ifndef USE_SINGLE_AXIS
-        GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin|M0_TEMP_Pin;
+            GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin|M0_TEMP_Pin;
         #else
-        GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin;
+            GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin|M0_TEMP_Pin;
         #endif
         
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -1092,9 +1092,9 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
         #ifndef USE_SINGLE_AXIS
-        GPIO_InitStruct.Pin = M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin;
+            GPIO_InitStruct.Pin = M1_TEMP_Pin|AUX_TEMP_Pin|VBUS_S_Pin;
         #else
-        GPIO_InitStruct.Pin = AUX_TEMP_Pin|VBUS_S_Pin;
+            GPIO_InitStruct.Pin = AUX_TEMP_Pin|VBUS_S_Pin;
         #endif
 
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -1116,9 +1116,9 @@ void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         // PC3     ------> ADC3_IN13 
 
         #ifndef USE_SINGLE_AXIS
-        GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin;
+            GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin|M1_IC_Pin|M1_IB_Pin;
         #else
-        GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin;
+            GPIO_InitStruct.Pin = M0_IB_Pin|M0_IC_Pin;
         #endif
 
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
