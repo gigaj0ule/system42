@@ -118,7 +118,8 @@
 			"concepts": "cpp",
 			"ranges": "cpp",
 			"stop_token": "cpp",
-			"*.hx": "cpp"
+			"*.hx": "cpp",
+			"dma.h": "c"
 		},
 		"git.ignoreLimitWarning": true,
 		"cortex-debug.variableUseNaturalFormat": true

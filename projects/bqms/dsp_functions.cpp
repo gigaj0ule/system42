@@ -415,37 +415,37 @@ TIM_HandleTypeDef htim4;
 void DSP_TIM4_Init(void) {
 
     #ifndef USE_SINGLE_AXIS
-    // Configure timer
-    htim4.Instance              = TIM4;
-    htim4.Init.Prescaler        = 0;
-    htim4.Init.CounterMode      = TIM_COUNTERMODE_UP;
-    htim4.Init.Period           = 0xffff;
-    htim4.Init.ClockDivision    = TIM_CLOCKDIVISION_DIV1;
+        // Configure timer
+        htim4.Instance              = TIM4;
+        htim4.Init.Prescaler        = 0;
+        htim4.Init.CounterMode      = TIM_COUNTERMODE_UP;
+        htim4.Init.Period           = 0xffff;
+        htim4.Init.ClockDivision    = TIM_CLOCKDIVISION_DIV1;
 
-    // Configure timer for ecnoder
-    TIM_Encoder_InitTypeDef     sConfig;
-    sConfig.EncoderMode         = TIM_ENCODERMODE_TI12;
-    sConfig.IC1Polarity         = TIM_ICPOLARITY_RISING;
-    sConfig.IC1Selection        = TIM_ICSELECTION_DIRECTTI;
-    sConfig.IC1Prescaler        = TIM_ICPSC_DIV1;
-    sConfig.IC1Filter           = 4;
-    sConfig.IC2Polarity         = TIM_ICPOLARITY_RISING;
-    sConfig.IC2Selection        = TIM_ICSELECTION_DIRECTTI;
-    sConfig.IC2Prescaler        = TIM_ICPSC_DIV1;
-    sConfig.IC2Filter           = 4;
+        // Configure timer for ecnoder
+        TIM_Encoder_InitTypeDef     sConfig;
+        sConfig.EncoderMode         = TIM_ENCODERMODE_TI12;
+        sConfig.IC1Polarity         = TIM_ICPOLARITY_RISING;
+        sConfig.IC1Selection        = TIM_ICSELECTION_DIRECTTI;
+        sConfig.IC1Prescaler        = TIM_ICPSC_DIV1;
+        sConfig.IC1Filter           = 4;
+        sConfig.IC2Polarity         = TIM_ICPOLARITY_RISING;
+        sConfig.IC2Selection        = TIM_ICSELECTION_DIRECTTI;
+        sConfig.IC2Prescaler        = TIM_ICPSC_DIV1;
+        sConfig.IC2Filter           = 4;
 
-    if (HAL_TIM_Encoder_Init(&htim4, &sConfig) != HAL_OK) {
-        _Error_Handler(__FILE__, __LINE__);
-    }
+        if (HAL_TIM_Encoder_Init(&htim4, &sConfig) != HAL_OK) {
+            _Error_Handler(__FILE__, __LINE__);
+        }
 
-    // Configure triggers
-    TIM_MasterConfigTypeDef             sMasterConfig;
-    sMasterConfig.MasterOutputTrigger   = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode       = TIM_MASTERSLAVEMODE_DISABLE;
+        // Configure triggers
+        TIM_MasterConfigTypeDef             sMasterConfig;
+        sMasterConfig.MasterOutputTrigger   = TIM_TRGO_RESET;
+        sMasterConfig.MasterSlaveMode       = TIM_MASTERSLAVEMODE_DISABLE;
 
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK) {
-        _Error_Handler(__FILE__, __LINE__);
-    }
+        if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK) {
+            _Error_Handler(__FILE__, __LINE__);
+        }
     #endif
 }
 
