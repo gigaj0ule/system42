@@ -137,7 +137,7 @@ void bms_thread(const void * arg) {
 //
 #define PIN_LED_ACTIVITY PB6
 
-static void comms_thread_eth0(void const * args) {
+void comms_thread_eth0(void const * args) {
 
 	pinMode(PIN_LED_ACTIVITY, OUTPUT);
 
@@ -161,7 +161,7 @@ static void comms_thread_eth0(void const * args) {
 
 // ----------------------------------------------------
 //
-static void comms_thread_tty0(void const * args) {
+void comms_thread_tty0(void const * args) {
 
 	pinMode(PIN_LED_ACTIVITY, OUTPUT);
 
