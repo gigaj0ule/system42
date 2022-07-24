@@ -80,7 +80,7 @@ NvmBuiltins_t NvmBuiltins;
 
 typedef Config<
     NvmBuiltins_t,
-    PowernetNamespace::NvmProperties_t
+    PowernetNamespace::DiskStructure_t
 > ConfigFormat;
 
 // Save configuration "ConfigFormat" to NVM
@@ -90,7 +90,6 @@ void save_configuration(void *) {
         // Failed... we should catch the error or something
     } 
 }
-
 
 // Load configuration "ConfigFormat" to NVM
 //
@@ -104,7 +103,7 @@ int32_t load_configuration(void) {
     // Try to load configs
     if ((init_failed | load_failed) != 0) {
         // If loading failed, restore defaults
-        pntp.disk0 = PowernetNamespace::NvmProperties_t();
+        pntp.disk0 = PowernetNamespace::DiskStructure_t();
         NvmBuiltins = NvmBuiltins_t();
         retval = load_failed;
     } 
@@ -221,16 +220,16 @@ static inline auto make_obj_tree() {
         
         // Volatile Objects
         make_protocol_object("ram", 
-            pntp.volatile_properties()
+            pntp.communicable_properties()
         ),
 
         // Event handlers (if any)
-        make_protocol_object("irq", 
-            pntp.interrupt_properties()
+        make_protocol_object("interrupt", 
+            pntp.commucable_interrupts()
         ),
 
         // System utilities
-        make_protocol_object("dev",
+        make_protocol_object("device",
 
             // Eth Device
             #if defined(PNTP_USING_ETH0)
@@ -271,7 +270,7 @@ static inline auto make_obj_tree() {
             #endif
 
             // HID LED
-            #if defined(HAS_HID_LED)
+            #if defined(NOPE_HAS_HID_LED)
                 make_protocol_object("led0",
                     make_protocol_selection_kw(
                         &LED_color_, 
@@ -283,9 +282,7 @@ static inline auto make_obj_tree() {
             #endif
 
             // Non Volatile Memory
-            make_protocol_object("nvm0",
-
-                pntp.non_volatile_properties(),
+            make_protocol_object("disk0",
 
                 make_protocol_function_kw(
                     system_functions, 
@@ -306,7 +303,7 @@ static inline auto make_obj_tree() {
         ),
 
         // System
-        make_protocol_object("sys",
+        make_protocol_object("system",
 
             // inaccurate...
             make_protocol_string_kw(
@@ -415,6 +412,61 @@ void pntp_create_properties(void) {
 
     _pntp_properties_created = true;
 }
+
+
+
+// =========================================================================
+#if defined(ARDUINO_ARCH_STM32)
+
+    #define RED_LED_PIN PB6
+    #define GREEN_LED_PIN PB7
+    #define BLUE_LED_PIN PA1
+    #define USER_BUTTON PB2
+
+    bool user_button_digital_state_  = 0;
+    bool user_button_is_setup_ = 0;
+    float user_button_analog_state_ = 0;
+
+    void powernet_mac_ui(void) {
+
+        // Set-up GPIOs
+        if(!user_button_is_setup_) {
+            pinMode(USER_BUTTON, INPUT);
+            user_button_is_setup_ = 1;
+        }
+
+        bool user_button_reading = digitalRead(USER_BUTTON);
+
+        user_button_analog_state_ += 0.3f * (user_button_reading - user_button_analog_state_);
+
+        bool falling_edge = false;
+        bool rising_edge = false;
+
+        if(user_button_analog_state_ > 0.6f && user_button_digital_state_ == false) {
+            user_button_digital_state_ = true;
+            rising_edge = true;
+        }
+        else if(user_button_analog_state_ < 0.4f && user_button_digital_state_ == true){
+            user_button_digital_state_ = false; 
+            falling_edge = true;
+        }
+
+        if(rising_edge) {
+            #ifdef INCLUDE_PNTP
+                send_system_interrupt(SYSINT_USER_BUTTON_RISING);
+            #endif
+
+            user_button_analog_state_ = 1;
+        }
+        else if(falling_edge) {
+            #ifdef INCLUDE_PNTP
+                send_system_interrupt(SYSINT_USER_BUTTON_FALLING);
+            #endif
+
+            user_button_analog_state_ = 0;
+        }
+    }
+#endif
 
 
 

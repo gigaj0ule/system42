@@ -32,7 +32,7 @@
                 "MISC ERROR"
             };
 
-            auto volatile_properties() {
+            auto communicable_properties() {
                 return make_protocol_member_list(
 
                     make_protocol_object("v_int",
@@ -195,17 +195,17 @@
 
             };
 
-            struct NvmProperties_t {
+            struct DiskStructure_t {
                 int32_t nv_property = 0;
-            } non_volatile_properties;
+            } non_communicable_properties;
 
-            auto nonvolatile_properties() {
+            auto noncommunicable_properties() {
                 return make_protocol_member_list();
             }
 
             event_vector_t scan_complete_event = {1};
 
-            auto interrupt_properties() {
+            auto commucable_interrupts() {
                 return make_protocol_member_list(
 
                     make_event_trigger(

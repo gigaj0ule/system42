@@ -28,7 +28,7 @@ Optimized for computers with 4 k of RAM
             char str_property[1024] = "Hello world";
             char buffer_property[60] = "DEADBEEF";
 
-            auto volatile_properties() {
+            auto communicable_properties() {
                 return make_protocol_member_list(
 
                     make_protocol_number_kw(
@@ -75,14 +75,14 @@ Optimized for computers with 4 k of RAM
                 );
             };
 
-            struct NvmProperties_t {
+            struct DiskStructure_t {
                 int32_t nv_property = 0;
-            } non_volatile_properties;
+            } non_communicable_properties;
 
-            auto nonvolatile_properties() {
+            auto noncommunicable_properties() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
-                        &non_volatile_properties.nv_property,
+                        &non_communicable_properties.nv_property,
                         property_name = "sample_nv_property"
                     )
                 );
@@ -90,7 +90,7 @@ Optimized for computers with 4 k of RAM
 
             event_vector_t event_trigger = {1};
 
-            auto interrupt_properties() {
+            auto commucable_interrupts() {
                 return make_protocol_member_list(
 
                     make_event_trigger(

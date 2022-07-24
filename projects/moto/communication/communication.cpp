@@ -147,7 +147,7 @@ static inline auto make_obj_tree() {
         // Volatile Objects
         make_protocol_object("volatile",
 
-            pntp.volatile_properties(), 
+            pntp.communicable_properties(), 
         
             make_protocol_number_kw(
                 &vbus_voltage,
@@ -260,7 +260,7 @@ static inline auto make_obj_tree() {
                 property_is_non_volatile = true
             ),
             
-            pntp.nonvolatile_properties(),
+            pntp.noncommunicable_properties(),
 
             make_protocol_function_kw(
                 static_functions, 
@@ -276,7 +276,7 @@ static inline auto make_obj_tree() {
 
         // Event handlers (if any)
         make_protocol_object("events",
-            pntp.interrupt_properties()
+            pntp.commucable_interrupts()
         ),
 
         make_protocol_function_kw(

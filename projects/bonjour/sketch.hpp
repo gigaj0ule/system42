@@ -14,7 +14,7 @@
 
             int32_t property = 0;
 
-            auto volatile_properties() {
+            auto communicable_properties() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
                         &property,
@@ -23,11 +23,11 @@
                 );
             };
 
-            struct NvmProperties_t {
+            struct DiskStructure_t {
                 int32_t nv_property = 0;
             } disk0;
 
-            auto non_volatile_properties() {
+            auto non_communicable_properties() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
                         &disk0.nv_property,
@@ -38,7 +38,7 @@
 
             event_vector_t event_trigger = {1};
 
-            auto interrupt_properties() {
+            auto commucable_interrupts() {
                 return make_protocol_member_list(
 
                     make_event_trigger(

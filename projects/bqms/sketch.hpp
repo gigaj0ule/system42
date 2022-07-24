@@ -55,7 +55,7 @@
             #define TS_B_GND 1
 
             // Communicable Properties
-            auto volatile_properties() {
+            auto communicable_properties() {
 
                 return make_protocol_member_list(
 
@@ -487,17 +487,17 @@
                 );
             };
 
-            struct NvmProperties_t {
+            struct DiskStructure_t {
                 int32_t nv_property = 0;
             } disk0;
 
-            auto non_volatile_properties() {
+            auto non_communicable_properties() {
                 return make_protocol_member_list();
             }
 
             //event_vector_t scan_complete_event = {1};
 
-            auto interrupt_properties() {
+            auto commucable_interrupts() {
                 return make_protocol_member_list(
 
                     /*make_event_trigger(
