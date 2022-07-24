@@ -225,7 +225,7 @@ static inline auto make_obj_tree() {
 
         // Event handlers (if any)
         make_protocol_object("interrupt", 
-            pntp.commucable_interrupts()
+            pntp.communicable_interrupts()
         ),
 
         // System utilities

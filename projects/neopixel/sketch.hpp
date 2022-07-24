@@ -33,7 +33,7 @@
                 int32_t sample_property = 0;
             } disk0;
 
-            auto commucable_interrupts() {
+            auto communicable_interrupts() {
                 return make_protocol_member_list();
             };
     };

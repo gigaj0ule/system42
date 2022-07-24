@@ -62,7 +62,7 @@
 
             event_vector_t scan_complete_event = {1};
 
-            auto commucable_interrupts() {
+            auto communicable_interrupts() {
                 return make_protocol_member_list(
 
                     make_event_trigger(

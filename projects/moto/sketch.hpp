@@ -22,7 +22,7 @@
                 return make_protocol_member_list();
             }
 
-            auto commucable_interrupts() {
+            auto communicable_interrupts() {
                 return make_protocol_member_list();
             };
     };

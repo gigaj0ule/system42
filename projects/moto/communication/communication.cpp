@@ -276,7 +276,7 @@ static inline auto make_obj_tree() {
 
         // Event handlers (if any)
         make_protocol_object("events",
-            pntp.commucable_interrupts()
+            pntp.communicable_interrupts()
         ),
 
         make_protocol_function_kw(
