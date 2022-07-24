@@ -23,6 +23,10 @@ ifndef MCU_FAMILY
 	MCU_FAMILY := f103cb
 endif
 
+ifdef PROJECT
+	SRC = $(PROJECT)
+endif
+
 # Path of project source, set from command line
 ifndef SRC
     $(error SRC is not defined, there is nothing to build...)
@@ -660,6 +664,12 @@ upload-all: $(TARGET_PATH).bin
 	$(build-upload-bootloader)
 	$(upload-dfuse)
 	$(bell)
+	
+clean:
+	@echo "\nMAKE: Cleaning $(abspath $(BUILDDIR))"
+	@rm -rf "$(abspath $(BUILDDIR))"
+	@echo "\t Done!"
+
 
 #upload-dfu-aes:  $(TARGET_PATH).bin
 #	@echo "\nMAKE: Locking down $(TARGET_PATH).bin...\n"
@@ -716,8 +726,3 @@ $(TARGET_PATH).elf: $(OBJECTS)
 
 # Compiler generated dependency info
 -include $(OBJECTS:.o=.d)
-
-clean:
-	@echo "\nMAKE: Cleaning $(abspath $(BUILDDIR))"
-	@rm -rf "$(abspath $(BUILDDIR))"
-	@echo "\t Done!"

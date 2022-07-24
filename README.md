@@ -66,17 +66,16 @@ then write your MCU code!
 To build a project, make does all 
 the work for you. You must tell make
 what the name of the module firmware 
-is via the SRC variable. 
+is via the PROJECT variable. 
 
 In the case of "projects/demo":
 
 Goto the root firmware folder, 
 then execute:
 
-    sudo make SRC=demo clean upload-all
+    sudo make PROJECT=demo clean upload-all
 
-Where "demo" of course, is the 
-firmware target.
+Where "demo" of course, your project.
 
 This will automatically: 
 
