@@ -1,0 +1,207 @@
+######################################################################
+# ODrive Simple Makefile
+# (c) Adam Munich 2019
+
+# The name of your project (used to name the compiled .hex file)
+TARGET = "fw"
+
+# Firmware version macros
+FW_VERSION_MAJOR = 0
+FW_VERSION_MINOR = 4
+FW_VERSION_REVISION = 7
+FW_VERSION_UNRELEASED = 0
+
+# Hardware version macros
+HW_VERSION_MAJOR = 3
+HW_VERSION_MINOR = 5
+HW_VERSION_VOLTAGE = 48
+
+# Configurable options
+OPTIONS = -DSTM32F405xx
+OPTIONS += -ggdb -DUSE_HAL_DRIVER
+OPTIONS += -DFW_VERSION_MAJOR=$(FW_VERSION_MAJOR) -DFW_VERSION_MINOR=$(FW_VERSION_MINOR)
+OPTIONS += -DFW_VERSION_REVISION=$(FW_VERSION_REVISION) -DFW_VERSION_UNRELEASED=$(FW_VERSION_UNRELEASED)
+OPTIONS += -DHW_VERSION_MAJOR=$(HW_VERSION_MAJOR) -DHW_VERSION_MINOR=$(HW_VERSION_MINOR) -DHW_VERSION_VOLTAGE=$(HW_VERSION_VOLTAGE)
+OPTIONS += -DCDC_BAUD_RATE=921600
+
+OPTIONS += -DUSB_PROTOCOL_NATIVE_STREAM_BASED
+
+
+
+# Directory to build in
+BUILDDIR = $(abspath $(CURDIR)/_build)
+
+######################################################################
+# Location of utilities, libraries.
+
+
+
+# Path for communication library
+COMMUNICATIONPATH   = _shared_libs/communication/protocol
+NVMPATH = _shared_libs/communication/nvm
+
+# Path of project source
+SRC = moto
+
+SOURCEPATH := $(SRC)
+
+# Path location for STM32 variant
+VARIANTPATH := $(SOURCEPATH)/Board/v3
+
+# Target Path
+TARGET_PATH = $(SRC)/$(TARGET)
+
+# Compiler options for C and C++
+CPPFLAGS := $(OPTIONS)
+CPPFLAGS += -mthumb 
+CPPFLAGS += -mcpu=cortex-m4 
+CPPFLAGS += -Og -g 
+CPPFLAGS += -mfpu=fpv4-sp-d16 
+CPPFLAGS += -ffunction-sections
+CPPFLAGS += -mfloat-abi=hard 
+CPPFLAGS += -fdata-sections
+CPPFLAGS += -MMD
+CPPFLAGS += -ffast-math 
+CPPFLAGS += -fno-finite-math-only
+CPPFLAGS += -Wformat=0
+CPPFLAGS += -Wall -Wdouble-promotion -Wfloat-conversion
+CPPFLAGS += -D__weak="__attribute__((weak))" 
+CPPFLAGS += -D__packed="__attribute__((__packed__))" 
+
+# Compiler options for C++ only
+CXXFLAGS := -felide-constructors 
+CXXFLAGS += -fno-exceptions 
+CXXFLAGS += -fno-rtti 
+CXXFLAGS += -fno-threadsafe-statics 
+CXXFLAGS += -fext-numeric-literals
+CXXFLAGS += -std=c++14 
+
+# Compiler options for C only
+CFLAGS := -std=c99
+
+#CFLAGS += -g -gdwarf-2
+
+# Linker options
+LDFLAGS := -mcpu=cortex-m4 -mthumb
+LDFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard 
+LDFLAGS += -specs=nano.specs -specs=nosys.specs
+#LDFLAGS += -u _printf_float -u _scanf_float
+LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,-Map,$(BUILDDIR)/$(TARGET_PATH).map
+LDFLAGS += -L$(VARIANTPATH)/Drivers/CMSIS/Lib
+LDFLAGS += -Wl,--undefined=uxTopUsedPriority
+
+# GCC Bug makes linker library switches order dependent
+LDFLAGS_END := -lm -lc -lnosys -Wl,--library=arm_cortexM4lf_math 
+
+# Linker script
+LDSCRIPT = $(VARIANTPATH)/STM32F405RGTx_FLASH.ld
+
+
+######################################################################
+# Environment tools
+
+# Names for the compiler programs
+CC = arm-none-eabi-gcc
+CXX = arm-none-eabi-g++
+AS = arm-none-eabi-as
+AR = arm-none-eabi-gcc-ar
+OBJCOPY = arm-none-eabi-objcopy
+SIZE = arm-none-eabi-size
+DUMP = arm-none-eabi-objdump
+STRIP = arm-none-eabi-strip
+READELF = arm-none-eabi-readelf
+NM = arm-none-eabi-nm
+
+
+######################################################################
+# Automatically create lists of the sources and objects
+rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+
+# Source
+C_FILES := $(call rwildcard, $(SOURCEPATH), *.c)
+C_FILES += $(call rwildcard, $(COMMUNICATIONPATH), *.c)
+C_FILES += $(call rwildcard, $(NVMPATH), *.c)
+
+C_FILES := $(filter-out $(wildcard $(SOURCEPATH)/Board/v3/Src/prev_board_ver/*.c), $(C_FILES))
+
+CPP_FILES := $(call rwildcard, $(SOURCEPATH), *.cpp)
+CPP_FILES += $(call rwildcard, $(COMMUNICATIONPATH), *.cpp)
+CPP_FILES += $(call rwildcard, $(NVMPATH), *.cpp)
+
+#CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/test/*.cpp), $(CPP_FILES))
+#CPP_FILES := $(filter-out $(wildcard $(SOURCEPATH)/fibre/cpp/posix*.cpp), $(CPP_FILES))
+
+# Assembly
+ASM_FILES := $(call rwildcard, $(SOURCEPATH), *.s)
+
+
+
+######################################################################
+# Create file arrays for the c++ and c compiler, and linker
+
+INC_DIRS := $(sort $(dir $(call rwildcard, $(SOURCEPATH), *)))
+INC_DIRS += $(sort $(dir $(call rwildcard, $(COMMUNICATIONPATH), *)))
+INC_DIRS += $(sort $(dir $(call rwildcard, $(NVMPATH), *)))
+
+# Object file (and assembly file) path array
+SOURCE_OBJS := $(ASM_FILES:.s=.o) $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
+
+OBJECTS := $(foreach obj, $(SOURCE_OBJS), $(BUILDDIR)/$(obj))
+
+# Include paths for header files and libraries
+LIBRARIES := $(foreach lib, $(INC_DIRS), -I$(lib))
+LD_LIBRARIES := $(foreach lib, $(INC_DIRS), -L$(lib))
+
+
+######################################################################
+# Create build rules
+
+build: $(TARGET_PATH).elf $(TARGET_PATH).hex $(TARGET_PATH).bin $(TARGET_PATH).asm
+
+all: build
+
+upload: $(TARGET_PATH).bin
+	openocd -f board/stm32f4discovery.cfg -c "reset_config trst_only combined" -c "program _build/$(TARGET_PATH).elf verify reset exit" # For openocd 0.9
+
+$(BUILDDIR)/%.o: %.c
+	@echo "Building file $<"
+	@mkdir -p "$(dir $@)"
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(LIBRARIES) -o "$@" -c "$<"
+
+$(BUILDDIR)/%.o: %.cpp
+	@echo "Building file $<"
+	@mkdir -p "$(dir $@)"
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LIBRARIES) -o "$@" -c "$<"
+
+$(BUILDDIR)/%.o: %.s
+	@echo "Building file $<"
+	@mkdir -p "$(dir $@)"
+	@$(CXX) -x assembler-with-cpp $(CPPFLAGS) $(CFLAGS) $(LIBRARIES) -MD -o "$@" -c "$<"
+
+$(TARGET_PATH).elf: $(OBJECTS)
+	@echo "Linking $(BUILDDIR)/$@"
+	@$(CXX) $(LDFLAGS) -o $(BUILDDIR)/"$@" $^ $(LDFLAGS_END) $(LD_LIBRARIES) -T$(LDSCRIPT) 
+
+%.hex: %.elf
+	@echo "Making HEX $(BUILDDIR)/$@"
+	@$(OBJCOPY) -O ihex -R .eeprom $(BUILDDIR)/"$<" $(BUILDDIR)/"$@"
+
+%.bin: %.elf
+	@echo "Making BIN $(BUILDDIR)/$@"
+	@$(SIZE) $(BUILDDIR)/"$<"
+	@$(OBJCOPY) -O binary $(BUILDDIR)/"$<" $(BUILDDIR)/"$@"
+
+%.asm: %.elf %.bin
+	@echo "Dumping $(BUILDDIR)/$@" 
+	@$(DUMP) -d -S $(BUILDDIR)/"$<" > $(BUILDDIR)/$(TARGET_PATH)_elf.asm
+	@$(DUMP) -marm -Mforce-thumb -d -S $(BUILDDIR)/"$<" > $(BUILDDIR)/$(TARGET_PATH)_bin.asm
+
+
+# Compiler generated dependency info
+-include $(OBJECTS:.o=.d)
+
+clean:
+	@echo Cleaning "$(abspath $(BUILDDIR))"
+	@rm -rf "$(abspath $(BUILDDIR))"
+	@echo Done!

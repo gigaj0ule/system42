@@ -1,0 +1,121 @@
+/*
+// States X:
+// X = (θ_e, δ_est, α_est)
+// where:
+// θ_e = Electrical phase
+// δ_est = Phase misalignment (what we measure directly, can be considered phase velocity)
+// a_est = Acceleration estimate
+
+// A = State transistion matrix
+// State relationships:
+
+// θ_e_dot     = d/dt(θ_e)   = δ_est
+// θ_e_dot_dot = d/dt(δ_est) = α_est
+
+// Eventually we should include current as a measurement of acceleration:
+
+// α_est = 1 / J * Kt * (I_f) + w 
+
+// Where:
+// J = Moment of inertia
+// Kt = Motor torque constant 
+// I_f = Motor current
+// w = Process Noise
+
+// Ultimately takes the form:
+
+// α_est = (constant) * I_f + w
+
+// Use these relationships to estimate Theta with velocity
+hfi_pos_estimate_ = wrap_pm_pi(hfi_pos_estimate_ + hfi_estimator_dt * hfi_vel_estimate_);
+
+// B = Input matrix (things we measure directly)
+// [δ_est, I_f]
+
+// C = Output (measurement) matrix:
+// C = 1 * δ_est
+// C = 0 * I_f (for now we don't take I_f into account)
+// C = [1 0]
+
+// Z (innovation / residual)
+// Our residual is our phase error
+
+// Z = (θ_e_estimate - θ_e_measured) = δ_est
+float residual_phase_error = - hfi_I_real_DC_filtered_average_compensated;
+//float residual_accel_error = N/A?
+
+// Update the state estimate
+// X_est += L * Z
+// θ_e, δ_est, α_est += (La, L1, L2) * Z
+
+// Proportional relationship
+float hfi_pll_k_p = 2.0f * 200.0f;
+
+// Integral relationship (Critically damped)
+float hfi_pll_k_i = 0.25f * (hfi_pll_k_p * hfi_pll_k_p);
+
+// Update THETA_hat
+hfi_pos_estimate_ = wrap_pm_pi(hfi_pos_estimate_ + hfi_estimator_dt * hfi_pll_k_p * residual_phase_error);
+
+// Update THETA_dot_hat
+hfi_vel_estimate_ += hfi_estimator_dt * hfi_pll_k_i * residual_phase_error;
+
+// Reset the estimator if it loses its mind
+if(fabsf(hfi_vel_estimate_) > 200) {
+    hfi_vel_estimate_ = 0;
+}
+
+// Feed the output of the estimator to the input of the HFI injector (θ_e_hat).
+if(hfi_closed_feedback_loop_) {
+    #if defined(HFI_DEBUGING_INSPECT_IC_RESPONSE)
+        hfi_test_signal_injection_angle_ = stashed_injection_angle;
+    #elif defined(HFI_DEBUGING_INSPECT_DC_CALIBRATION)
+        //hfi_test_signal_injection_angle_ = hfi_pos_estimate_;
+        hfi_test_signal_injection_angle_ = stashed_injection_angle;
+    #else
+        //hfi_test_signal_injection_angle_ = hfi_pos_estimate_;
+        hfi_test_signal_injection_angle_ = stashed_injection_angle;
+    #endif
+} 
+else {
+    //hfi_test_signal_injection_angle_ = stashed_injection_angle;
+}
+
+// Our estimate is for D_axis, we must shift 90 deg if we are driving "Q".
+float q_axis_estimate = wrap_pm_pi(hfi_pos_estimate_ - M_PI / 2.0f);
+
+// We have a potential 180 degree phase misalignment in our estimator, as
+// the estimator has no sense of magnet polarity. This should eventually be fixed, 
+// but for now, we will just see whether Estimate PI + Estimate  
+float error_a = fabsf(wrap_pm_pi(q_axis_estimate - stashed_injection_angle));
+float error_b = fabsf(wrap_pm_pi(q_axis_estimate + M_PI - stashed_injection_angle));
+
+*/
+
+
+float misalignment_filter_k_p_ = hfi_misalignment_filter_bandwidth_ * 2.0f * CURRENT_MEAS_PERIOD;
+
+
+/*
+// Compare the errors and choose the one which is closest to the funadmental current angle
+if(error_a <= error_b) {
+    hfi_I_f_misalignment_tracker_ += misalignment_filter_k_p_ * (wrap_pm_pi(stashed_injection_angle - q_axis_estimate) - hfi_I_f_misalignment_tracker_);
+    //debug_[0] = q_axis_estimate / 10.0f;
+} 
+
+else if(error_b <= error_a) {
+    hfi_I_f_misalignment_tracker_ += misalignment_filter_k_p_ * (wrap_pm_pi(stashed_injection_angle - q_axis_estimate + M_PI) - hfi_I_f_misalignment_tracker_);
+    //debug_[0] = (q_axis_estimate + M_PI) / 10.0f;
+}
+
+//debug_[1] = hfi_I_f_misalignment_tracker_;
+//debug_[4] = stashed_injection_angle / 10.0f;
+
+
+//hfi_I_f_misalignment_tracker_ += misalignment_filter_k_p_ * ((hfi_I_p_real_DC_filtered_average - hfi_I_n_real_DC_filtered_average) - hfi_I_f_misalignment_tracker_);
+
+#ifdef HFI_DEBUGING_INSPECT_IC_RESPONSE
+    debug_[4] = hfi_I_f_misalignment_tracker_;
+    debug_[5] = (hfi_I_n_imag_DC_filtered_average + hfi_I_p_imag_DC_filtered_average);
+#endif
+*/
