@@ -39,11 +39,10 @@ An install script is not written yet.
 
 You will need:
 
-- make
-- vscode
+- GNU make
 - openocd
-- dfu-util
-- python3 (and: pycryptodome, )
+- dfu-util 0.9
+- python3 (and: pycryptodome)
 - arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 (see INSTALLING_GCC.md)
 
 
