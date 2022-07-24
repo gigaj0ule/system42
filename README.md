@@ -43,7 +43,7 @@ You will need:
 - vscode
 - openocd
 - dfu-util
-- python3 (and whatever libraries it complains about wanting when you try to compile)
+- python3 (and: pycryptodome, )
 - arm-none-eabi-gcc (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 (see INSTALLING_GCC.md)
 
 
