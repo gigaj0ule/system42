@@ -97,7 +97,7 @@ make runs with "clean" enabled.
 After you have installed the BIOS
 you can use     
 
-    sudo make SRC=demo clean upload-dfu
+    sudo make PROJECT=demo clean upload-dfu
 
 To flash new firmware to the MCU 
 over USB without a SWD programmer 
@@ -120,7 +120,7 @@ Nothing will, really.
 
 To enable readout protection, use:
 
-    sudo make SRC=demo USE_RDP=1 clean upload-all
+    sudo make PROJECT=demo USE_RDP=1 clean upload-all
 
 There is also support for AES256 
 encryption, which prevents the 
@@ -141,7 +141,7 @@ new bootloader onto the MCU manually.
 
 To enable firmware encryption, use:
 
-    sudo make SRC=demo USE_ENCRYPTION=1 clean upload-all
+    sudo make PROJECT=demo USE_ENCRYPTION=1 clean upload-all
 
     
 ### Supported Cores
@@ -153,7 +153,7 @@ the 32F103CBT6. If you are building
 for something else, use the 
 following command:
 
-    sudo make SRC=demo MCU_FAMILY=$FAMILY clean upload-all
+    sudo make PROJECT=demo MCU_FAMILY=$FAMILY clean upload-all
 
 Where $FAMILY is one of:
 
