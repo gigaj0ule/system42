@@ -1,5 +1,5 @@
-# Installing GNU Tools For ARM
-# (c) Adam Munich, 2021
+# Installing GNU Tools For ARM on linux
+# (c) j0ule, 2022
 
 Unfortuately, the apt-get repos for gnu tools for arm are infrequntly updated.
 This means we need to do things the hard way and install gcc-arm-none-eabi by
