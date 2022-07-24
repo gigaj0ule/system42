@@ -13,9 +13,12 @@
         // Stuff
     }
 
+
     class PowernetNamespace {
 
         public:
+
+            void demo_func_with_args(float arg_1);
 
             bool bool_property = false;
             int32_t int32_property = 2147483647;
@@ -60,6 +63,16 @@
                         property_name = "buffer", 
                         property_length = sizeof(buffer_property)
                     )
+                    
+                    /*,
+
+                    make_protocol_function_kw(
+                        *this,
+                        &PowernetNamespace::demo_func_with_args,
+                        property_name = "demo_func_with_args",
+                        function_arguments = std::array<const char *, 1>{
+                            "arg_1" }
+                    )*/
 
                 );
             };

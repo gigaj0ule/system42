@@ -909,18 +909,18 @@ struct MemberList;
 template<>
 struct MemberList<> {
     public:
-        static constexpr uint32_t endpoint_count = 0;
+        static constexpr size_t endpoint_count = 0;
         static constexpr bool is_empty = true;
 
-        bool write_json(uint32_t id, StreamSink* output) {
+        bool write_json(size_t id, StreamSink* output) {
             // no action
             //write_string("x", output);
             return false;
         }
-        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) {
+        void register_endpoints(Endpoint** list, size_t id, size_t length) {
             // no actions
         }
-        Endpoint* get_by_name(const char * name, uint32_t length) {
+        Endpoint* get_by_name(const char * name, size_t length) {
             return nullptr;
         }
         std::tuple<> get_names_as_tuple() const { return std::tuple<>(); }
@@ -1060,7 +1060,7 @@ template<typename TProperty>
 class ProtocolProperty2 : public Endpoint {
     public:
         static constexpr const char * json_modifier = get_json_modifier<TProperty>();
-        static constexpr uint32_t endpoint_count = 1;
+        static constexpr size_t endpoint_count = 1;
 
         // Todo: implement min and max value enforcement
         // Todo: what did I mean about this?
@@ -1311,7 +1311,7 @@ class ProtocolProperty2 : public Endpoint {
 template<typename Tstring>
 class ProtocolString : public Endpoint {
     public:
-        static constexpr uint32_t endpoint_count = 1;
+        static constexpr size_t endpoint_count = 1;
 
         ProtocolString(
             const char * name, 
@@ -2127,7 +2127,7 @@ struct PropertyListFactory<TProperty, TProperties...> {
 // Iterator for tuples of arbitrary length
 // https://codereview.stackexchange.com/questions/51407/stdtuple-foreach-implementation
 
-template <typename Tuple, typename F, std::uint32_t ...Indices>
+template <typename Tuple, typename F, std::size_t ...Indices>
 void for_each_impl(Tuple && tuple, F&& f, std::index_sequence<Indices...>) {
     using swallow = int[];
 
@@ -2146,7 +2146,7 @@ void tuple_for_each(std::tuple<Args...>& tuple, F&& f)
 // Iterator for tuples of arbitrary length, with associated array
 // of names
 //
-template <typename Tuple, typename F, std::uint32_t ...Indices>
+template <typename Tuple, typename F, std::size_t ...Indices>
 void for_each_impl_names(Tuple && tuple, F&& f, std::array<const char *, sizeof...(Indices)> array, std::index_sequence<Indices...>) {
     using swallow = int[];
 
@@ -2191,7 +2191,7 @@ class ProtocolFunction<TObj, TReturnType, std::tuple<TInputs...>> : Endpoint {
     public:
         // @brief The return type of the function as written by a C++ programmer
 
-        static constexpr uint32_t endpoint_count = 1 + MemberList<ProtocolProperty2<TInputs>...>::endpoint_count;
+        static constexpr size_t endpoint_count = 1 + MemberList<ProtocolProperty2<TInputs>...>::endpoint_count;
 
         ProtocolFunction(
             const char * name, 
@@ -2509,7 +2509,7 @@ template<typename TObj, typename TReturnType, typename ... TArgs, typename... Ar
 //
 class EndpointProvider {
     public:
-        virtual uint32_t get_endpoint_count() = 0;
+        virtual size_t get_endpoint_count() = 0;
         virtual bool write_json(uint32_t id, StreamSink* output) = 0;
         virtual Endpoint* get_by_name(char * name, uint32_t length) = 0;
         virtual void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) = 0;
@@ -2519,7 +2519,7 @@ template<typename T>
 class EndpointProvider_from_MemberList : public EndpointProvider {
     public:
         EndpointProvider_from_MemberList(T& member_list) : member_list_(member_list) {}
-        uint32_t get_endpoint_count() final {
+        size_t get_endpoint_count() final {
             return T::endpoint_count;
         }
         bool write_json(uint32_t id, StreamSink* output) final {
