@@ -93,21 +93,6 @@ it will be destroyed the next time
 make runs with "clean" enabled.
 
 
-### Threading
-
-To create a thread:
-    
-    static void daughter_thread(void* arg)
-   
-You must call vTaskDekay(milliseconds) 
-instead of delay(milliseconds), or
-your CPU will waste useful cycles. 
-
-Always call vTaskDelay() at least
-once in a thread. If you don't, then
-the thread will crash your core.
-
-
 ### USB Firmware Upgrade
 
 After you have installed the BIOS
