@@ -12,8 +12,10 @@ TARGET = fw
 
 # Directories
 PROJECTSDIR = projects
+
+# Internal
 FRAMEWORKDIR = system32
-LIBRARIESDIR = libraries
+LIBRARIESDIR = $(FRAMEWORKDIR)/libraries
 
 # ==================================================================
 # Family
