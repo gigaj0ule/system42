@@ -67,10 +67,7 @@ the work for you. You must tell make
 what the name of the module firmware 
 is via the PROJECT variable. 
 
-In the case of "projects/demo":
-
-Goto the root firmware folder, 
-then execute:
+In the case of "demo":
 
     sudo make PROJECT=demo clean upload-all
 
