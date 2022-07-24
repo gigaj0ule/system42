@@ -1,7 +1,3 @@
-[submodule "lib_bitsnap"]
-	path = lib_bitsnap
-	url = https://github.com/gigaj0ule/lib_bitsnap
-	
 [submodule "universal_display_board"]
 	path = projects/universal_display_board
 	url = https://gitlab.com/adammunich/universal_display_board
