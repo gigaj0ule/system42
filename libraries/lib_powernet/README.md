@@ -28,7 +28,7 @@ Optimized for computers with 4 k of RAM
             char str_property[1024] = "Hello world";
             char buffer_property[60] = "DEADBEEF";
 
-            auto communicable_properties() {
+            auto communicable_variables() {
                 return make_protocol_member_list(
 
                     make_protocol_number_kw(
@@ -77,12 +77,12 @@ Optimized for computers with 4 k of RAM
 
             struct DiskStructure_t {
                 int32_t nv_property = 0;
-            } non_communicable_properties;
+            } non_communicable_variables;
 
-            auto noncommunicable_properties() {
+            auto noncommunicable_variables() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
-                        &non_communicable_properties.nv_property,
+                        &non_communicable_variables.nv_property,
                         property_name = "sample_nv_property"
                     )
                 );

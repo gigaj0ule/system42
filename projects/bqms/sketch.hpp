@@ -55,7 +55,7 @@
             #define TS_B_GND 1
 
             // Communicable Properties
-            auto communicable_properties() {
+            auto communicable_variables() {
 
                 return make_protocol_member_list(
 
@@ -491,7 +491,7 @@
                 int32_t nv_property = 0;
             } disk0;
 
-            auto non_communicable_properties() {
+            auto non_communicable_variables() {
                 return make_protocol_member_list();
             }
 

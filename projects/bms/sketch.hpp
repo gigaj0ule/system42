@@ -32,7 +32,7 @@
                 "MISC ERROR"
             };
 
-            auto communicable_properties() {
+            auto communicable_variables() {
                 return make_protocol_member_list(
 
                     make_protocol_object("v_int",
@@ -197,9 +197,9 @@
 
             struct DiskStructure_t {
                 int32_t nv_property = 0;
-            } non_communicable_properties;
+            } non_communicable_variables;
 
-            auto noncommunicable_properties() {
+            auto noncommunicable_variables() {
                 return make_protocol_member_list();
             }
 

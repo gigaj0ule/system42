@@ -27,7 +27,7 @@
             char str_property[1024] = "Hello world";
             char buffer_property[60] = "DEADBEEF";
 
-            auto communicable_properties() {
+            auto communicable_variables() {
                 return make_protocol_member_list(
 
                     make_protocol_number_kw(
@@ -81,7 +81,7 @@
                 int32_t nv_property = 0;
             } disk0;
 
-            auto non_communicable_properties() {
+            auto non_communicable_variables() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
                         &disk0.nv_property,

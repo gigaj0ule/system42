@@ -18,7 +18,7 @@
 
             char led_banks[NUMBER_OF_LED_BANKS][NUMBER_OF_BYTES_PER_LED_BANK] = {0};
 
-            auto communicable_properties() {
+            auto communicable_variables() {
                 return make_protocol_member_list(
 
                     make_protocol_buffer_kw(

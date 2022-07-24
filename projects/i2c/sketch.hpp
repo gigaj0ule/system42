@@ -22,7 +22,7 @@
                 "MISC ERROR"
             };
 
-            auto communicable_properties() {
+            auto communicable_variables() {
                 return make_protocol_member_list(
                     make_protocol_number_kw(
                         &afe_wake,
@@ -56,7 +56,7 @@
                 int32_t nv_property = 0;
             } disk0;
 
-            auto non_communicable_properties() {
+            auto non_communicable_variables() {
                 return make_protocol_member_list();
             }
 

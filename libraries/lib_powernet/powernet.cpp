@@ -219,17 +219,17 @@ static inline auto make_obj_tree() {
     return make_protocol_member_list(
         
         // Volatile Objects
-        make_protocol_object("ram", 
-            pntp.communicable_properties()
+        make_protocol_object("variables", 
+            pntp.communicable_variables()
         ),
 
         // Event handlers (if any)
-        make_protocol_object("interrupt", 
+        make_protocol_object("interrupts", 
             pntp.communicable_interrupts()
         ),
 
         // System utilities
-        make_protocol_object("device",
+        make_protocol_object("devices",
 
             // Eth Device
             #if defined(PNTP_USING_ETH0)
