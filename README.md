@@ -85,7 +85,7 @@ This will automatically:
 - (optionally) Enable read-out protection and disable SWD/JTAG
 - Upload the firmware over USB / DFU 
 
-The firmware (.snap) file will be 
+The firmware (.dfu) file will be 
 in ./__builds/<project> if you want 
 to save it for the future. Otherwise 
 it will be destroyed the next time 
