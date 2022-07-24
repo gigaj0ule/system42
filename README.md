@@ -183,7 +183,7 @@ for vscode.
 This is extremely useful. Like really
 really makes you a better programmer. 
 
-ST-Link V2 programmwrs have been tested with 
+ST-Link V2 programmers have been tested with 
 openocd and work great!
 
 Debugging only works when read out 
