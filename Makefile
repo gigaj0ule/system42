@@ -622,17 +622,17 @@ endef
 
 define snappack
 	@echo "\nMAKE: Packing $(TARGET_PATH).bin...\n"
-	python3 ./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE) $(BOOT_KEY_FILE)
+	@python3 ./$(FRAMEWORKDIR)/_build_tools/snappack.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).dfu $(BOOTLOADER_SIZE) $(BOOT_KEY_FILE)
 endef
 
 define upload-dfuse
-	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-	@-dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap
+	@echo "\nMAKE: Uploading $(TARGET_PATH).dfu...\n"
+	@-dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).dfu
 endef
 
 define upload-dfuse-v
-	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-	dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap -v -v
+	@echo "\nMAKE: Uploading $(TARGET_PATH).dfu...\n"
+	dfu-util --device $(USB_VENDOR_ID):$(USB_PRODUCT_ID) -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).dfu -v -v
 endef
 
 define bell
@@ -661,13 +661,13 @@ upload-all: $(TARGET_PATH).bin
 
 #upload-dfu-aes:  $(TARGET_PATH).bin
 #	@echo "\nMAKE: Locking down $(TARGET_PATH).bin...\n"
-#	@./_build_tools/lockdown.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).snap $(BOOTLOADER_SIZE)
-#	@echo "\nMAKE: Uploading $(TARGET_PATH).snap...\n"
-#	@dfu-util -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).snap
+#	@./_build_tools/lockdown.py $(BUILDDIR)/$(TARGET_PATH).bin $(RELEASEDIR)/$(TARGET_PATH).dfu $(BOOTLOADER_SIZE)
+#	@echo "\nMAKE: Uploading $(TARGET_PATH).dfu...\n"
+#	@dfu-util -a 0 -s 0x08000000:leave -D $(RELEASEDIR)/$(TARGET_PATH).dfu
 
 #upload-dfu-aes-test:  $(TARGET_PATH).bin
-#	./_build_tools/lockdown.py ./_build_tools/test.bin ./_build_tools/test.snap $(BOOTLOADER_SIZE)
-#	dfu-util -a 0 -s 0x08000000:leave -D ./_build_tools/test.snap -v
+#	./_build_tools/lockdown.py ./_build_tools/test.bin ./_build_tools/test.dfu $(BOOTLOADER_SIZE)
+#	dfu-util -a 0 -s 0x08000000:leave -D ./_build_tools/test.dfu -v
 
 $(BUILDDIR)/%.o: %.c
 	@echo "\nMAKE: Building file $<"

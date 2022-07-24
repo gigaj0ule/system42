@@ -1,40 +1,7 @@
 #!/usr/bin/env python3
 import sys, os, array
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
 
-class AESCipher:
-    def __init__(self, aes_key, bootloader_size):
-        self.key = bytes(aes_key)
-        self.key_bits = 8 * self.key
-        self.block_size = AES.block_size
-        self.bootloader_size = bootloader_size
-
-    # The encryption we use for the bootloader puts the IV at the beginning of the file
-    # and then pads the application with 0xFF until we reach the beginning of application
-    # space. The bootloader will not write these 0xFF's to flash (as doing so would destroy
-    # the bootloader), but once we are in application space the flashing will commence.
-    def encrypt(self, data):
-        init_vector = bytearray(get_random_bytes(self.block_size))
-        self.cipher = AES.new(self.key, AES.MODE_CBC, bytes(init_vector))
-
-        # Pad data with bootloader size - IV size
-        padded_data = init_vector + bytearray(get_random_bytes(self.bootloader_size - self.block_size)) + data
-        padded_data_bytes = bytes(padded_data)
-
-        return self.cipher.encrypt(padded_data_bytes)
-
-    # Runs the same algortithm the bootloader runs
-    def decrypt(self, data):
-        init_vector = data[:self.block_size] 
-
-        self.cipher = AES.new(self.key, AES.MODE_CBC, init_vector)
-        plaintext = self.cipher.decrypt(data[self.block_size:])
-
-        unpadded_plaintext = plaintext[(self.bootloader_size - self.block_size):]
-        return unpadded_plaintext
-
-
+# ----------------------------------------------------------
 def program_quit(arg):
     if(arg == 0):
         print("\n== Finished!")
@@ -42,15 +9,14 @@ def program_quit(arg):
         print("\n== Terminating")
     exit(arg)
 
-
 # ----------------------------------------------------------
 if __name__ == '__main__':
     # Calvin S
     print("== ╔═╗╔╗╔╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═\n"+
           "== ╚═╗║║║╠═╣╠═╝╠═╝╠═╣║  ╠╩╗\n"+
           "== ╚═╝╝╚╝╩ ╩╩  ╩  ╩ ╩╚═╝╩ ╩")
-    print("== Firmware packer for snaps")
-    print("== (C) 2019, 2021 Adam Munich, All Rights Reserved\n")
+    print("== Firmware File Packer")
+    print("== (C) 2019, 2021, 2022 ~j0ule, All Rights Reserved\n")
 
     # Encrypt, or no?
     HAVE_BOOT_KEY_FILE = False
@@ -157,6 +123,44 @@ if __name__ == '__main__':
         print("\tPadded binary with {} bytes.".format(padding_length))
         encryptable_length = len(input_byte_array)
         print("\tNew binary length is {} bytes.".format(encryptable_length))
+
+
+    # Import crytpo stuff
+    if HAVE_BOOT_KEY_FILE == True:
+        
+        from Crypto.Cipher import AES
+        from Crypto.Random import get_random_bytes
+
+        class AESCipher:
+            def __init__(self, aes_key, bootloader_size):
+                self.key = bytes(aes_key)
+                self.key_bits = 8 * self.key
+                self.block_size = AES.block_size
+                self.bootloader_size = bootloader_size
+
+            # The encryption we use for the bootloader puts the IV at the beginning of the file
+            # and then pads the application with 0xFF until we reach the beginning of application
+            # space. The bootloader will not write these 0xFF's to flash (as doing so would destroy
+            # the bootloader), but once we are in application space the flashing will commence.
+            def encrypt(self, data):
+                init_vector = bytearray(get_random_bytes(self.block_size))
+                self.cipher = AES.new(self.key, AES.MODE_CBC, bytes(init_vector))
+
+                # Pad data with bootloader size - IV size
+                padded_data = init_vector + bytearray(get_random_bytes(self.bootloader_size - self.block_size)) + data
+                padded_data_bytes = bytes(padded_data)
+
+                return self.cipher.encrypt(padded_data_bytes)
+
+            # Runs the same algortithm the bootloader runs
+            def decrypt(self, data):
+                init_vector = data[:self.block_size] 
+
+                self.cipher = AES.new(self.key, AES.MODE_CBC, init_vector)
+                plaintext = self.cipher.decrypt(data[self.block_size:])
+
+                unpadded_plaintext = plaintext[(self.bootloader_size - self.block_size):]
+                return unpadded_plaintext
 
 
     # Encrypt file if boot_key_file was provided
