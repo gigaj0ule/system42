@@ -18,7 +18,6 @@
         public:
 
             bool bool_property = false;
-            uint8_t uint8_property = 255;
             int32_t int32_property = 2147483647;
             int64_t int64_property = 223372036854775807;
             float float_property = 80.0f;
@@ -27,13 +26,6 @@
 
             auto volatile_properties() {
                 return make_protocol_member_list(
-
-                    make_protocol_number_kw(
-                        &uint8_property,
-                        property_name = "uint8_property",
-                        after_written_callback = &host_wrote_data_callback,
-                        after_read_callback = &host_read_data_callback
-                    ),
 
                     make_protocol_number_kw(
                         &bool_property,
