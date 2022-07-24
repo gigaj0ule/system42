@@ -32,12 +32,19 @@ constexpr uint16_t PROTOCOL_VERSION = 1;
 // however much RAM you want to allocate to the communications system.
 
 // Transfers requests larger than this are truncated by this device. 
+#ifdef __STM32F1__
 constexpr uint16_t TX_BUF_SIZE = 512 + 32;
 constexpr uint16_t RX_BUF_SIZE = 512 + 32;
+#endif
+
+#ifdef __STM32F4__
+constexpr uint16_t TX_BUF_SIZE = 1024 + 32;
+constexpr uint16_t RX_BUF_SIZE = 1024 + 32;
+#endif
 
 constexpr uint8_t DATA_PACKET_PREFIX       = 0xAA;
-constexpr uint8_t INTERRUPT_PACKET_PREFIX  = 0xAC;
 constexpr uint8_t TIMECODE_PACKET_PREFIX   = 0xAB;
+constexpr uint8_t INTERRUPT_PACKET_PREFIX  = 0xAC;
 
 
 /*******************************************************/
@@ -75,7 +82,7 @@ void small_itoa (char *dest, uint32_t size, uint32_t x);
 //  source: https://users.ece.cmu.edu/~koopman/crc/index.html
 constexpr uint8_t CANONICAL_CRC8_POLYNOMIAL = 0x37;
 constexpr uint8_t CANONICAL_CRC8_INIT = 0x42;
-constexpr size_t  CRC8_BLOCKSIZE = 4;
+constexpr uint32_t  CRC8_BLOCKSIZE = 4;
 
 // Default CRC-16 Polynomial: 0x9eb2 x^16 + x^13 + x^12 + x^11 + x^10 + x^8 + x^6 + x^5 + x^2 + 1
 // Can protect a 135 byte payload against toggling of up to 5 bits
@@ -88,14 +95,14 @@ constexpr uint16_t CANONICAL_CRC16_INIT = 0x1337;
 constexpr uint32_t CANONICAL_CRC32_POLYNOMIAL = 0xc9d204f5;
 constexpr uint32_t CANONICAL_CRC32_INIT = 0x1337C0DE;
 
-#define HEADER_IS_LITTLE_ENDIAN
-
 #define TOTAL_HEADER_LEN 32
+
+#define HEADER_IS_LITTLE_ENDIAN
 
 #ifdef HEADER_IS_LITTLE_ENDIAN
     #define HEADER_ENDIAN false
 #else
-    #define HEADER_ENDIAN true
+    #error "Big endian no longer supported"
 #endif
 
 #define USE_FAST_CRC32 false
@@ -104,7 +111,7 @@ typedef uint32_t endpoint_id_t;
 
 struct ReceiverState {
     endpoint_id_t endpoint_id;
-    size_t length;
+    uint32_t length;
     uint16_t seqno_thread;
     uint16_t seqno;
     bool expect_ack;
@@ -130,20 +137,20 @@ void send_event_to_host(event_vector_t interrupt_vector);
 #include <cstring>
 
 template<typename T, typename = typename std::enable_if_t<!std::is_const<T>::value>>
-inline size_t write_le(T value, uint8_t* buffer){
+inline uint32_t write_le(T value, uint8_t* buffer){
     //TODO: add static_assert that this is still a little endian machine
     memcpy(&buffer[0], &value, sizeof(value));
     return sizeof(value);
 }
 
 template<typename T>
-typename std::enable_if_t<std::is_const<T>::value, size_t>
+typename std::enable_if_t<std::is_const<T>::value, uint32_t>
 write_le(T value, uint8_t* buffer) {
     return write_le<std::remove_const_t<T>>(value, buffer);
 }
 
 template<>
-inline size_t write_le<float>(float value, uint8_t* buffer) {
+inline uint32_t write_le<float>(float value, uint8_t* buffer) {
     static_assert(CHAR_BIT * sizeof(float) == 32, "32 bit floating point expected");
     static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 floating point expected");
     const uint32_t * value_as_uint32 = reinterpret_cast<const uint32_t*>(&value);
@@ -151,14 +158,14 @@ inline size_t write_le<float>(float value, uint8_t* buffer) {
 }
 
 template<typename T>
-inline size_t read_le(T* value, const uint8_t* buffer){
+inline uint32_t read_le(T* value, const uint8_t* buffer){
     // TODO: add static_assert that this is still a little endian machine
     memcpy(value, buffer, sizeof(*value));
     return sizeof(*value);
 }
 
 template<>
-inline size_t read_le<float>(float* value, const uint8_t* buffer) {
+inline uint32_t read_le<float>(float* value, const uint8_t* buffer) {
     static_assert(CHAR_BIT * sizeof(float) == 32, "32 bit floating point expected");
     static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 floating point expected");
 
@@ -169,9 +176,9 @@ inline size_t read_le<float>(float* value, const uint8_t* buffer) {
 // @param buffer    Pointer to the buffer to be read. The pointer is updated by the number of bytes that were read.
 // @param length    The number of available bytes in buffer. This value is updated to subtract the bytes that were read.
 template<typename T>
-static inline T read_le(const uint8_t** buffer, size_t* length) {
+static inline T read_le(const uint8_t** buffer, uint32_t* length) {
     T result;
-    size_t cnt = read_le(&result, *buffer);
+    uint32_t cnt = read_le(&result, *buffer);
     *buffer += cnt;
     *length -= cnt;
     return result;
@@ -182,18 +189,18 @@ public:
     // @brief Get the maximum packet length (aka maximum transmission unit)
     // A packet size shall take no action and return an error code if the
     // caller attempts to send an oversized packet.
-    //virtual size_t get_mtu() = 0;
+    //virtual uint32_t get_mtu() = 0;
 
     // @brief Processes a packet.
     // The blocking behavior shall depend on the thread-local deadline_ms variable.
     // @return: 0 on success, otherwise a non-zero error code
     // TODO: define what happens when the packet is larger than what the implementation can handle.
-    virtual int sink_the_bytestream(const uint8_t* buffer, size_t length) {
+    virtual int sink_the_bytestream(const uint8_t* buffer, uint32_t length) {
         return 0;
     };
     virtual int process_endpoint(
         const uint8_t* buffer, 
-        size_t length, 
+        uint32_t length, 
         uint32_t origin_host,
         uint16_t sequence_no, 
         uint32_t endpoint_id, 
@@ -227,8 +234,8 @@ public:
     // TODO: deprecate
     virtual uint32_t get_free_space() = 0;
 
-    /*int process_bytes(const uint8_t* buffer, size_t length) {
-        size_t processed_bytes = 0;
+    /*int process_bytes(const uint8_t* buffer, uint32_t length) {
+        uint32_t processed_bytes = 0;
         return process_bytes(buffer, length, &processed_bytes);
     }*/
 };
@@ -245,7 +252,7 @@ public:
     // @param generated_bytes: if not NULL, shall be incremented by the number of
     //        bytes that were written to buffer.
     // @return: 0 on success, otherwise a non-zero error code
-    virtual int get_bytes(uint8_t* buffer, size_t length, size_t* generated_bytes) = 0;
+    virtual int get_bytes(uint8_t* buffer, uint32_t length, uint32_t* generated_bytes) = 0;
 
     // @brief Returns the number of bytes that can still be written to the stream.
     // Shall return SIZE_MAX if the stream has unlimited lenght.
@@ -272,7 +279,7 @@ class StreamToPacketSegmenter : public StreamSink {
         uint32_t packet_length_ = 0;
         uint32_t origin_host_ = 0;
         uint32_t endpoint_id_ = 0;
-        size_t expected_response_length_ = 0;
+        uint32_t expected_response_length_ = 0;
         uint16_t sequence_no_ = 0;
         PacketSink& output_;
 };
@@ -284,8 +291,8 @@ class StreamBasedPacketSink : public PacketSink {
         {
         };
         
-        //size_t get_mtu() { return SIZE_MAX; }
-        //int process_packet(const uint8_t *buffer, size_t length);
+        //uint32_t get_mtu() { return SIZE_MAX; }
+        //int process_packet(const uint8_t *buffer, uint32_t length);
         int send_packet(
             const uint8_t *buffer, 
             uint32_t payload_length, 
@@ -305,10 +312,10 @@ public:
     PacketBasedStreamSink(PacketSink& packet_sink) : _packet_sink(packet_sink) {}
     ~PacketBasedStreamSink() {}
 
-    int process_bytes(const uint8_t* buffer, size_t length, size_t* processed_bytes) {
+    int process_bytes(const uint8_t* buffer, uint32_t length, uint32_t* processed_bytes) {
         // Loop to ensure all bytes get sent
         while (length) {
-            size_t chunk = length;
+            uint32_t chunk = length;
             // send chunk as packet
             if (_packet_sink.sink_the_bytestream(buffer, chunk))
                 return -1;
@@ -330,7 +337,7 @@ private:
 // memory buffer.
 class MemoryStreamSink : public StreamSink {
 public:
-    MemoryStreamSink(uint8_t *buffer, size_t length) :
+    MemoryStreamSink(uint8_t *buffer, uint32_t length) :
         buffer_(buffer),
         buffer_length_(length) {}
 
@@ -375,7 +382,7 @@ private:
 // and then forwarding the rest to another stream.
 class NullStreamSink : public StreamSink {
 public:
-    NullStreamSink(size_t skip, StreamSink& follow_up_stream) :
+    NullStreamSink(uint32_t skip, StreamSink& follow_up_stream) :
         skip_(skip),
         follow_up_stream_(follow_up_stream) {}
 
@@ -399,7 +406,7 @@ public:
     uint32_t get_free_space() { return skip_ + follow_up_stream_.get_free_space(); }
 
 private:
-    size_t skip_;
+    uint32_t skip_;
     StreamSink& follow_up_stream_;
 };
 
@@ -411,7 +418,7 @@ public:
     CRC16Calculator(uint16_t crc16_init) :
         crc16_(crc16_init) {}
 
-    int process_bytes(const uint8_t* buffer, size_t length, size_t* processed_bytes) {
+    int process_bytes(const uint8_t* buffer, uint32_t length, uint32_t* processed_bytes) {
         crc16_ = calc_crc16<CANONICAL_CRC16_POLYNOMIAL>(crc16_, buffer, length);
         if (processed_bytes)
             *processed_bytes += length;
@@ -466,10 +473,10 @@ private:
 //                a non-zero error code on write.
 typedef std::function<void(
     void * value, 
-    size_t min_value, 
-    size_t max_value, 
+    uint32_t min_value, 
+    uint32_t max_value, 
     const uint8_t* input, 
-    size_t input_length, 
+    uint32_t input_length, 
     StreamSink* output
     )> 
     EndpointHandler;
@@ -487,7 +494,7 @@ template<typename T>
         T min_value,
         T max_value,
         const uint8_t* input, 
-        size_t input_length, 
+        uint32_t input_length, 
         StreamSink* output        
     ) {
         
@@ -497,7 +504,7 @@ template<typename T>
             // Make buffer size dependent on the type
             uint8_t buffer[sizeof(T)];
             
-            size_t cnt = write_le<T>(*value, buffer);
+            uint32_t cnt = write_le<T>(*value, buffer);
             
             if (cnt <= output->get_free_space()) {
                 output->process_bytes(buffer, cnt, nullptr);
@@ -523,7 +530,7 @@ template<typename T>
         T min_value,
         T max_value,
         const uint8_t* input, 
-        size_t input_length, 
+        uint32_t input_length, 
         StreamSink* output
     ) {
         
@@ -593,7 +600,7 @@ template<typename T>
         T max_value,
         bool is_read_only,
         const uint8_t* input, 
-        size_t input_length, 
+        uint32_t input_length, 
         StreamSink* output
     ) {
         
@@ -645,7 +652,7 @@ template<typename T>
             // Make buffer size dependent on the type
             uint8_t buffer[sizeof(T)];
             
-            size_t cnt = write_le<T>(*value, buffer);
+            uint32_t cnt = write_le<T>(*value, buffer);
             
             if (cnt <= output->get_free_space()) {
                 output->process_bytes(buffer, cnt, nullptr);
@@ -663,13 +670,14 @@ template<typename T>
 
     bool string_readwrite_endpoint_handler(
         T* value, 
+        uint32_t string_length,
         bool is_read_only,
         const uint8_t* input, 
-        size_t input_length, 
+        uint32_t input_length, 
         StreamSink* output
     ) {
 
-        uint32_t t_size = sizeof(T);
+        uint32_t t_size = string_length;//sizeof(T);
 
         // If a new value was passed, update the local string
         bool strings_are_not_the_same = 0;
@@ -754,9 +762,9 @@ inline constexpr const char* get_json_modifier<event_vector_t>() {
 class Endpoint {
 public:
     //const char* const name_;
-    virtual void handle(const uint8_t* input, size_t input_length, StreamSink* output) = 0;
-    virtual bool get_string(char * output, size_t length) { return false; }
-    virtual bool set_string(char * buffer, size_t length) { return false; }
+    virtual void handle(const uint8_t* input, uint32_t input_length, StreamSink* output) = 0;
+    virtual bool get_string(char * output, uint32_t length) { return false; }
+    virtual bool set_string(char * buffer, uint32_t length) { return false; }
     virtual bool set_from_float(float value) { return false; }
 };
 
@@ -778,13 +786,13 @@ public:
         output_(output)
     { }
 
-    //size_t get_mtu() {
+    //uint32_t get_mtu() {
     //    return SIZE_MAX;
     //}
-    //int process_packet(const uint8_t* buffer, size_t length);
+    //int process_packet(const uint8_t* buffer, uint32_t length);
     int process_endpoint(
         const uint8_t* buffer, 
-        size_t length, 
+        uint32_t length, 
         uint32_t origin_host,
         uint16_t sequence_no, 
         uint32_t endpoint_id, 
@@ -851,33 +859,33 @@ template<> struct format_traits_t<uint8_t> { using type = void;
 };
 
 template<typename T, typename = typename format_traits_t<T>::type>
-static bool to_string(const T& value, char * buffer, size_t length, int) {
+static bool to_string(const T& value, char * buffer, uint32_t length, int) {
     snprintf(buffer, length, format_traits_t<T>::fmtp, value);
     return true;
 }
 // Special case for float because printf promotes float to double, and we get warnings
 template<typename T = float>
-static bool to_string(const float& value, char * buffer, size_t length, int) {
+static bool to_string(const float& value, char * buffer, uint32_t length, int) {
     snprintf(buffer, length, "%f", (double)value);
     return true;
 }
 template<typename T = bool>
-static bool to_string(const bool& value, char * buffer, size_t length, int) {
+static bool to_string(const bool& value, char * buffer, uint32_t length, int) {
     buffer[0] = value ? '1' : '0';
     buffer[1] = 0;
     return true;
 }
 template<typename T>
-static bool to_string(const T& value, char * buffer, size_t length, ...) {
+static bool to_string(const T& value, char * buffer, uint32_t length, ...) {
     return false;
 }
 
 template<typename T, typename = typename format_traits_t<T>::type>
-static bool from_string(const char * buffer, size_t length, T* property, int) {
+static bool from_string(const char * buffer, uint32_t length, T* property, int) {
     return sscanf(buffer, format_traits_t<T>::fmt, property) == 1;
 }
 template<typename T = bool>
-static bool from_string(const char * buffer, size_t length, bool* property, int) {
+static bool from_string(const char * buffer, uint32_t length, bool* property, int) {
     int val;
     if (sscanf(buffer, "%d", &val) != 1) {
         return false;
@@ -886,7 +894,7 @@ static bool from_string(const char * buffer, size_t length, bool* property, int)
     return true;
 }
 template<typename T>
-static bool from_string(const char * buffer, size_t length, T* property, ...) {
+static bool from_string(const char * buffer, uint32_t length, T* property, ...) {
     return false;
 }
 
@@ -909,7 +917,7 @@ struct MemberList<> {
             //write_string("x", output);
             return false;
         }
-        void register_endpoints(Endpoint** list, size_t id, size_t length) {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) {
             // no actions
         }
         Endpoint* get_by_name(const char * name, uint32_t length) {
@@ -924,7 +932,7 @@ template<typename TMember, typename ... TMembers>
 struct MemberList<TMember, TMembers...> {
     public:
 
-        static constexpr size_t endpoint_count = TMember::endpoint_count + MemberList<TMembers...>::endpoint_count;
+        static constexpr uint32_t endpoint_count = TMember::endpoint_count + MemberList<TMembers...>::endpoint_count;
         static constexpr bool is_empty = false;
 
         MemberList(TMember&& this_member, TMembers&&... subsequent_members) :
@@ -940,7 +948,7 @@ struct MemberList<TMember, TMembers...> {
             this_member_(std::move(other.this_member_)),
             subsequent_members_(std::move(other.subsequent_members_)) {}*/
 
-        bool write_json(size_t id, StreamSink* output) /*final*/ {
+        bool write_json(uint32_t id, StreamSink* output) /*final*/ {
             bool needs_comma = this_member_.write_json(id, output);
 
             // Is this the last entry?
@@ -953,13 +961,13 @@ struct MemberList<TMember, TMembers...> {
             return true;
         }
 
-        Endpoint* get_by_name(const char * name, size_t length) {
+        Endpoint* get_by_name(const char * name, uint32_t length) {
             Endpoint* result = this_member_.get_by_name(name, length);
             if (result) return result;
             else return subsequent_members_.get_by_name(name, length);
         }
 
-        void register_endpoints(Endpoint** list, size_t id, size_t length) /*final*/ {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) /*final*/ {
             this_member_.register_endpoints(list, id, length);
             subsequent_members_.register_endpoints(list, id + TMember::endpoint_count, length);
         }
@@ -989,9 +997,9 @@ class ProtocolObject {
             member_list_(std::forward<TMembers>(member_list)...) 
         {}
 
-        static constexpr size_t endpoint_count = MemberList<TMembers...>::endpoint_count;
+        static constexpr uint32_t endpoint_count = MemberList<TMembers...>::endpoint_count;
 
-        bool write_json(size_t id, StreamSink* output) {
+        bool write_json(uint32_t id, StreamSink* output) {
             write_string("{\"n\":\"", output);
             write_string(name_, output);
             write_string("\",\"t\":\"ob\",\"bitsnap\":[", output);
@@ -1000,15 +1008,15 @@ class ProtocolObject {
             return true;
         }
 
-        Endpoint* get_by_name(const char * name, size_t length) {
-            size_t segment_length = strlen(name);
+        Endpoint* get_by_name(const char * name, uint32_t length) {
+            uint32_t segment_length = strlen(name);
             if (!strncmp(name, name_, length))
                 return member_list_.get_by_name(name + segment_length + 1, length - segment_length - 1);
             else
                 return nullptr;
         }
 
-        void register_endpoints(Endpoint** list, size_t id, size_t length) {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) {
             member_list_.register_endpoints(list, id, length);
         }
         
@@ -1052,7 +1060,7 @@ template<typename TProperty>
 class ProtocolProperty2 : public Endpoint {
     public:
         static constexpr const char * json_modifier = get_json_modifier<TProperty>();
-        static constexpr size_t endpoint_count = 1;
+        static constexpr uint32_t endpoint_count = 1;
 
         // Todo: implement min and max value enforcement
         // Todo: what did I mean about this?
@@ -1109,7 +1117,7 @@ class ProtocolProperty2 : public Endpoint {
             : name_(other.name_), property_(other.property_)
         {}*/
 
-        bool write_json(size_t id, StreamSink* output) {
+        bool write_json(uint32_t id, StreamSink* output) {
             // Write name
             write_string("{\"n\":\"", output);
             LOG_FIBRE("json: this at %x, name at %x is s\r\n", (uintptr_t)this, (uintptr_t)name_);
@@ -1165,7 +1173,7 @@ class ProtocolProperty2 : public Endpoint {
                         // Todo: we need a ftoa here
                         snprintf(lim_buf, sizeof(lim_buf), "%.5f",  (double) min_value_);
                     } else {
-                        small_itoa(lim_buf, sizeof(lim_buf), (size_t) abs((TProperty)min_value_));
+                        small_itoa(lim_buf, sizeof(lim_buf), (uint32_t) abs((TProperty)min_value_));
                     }
                     
                     write_string(lim_buf, output);
@@ -1180,7 +1188,7 @@ class ProtocolProperty2 : public Endpoint {
                         snprintf(lim_buf, sizeof(lim_buf), "%.5f",  (double) max_value_);
                     }
                     else {
-                        small_itoa(lim_buf, sizeof(lim_buf), (size_t) abs((TProperty)max_value_));
+                        small_itoa(lim_buf, sizeof(lim_buf), (uint32_t) abs((TProperty)max_value_));
                     }
 
                     write_string(lim_buf, output);
@@ -1228,7 +1236,7 @@ class ProtocolProperty2 : public Endpoint {
         }
 
         // special-purpose function - to be moved
-        Endpoint* get_by_name(const char * name, size_t length) {
+        Endpoint* get_by_name(const char * name, uint32_t length) {
             if (!strncmp(name, name_, length)) {
                 return this;
             }
@@ -1239,12 +1247,12 @@ class ProtocolProperty2 : public Endpoint {
 
         #ifdef ENABLE_ASCII_PROTOCOL
         // special-purpose function - to be moved
-        bool get_string(char * buffer, size_t length) final {
+        bool get_string(char * buffer, uint32_t length) final {
             return to_string(*property_, buffer, length, 0);
         }
 
         // special-purpose function - to be moved
-        bool set_string(char * buffer, size_t length) final {
+        bool set_string(char * buffer, uint32_t length) final {
             return from_string(buffer, length, property_, 0);
         }
 
@@ -1253,12 +1261,12 @@ class ProtocolProperty2 : public Endpoint {
         }
         #endif
 
-        void register_endpoints(Endpoint** list, size_t id, size_t length) {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) {
             if (id < length) {
                 list[id] = this;
             }
         }
-        void handle(const uint8_t* input, size_t input_length, StreamSink* output) final {
+        void handle(const uint8_t* input, uint32_t input_length, StreamSink* output) final {
 
             bool wrote = flexible_readwrite_endpoint_handler<TProperty>(
                 property_, 
@@ -1303,7 +1311,7 @@ class ProtocolProperty2 : public Endpoint {
 template<typename Tstring>
 class ProtocolString : public Endpoint {
     public:
-        static constexpr size_t endpoint_count = 1;
+        static constexpr uint32_t endpoint_count = 1;
 
         ProtocolString(
             const char * name, 
@@ -1331,7 +1339,7 @@ class ProtocolString : public Endpoint {
             string_type_(string_type)
         {}
 
-        bool write_json(size_t id, StreamSink* output) {
+        bool write_json(uint32_t id, StreamSink* output) {
 
             // write name
             write_string("{\"n\":\"", output);
@@ -1405,7 +1413,7 @@ class ProtocolString : public Endpoint {
         }
 
         // special-purpose function - to be moved
-        Endpoint* get_by_name(const char * name, size_t length) {
+        Endpoint* get_by_name(const char * name, uint32_t length) {
             if (!strncmp(name, name_, length)) {
                 return this;
             }
@@ -1416,14 +1424,14 @@ class ProtocolString : public Endpoint {
 
         #ifdef ENABLE_ASCII_PROTOCOL
         // special-purpose function - to be moved
-        bool get_string(char * buffer, size_t length) final {
+        bool get_string(char * buffer, uint32_t length) final {
             //return to_string(*string_, buffer, length, 0);
             //return snprintf(buffer, length, "%s", *string_);
             return memcpy(buffer, string_, length);
         }
 
         // special-purpose function - to be moved
-        bool set_string(char * buffer, size_t length) final {
+        bool set_string(char * buffer, uint32_t length) final {
             //return from_string(buffer, length, string_, 0);
             return sscanf(buffer, "%s", string_) == 1;
         }
@@ -1433,14 +1441,15 @@ class ProtocolString : public Endpoint {
         }
         #endif
 
-        void register_endpoints(Endpoint** list, size_t id, size_t length) {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) {
             if (id < length)
                 list[id] = this;
         }
 
-        void handle(const uint8_t* input, size_t input_length, StreamSink* output) final {
+        void handle(const uint8_t* input, uint32_t input_length, StreamSink* output) final {
             bool wrote = string_readwrite_endpoint_handler<Tstring>(
-                string_, 
+                string_,
+                string_length_, 
                 is_read_only_, 
                 input, 
                 input_length, 
@@ -2118,7 +2127,7 @@ struct PropertyListFactory<TProperty, TProperties...> {
 // Iterator for tuples of arbitrary length
 // https://codereview.stackexchange.com/questions/51407/stdtuple-foreach-implementation
 
-template <typename Tuple, typename F, std::size_t ...Indices>
+template <typename Tuple, typename F, std::uint32_t ...Indices>
 void for_each_impl(Tuple && tuple, F&& f, std::index_sequence<Indices...>) {
     using swallow = int[];
 
@@ -2137,7 +2146,7 @@ void tuple_for_each(std::tuple<Args...>& tuple, F&& f)
 // Iterator for tuples of arbitrary length, with associated array
 // of names
 //
-template <typename Tuple, typename F, std::size_t ...Indices>
+template <typename Tuple, typename F, std::uint32_t ...Indices>
 void for_each_impl_names(Tuple && tuple, F&& f, std::array<const char *, sizeof...(Indices)> array, std::index_sequence<Indices...>) {
     using swallow = int[];
 
@@ -2182,7 +2191,7 @@ class ProtocolFunction<TObj, TReturnType, std::tuple<TInputs...>> : Endpoint {
     public:
         // @brief The return type of the function as written by a C++ programmer
 
-        static constexpr size_t endpoint_count = 1 + MemberList<ProtocolProperty2<TInputs>...>::endpoint_count;
+        static constexpr uint32_t endpoint_count = 1 + MemberList<ProtocolProperty2<TInputs>...>::endpoint_count;
 
         ProtocolFunction(
             const char * name, 
@@ -2212,7 +2221,7 @@ class ProtocolFunction<TObj, TReturnType, std::tuple<TInputs...>> : Endpoint {
             LOG_FIBRE("COPIED! my tuple is at %x and of size %u\r\n", (uintptr_t)&in_args_, sizeof(in_args_));
         }
 
-        bool write_json(size_t id, StreamSink* output) {
+        bool write_json(uint32_t id, StreamSink* output) {
             // write name
             write_string("{\"n\":\"", output);
             write_string(name_, output);
@@ -2312,17 +2321,17 @@ class ProtocolFunction<TObj, TReturnType, std::tuple<TInputs...>> : Endpoint {
         }
 
         // special-purpose function - to be moved
-        Endpoint* get_by_name(const char * name, size_t length) {
+        Endpoint* get_by_name(const char * name, uint32_t length) {
             return nullptr; // can't address functions by name
         }
 
-        void register_endpoints(Endpoint** list, size_t id, size_t length) {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) {
             if (id < length)
                 list[id] = this;
             input_properties_.register_endpoints(list, id + 1, length);
         }
 
-        void handle(const uint8_t* input, size_t input_length, StreamSink* output) final {
+        void handle(const uint8_t* input, uint32_t input_length, StreamSink* output) final {
             (void) input;
             (void) input_length;
             (void) output;
@@ -2366,7 +2375,7 @@ class ProtocolFunction<TObj, TReturnType, std::tuple<TInputs...>> : Endpoint {
                 
                     // Make buffer size dependent on the type
                     uint8_t buffer[sizeof(TReturnType)];
-                    size_t cnt = write_le<TReturnType>(out_args, buffer);
+                    uint32_t cnt = write_le<TReturnType>(out_args, buffer);
                     
                     // Send return value
                     if (cnt <= output->get_free_space()) {
@@ -2500,27 +2509,27 @@ template<typename TObj, typename TReturnType, typename ... TArgs, typename... Ar
 //
 class EndpointProvider {
     public:
-        virtual size_t get_endpoint_count() = 0;
-        virtual bool write_json(size_t id, StreamSink* output) = 0;
-        virtual Endpoint* get_by_name(char * name, size_t length) = 0;
-        virtual void register_endpoints(Endpoint** list, size_t id, size_t length) = 0;
+        virtual uint32_t get_endpoint_count() = 0;
+        virtual bool write_json(uint32_t id, StreamSink* output) = 0;
+        virtual Endpoint* get_by_name(char * name, uint32_t length) = 0;
+        virtual void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) = 0;
 };
 
 template<typename T>
 class EndpointProvider_from_MemberList : public EndpointProvider {
     public:
         EndpointProvider_from_MemberList(T& member_list) : member_list_(member_list) {}
-        size_t get_endpoint_count() final {
+        uint32_t get_endpoint_count() final {
             return T::endpoint_count;
         }
-        bool write_json(size_t id, StreamSink* output) final {
+        bool write_json(uint32_t id, StreamSink* output) final {
             return member_list_.write_json(id, output);
         }
-        void register_endpoints(Endpoint** list, size_t id, size_t length) final {
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length) final {
             return member_list_.register_endpoints(list, id, length);
         }
-        Endpoint* get_by_name(char * name, size_t length) final {
-            for (size_t i = 0; i < length; i++) {
+        Endpoint* get_by_name(char * name, uint32_t length) final {
+            for (uint32_t i = 0; i < length; i++) {
                 if (name[i] == '.')
                     name[i] = 0;
             }
@@ -2532,15 +2541,15 @@ class EndpointProvider_from_MemberList : public EndpointProvider {
 
 class JSONDescriptorEndpoint : Endpoint {
     public:
-        static constexpr size_t endpoint_count = 1;
-        bool write_json(size_t id, StreamSink* output);
-        void register_endpoints(Endpoint** list, size_t id, size_t length);
-        void handle(const uint8_t* input, size_t input_length, StreamSink* output);
+        static constexpr uint32_t endpoint_count = 1;
+        bool write_json(uint32_t id, StreamSink* output);
+        void register_endpoints(Endpoint** list, uint32_t id, uint32_t length);
+        void handle(const uint8_t* input, uint32_t input_length, StreamSink* output);
 };
 
 // defined in protocol.cpp
 extern Endpoint** endpoint_list_;
-extern size_t n_endpoints_;
+extern uint32_t n_endpoints_;
 extern uint32_t json_crc_;
 extern JSONDescriptorEndpoint json_file_endpoint_;
 extern EndpointProvider* application_endpoints_;
@@ -2550,7 +2559,7 @@ extern EndpointProvider* application_endpoints_;
 // @param application_objects The application objects to be registred.
 template<typename T>
     int fibre_publish(T& application_objects) {
-        static constexpr size_t endpoint_list_size = 1 + T::endpoint_count;
+        static constexpr uint32_t endpoint_list_size = 1 + T::endpoint_count;
         static Endpoint* endpoint_list[endpoint_list_size];
         static auto endpoint_provider = EndpointProvider_from_MemberList<T>(application_objects);
 

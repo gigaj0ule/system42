@@ -26,6 +26,8 @@ bool application_is_running = true;
 //
 void setup() {
 
+	__asm__ volatile ("nop");
+
     // Keep alive
 	pinMode(PA0, OUTPUT);
 	pinMode(PA0, HIGH);
@@ -72,7 +74,7 @@ void program_thread(void const * args) {
 		__asm__ volatile ("nop");
 
         // Pass off this task
-        osDelay(1);
+        osDelay(10);
     }
 }
 
@@ -120,7 +122,7 @@ void comms_thread_tty0(void const * args) {
 		}
 
 		// Wait
-		osDelay(1);
+		osDelay(5);
 
 		// Activity cease
 		digitalWrite(PIN_LED_ACTIVITY, HIGH);

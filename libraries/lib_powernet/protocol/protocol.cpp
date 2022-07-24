@@ -61,7 +61,7 @@ typedef struct  __attribute__((packed)){
 /* Global variables ----------------------------------------------------------*/
 
 Endpoint** endpoint_list_ = nullptr;       // initialized by calling fibre_publish
-size_t n_endpoints_ = 0;                   // initialized by calling fibre_publish
+uint32_t n_endpoints_ = 0;                   // initialized by calling fibre_publish
 uint32_t json_crc_;                        // initialized by calling fibre_publish
 JSONDescriptorEndpoint json_file_endpoint_ = JSONDescriptorEndpoint();
 EndpointProvider* application_endpoints_;
@@ -438,7 +438,7 @@ int StreamBasedPacketSink::send_packet(
 
 // =========================================================================
 // Write JSON descriptor to the master
-bool JSONDescriptorEndpoint::write_json(size_t id, StreamSink* output) {
+bool JSONDescriptorEndpoint::write_json(uint32_t id, StreamSink* output) {
     write_string("{\"n\":\"ep\",", output);
 
     // write endpoint ID
@@ -454,7 +454,7 @@ bool JSONDescriptorEndpoint::write_json(size_t id, StreamSink* output) {
 
 // =========================================================================
 // Iterate endpoint list and register with master
-void JSONDescriptorEndpoint::register_endpoints(Endpoint** list, size_t endpoint_id, size_t length) {
+void JSONDescriptorEndpoint::register_endpoints(Endpoint** list, uint32_t endpoint_id, uint32_t length) {
     if (endpoint_id < length) {
         list[endpoint_id] = this; 
     }
@@ -463,7 +463,7 @@ void JSONDescriptorEndpoint::register_endpoints(Endpoint** list, size_t endpoint
 // =========================================================================
 // Returns JSON manifest of all the endpoints and what they represent
 //
-void JSONDescriptorEndpoint::handle(const uint8_t* input, size_t input_length, StreamSink* output) {
+void JSONDescriptorEndpoint::handle(const uint8_t* input, uint32_t input_length, StreamSink* output) {
 
     // The request must contain a 32 bit integer to specify an offset
     if (input_length < 4) {
@@ -509,7 +509,7 @@ void JSONDescriptorEndpoint::handle(const uint8_t* input, size_t input_length, S
 // Process packets sent by the master to us, the Slave
 int BidirectionalPacketBasedChannel::process_endpoint(
     const uint8_t* buffer, 
-    size_t length, 
+    uint32_t length, 
     uint32_t origin_host,
     uint16_t packet_sequence_number, 
     uint32_t endpoint_id,
