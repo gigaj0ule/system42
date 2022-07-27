@@ -107,9 +107,11 @@ static inline void sample_currents(bool timer_one) {
 // @param bool timer_one - Whether or not the callback is for an injected conversion 
 //
 //
+// Most important state machine. Check it against this google sheet:
+// https://docs.google.com/spreadsheets/d/1TYNPmy3y1iP_toVe8yVe_oJ2IY8obYzYNfZCcu-Vm9A/edit?usp=sharing
 void dsp_state_machine(bool timer_one, int now) {
 
-    //
+    // Sample number ++
     pntp.adc_sample_num ++;
 
     // Timer 1 triggers ADC2 on Injected, and ADC3 on Injected conversion
@@ -124,9 +126,6 @@ void dsp_state_machine(bool timer_one, int now) {
 
         pwm_adc_state_tracker_ = 0;
     }
-
-    // Most important state machine. Check it against this google sheet:
-    // https://docs.google.com/spreadsheets/d/1TYNPmy3y1iP_toVe8yVe_oJ2IY8obYzYNfZCcu-Vm9A/edit?usp=sharing
 
     // Setting this flag to true takes a current measurement for the active axis
     bool sample_adc_ = false;
