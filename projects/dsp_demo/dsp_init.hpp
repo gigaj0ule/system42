@@ -1,22 +1,33 @@
-#ifndef __DSP_FN_HPP__
-    #define __DSP_FN_HPP__
+#ifndef __DSP_INIT_H__
+    #define __DSP_INIT_H__
 
     #include <stm32f405xx.h>
-    #include <stm32f4xx_hal.h>      // Sets up the correct chip specifc defines required by arm_math
-    #include <stm32f4xx_hal_tim.h>  // Sets up the correct chip specifc defines required by arm_math
+    #include <stm32f4xx_hal_gpio.h>
+    #include <stm32f4xx_hal_gpio_ex.h>
+    #include <stm32f4xx_hal_adc.h>
+    #include <stm32f4xx_hal_adc_ex.h>
+    #include <stm32f4xx_hal_rcc.h>
+    #include <stm32f4xx_hal_rcc_ex.h>
+    #include <stm32f4xx_hal_tim.h>
+    #include <stm32f4xx_hal_tim_ex.h>
 
-    #ifndef TIM_1_8_CLOCK_HZ
+    void DSP_TIM1_Init(void);
+    void DSP_TIM3_Init(void);
+    void DSP_TIM8_Init(void);
+    void DSP_TIM4_Init(void);
+    void DSP_TIM2_Init(void);
+    void DSP_TIM5_Init(void);
+    void DSP_TIM13_Init(void);
+    void DSP_DMA_Init(void);
+    void DSP_ADC1_Init(void);
+    void DSP_ADC2_Init(void);
+    void DSP_ADC3_Init(void);
+    void DSP_HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle);
+    void OC4_PWM_Override(TIM_HandleTypeDef* htim);
+    void DSP_PWM_INIT(void);
 
-        #define TIM_1_8_CLOCK_HZ            168000000
-        #define TIM_1_8_PERIOD_CLOCKS       3500
-        #define TIM_1_8_DEADTIME_CLOCKS     200
-        #define TIM_APB1_CLOCK_HZ           84000000
-        #define TIM_APB1_PERIOD_CLOCKS      4096
-        #define TIM_APB1_DEADTIME_CLOCKS    200
-        #define TIM_1_8_RCR                 0
 
-        #define CURRENT_MEAS_PERIOD (float)((float)2*TIM_1_8_PERIOD_CLOCKS*(TIM_1_8_RCR+1) / (float)TIM_1_8_CLOCK_HZ ) * (float)(3 - (TIM_1_8_RCR))
-        #define CURRENT_MEAS_HZ  (float)((float)(TIM_1_8_CLOCK_HZ) / (float)(2*TIM_1_8_PERIOD_CLOCKS*(TIM_1_8_RCR+1))) / (float)(3 - (TIM_1_8_RCR))
+    #ifndef M0_nCS_Pin
 
         #define M0_nCS_Pin                  GPIO_PIN_13
         #define M0_nCS_GPIO_Port            GPIOC
@@ -132,17 +143,8 @@
             #define M1_ENC_B_Pin            GPIO_PIN_7
             #define M1_ENC_B_GPIO_Port      GPIOB
         #endif
+
     #endif
 
-
-    void DSP_setup(void);
-    void DSP_setup(void (*adc_callback_)(bool, int));
-    void DSP_set_adc_handler(void (*adc_callback)(bool, int));
-
-    extern "C" {
-        void ADC_IRQHandler(void);
-        void TIM1_UP_TIM10_IRQHandler(void);
-        void TIM8_UP_TIM13_IRQHandler(void);
-    }
 
 #endif

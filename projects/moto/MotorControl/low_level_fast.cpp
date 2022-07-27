@@ -44,15 +44,15 @@ uint8_t timer_one_svm_state_ = 0;
 uint8_t timer_eight_svm_state_ = 0;
   
 // Variables for holding calculated current samples
-float current_phB_ = 0.0f;
-float current_phC_ = 0.0f;
+float adcval_ADC2_ = 0.0f;
+float adcval_ADC3_ = 0.0f;
 
 // This is used to refrence the proper time sequence where measured current 
 // values should be saved
-uint8_t current_measurement_stack_index_ = 0;
+uint8_t adc_measurement_stack_index_ = 0;
 
 // Setting this flag to true signals run_control_loop()
-bool update_run_control_loop_ = false;
+bool update_control_loop_ = false;
 
 // Setting this flag to true does DC_Cal(ibration) for the active axis
 bool do_dc_calibration_ = false;
@@ -192,7 +192,7 @@ void ADC_IRQHandler(void) {
 
 // @brief This function samples currents from ADC2 and ADC3
 // @ingroup low_level_fast
-static inline void sample_currents(bool timer_one, Motor * axis_motor) {
+static inline void sample_adcs(bool timer_one, Motor * axis_motor) {
     
     // Storage variables for ADC values 
     uint32_t ADCValue_phB;
@@ -211,8 +211,8 @@ static inline void sample_currents(bool timer_one, Motor * axis_motor) {
     }    
 
     // Convert motor currents to ADC values
-    current_phB_ = axis_motor->phase_current_from_adcval(ADCValue_phB);
-    current_phC_ = axis_motor->phase_current_from_adcval(ADCValue_phC);
+    adcval_ADC2_ = axis_motor->phase_current_from_adcval(ADCValue_phB);
+    adcval_ADC3_ = axis_motor->phase_current_from_adcval(ADCValue_phC);
 }
 
 // @brief This is the callback from the ADC that we expect after the PWM has 
@@ -258,14 +258,14 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
         switch(pwm_adc_state_tracker_) { 
             // Timer One Counting Up  
             case 0:
-                // Update control loop for (axis0) on this state
-                update_run_control_loop_ = true;        
+                // Update control loop for (timer_one) on this state
+                update_control_loop_ = true;        
                 
-                // Sample ADC on this state (axis0, newest [2])
-                current_measurement_stack_index_ = 2;
+                // Sample ADC on this state (timer_one, newest [2])
+                adc_measurement_stack_index_ = 2;
                 sample_adc_ = true;
                 
-                // Set the SVM timings state to (axis0, 1)
+                // Set the SVM timings state to (timer_one, 1)
                 timer_one_svm_state_ = 1;
                 
                 // Debugging
@@ -274,44 +274,44 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             
             // Timer One Counting Down
             case 2:
-                // Double-sample ADC on this state (axis0, oldest [0])
-                current_measurement_stack_index_ = 0;           
+                // Double-sample ADC on this state (timer_one, oldest [0])
+                adc_measurement_stack_index_ = 0;           
                 sample_adc_ = true;
                 
-                // Do DC bias measurement for (axis0)
+                // Do DC bias measurement for (timer_one)
                 do_dc_calibration_ = true;
 
-                // Set the SVM timings state to (axis0, 2)
+                // Set the SVM timings state to (timer_one, 2)
                 timer_one_svm_state_ = 2;
                 break;
             
             // Timer One Counting Up
             case 4:
-                // Sample ADC on this state (axis0, oldest [0])
-                current_measurement_stack_index_ = 0;
+                // Sample ADC on this state (timer_one, oldest [0])
+                adc_measurement_stack_index_ = 0;
                 sample_adc_ = true;
                 
-                // Set the SVM timings state to (axis0, 3)
+                // Set the SVM timings state to (timer_one, 3)
                 timer_one_svm_state_ = 3;
                 break;
 
             // Timer One Counting Down
             case 6:
-                // Double-sample ADC on this state (axis0, middle [1])
-                current_measurement_stack_index_ = 1;    
+                // Double-sample ADC on this state (timer_one, middle [1])
+                adc_measurement_stack_index_ = 1;    
                 sample_adc_ = true;
 
-                // Set the SVM timings state to (axis0, 4)
+                // Set the SVM timings state to (timer_one, 4)
                 timer_one_svm_state_ = 4;
                 break;
 
             // Timer One Counting Up
             case 8:
-                // Sample ADC on this state (axis0, middle [1])        
-                current_measurement_stack_index_ = 1;  
+                // Sample ADC on this state (timer_one, middle [1])        
+                adc_measurement_stack_index_ = 1;  
                 sample_adc_ = true;
                 
-                // Set the SVM timings state to (axis0, 5)
+                // Set the SVM timings state to (timer_one, 5)
                 timer_one_svm_state_ = 5;
 
                 // Debugging
@@ -320,8 +320,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer One Counting Down
             case 10:
-                // Double-sample ADC on this state (axis0, newest [2])
-                current_measurement_stack_index_ = 2;          
+                // Double-sample ADC on this state (timer_one, newest [2])
+                adc_measurement_stack_index_ = 2;          
                 sample_adc_ = true;
 
                 // Debugging
@@ -337,7 +337,7 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
                 // Invalidate old timings
                 axis_motor->next_timings_valid_ = false;
                 
-                // Set the SVM timings state to (axis0, 0)
+                // Set the SVM timings state to (timer_one, 0)
                 // right before the new current loop thread fires         
                 timer_one_svm_state_ = 0;
                 break;
@@ -353,37 +353,37 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer Eight Counting Up
             case 5: 
-                // Update control loop for (axis1) on this state
-                update_run_control_loop_ = true;  
+                // Update control loop for (timer_eight) on this state
+                update_control_loop_ = true;  
 
-                // Sample ADC on this state (axis1, newest [2])        
-                current_measurement_stack_index_ = 2;  
+                // Sample ADC on this state (timer_eight, newest [2])        
+                adc_measurement_stack_index_ = 2;  
                 sample_adc_ = true;            
                 
-                // Set the SVM timings state to (axis1, 1)
+                // Set the SVM timings state to (timer_eight, 1)
                 timer_eight_svm_state_ = 1;
                 break;
 
             // Timer Eight Counting Down
             case 7: 
-                // Double-sample ADC on this state (axis1, oldest [0])
-                current_measurement_stack_index_ = 0;   
+                // Double-sample ADC on this state (timer_eight, oldest [0])
+                adc_measurement_stack_index_ = 0;   
                 sample_adc_ = true;
 
-                // Do DC bias measurement for (axis1)
+                // Do DC bias measurement for (timer_eight)
                 do_dc_calibration_ = true;
                 
-                // Set the SVM timings state to (axis1, 2)
+                // Set the SVM timings state to (timer_eight, 2)
                 timer_eight_svm_state_ = 2; 
                 break;
 
             // Timer Eight Counting Up
             case 9:
-                // Sample ADC on this state (axis1, oldest [1])
-                current_measurement_stack_index_ = 0; 
+                // Sample ADC on this state (timer_eight, oldest [1])
+                adc_measurement_stack_index_ = 0; 
                 sample_adc_ = true;
 
-                // Set the SVM timings state to (axis1, 3)            
+                // Set the SVM timings state to (timer_eight, 3)            
                 timer_eight_svm_state_ = 3;
                 
                 // Update brake resistor
@@ -397,21 +397,21 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer Eight Counting Down
             case 11:
-                // Double-sample ADC on this state (axis1, middle [1])
-                current_measurement_stack_index_ = 1;            
+                // Double-sample ADC on this state (timer_eight, middle [1])
+                adc_measurement_stack_index_ = 1;            
                 sample_adc_ = true;
                 
-                // Set the SVM timings state to (axis1, 4)            
+                // Set the SVM timings state to (timer_eight, 4)            
                 timer_eight_svm_state_ = 4;   
                 break;
 
             // Timer Eight Counting Up    
             case 1:
-                // Sample ADC on this state (axis1, middle [0])
-                current_measurement_stack_index_ = 1;
+                // Sample ADC on this state (timer_eight, middle [0])
+                adc_measurement_stack_index_ = 1;
                 sample_adc_ = true;
                 
-                // Set the SVM timings state to (axis1, 5)
+                // Set the SVM timings state to (timer_eight, 5)
                 timer_eight_svm_state_ = 5;
                 #ifndef USE_SINGLE_AXIS 
                 
@@ -422,12 +422,12 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             
             // Timer Eight Counting Down            
             case 3:
-                // Double-sample ADC on this state (axis1, newest [2])
-                current_measurement_stack_index_ = 2;       
+                // Double-sample ADC on this state (timer_eight, newest [2])
+                adc_measurement_stack_index_ = 2;       
                 sample_adc_ = true;
 
                 #ifndef USE_SINGLE_AXIS 
-                // Check whether current thread failed for (axis1)
+                // Check whether current thread failed for (timer_eight)
                 check_if_run_control_loop_failed(axis_motor);
 
                 // Double buffer the axis timings 
@@ -441,7 +441,7 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
                 axis_motor->next_timings_valid_ = false;
                 #endif
 
-                // Set the SVM timings state to (axis1, 0)
+                // Set the SVM timings state to (timer_eight, 0)
                 // right before the new current loop thread fires         
                 timer_eight_svm_state_ = 0;
                 break;
@@ -463,11 +463,11 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             if(timer_eight == 0){
         #endif
             // Get ADC samples
-            sample_currents(timer_one, axis_motor);
+            sample_adcs(timer_one, axis_motor);
 
             // Sample ADC for the active timer
-            axis_motor->buffered_current_meas_[current_measurement_stack_index_].phB += current_phB_ - axis_motor->DC_calib_.phB;
-            axis_motor->buffered_current_meas_[current_measurement_stack_index_].phC += current_phC_ - axis_motor->DC_calib_.phC;
+            axis_motor->buffered_current_meas_[adc_measurement_stack_index_].phB += adcval_ADC2_ - axis_motor->DC_calib_.phB;
+            axis_motor->buffered_current_meas_[adc_measurement_stack_index_].phC += adcval_ADC3_ - axis_motor->DC_calib_.phC;
         #ifdef USE_SINGLE_AXIS 
             }
         #endif
@@ -483,8 +483,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
         #ifdef USE_SINGLE_AXIS 
             if(timer_eight == 0){
         #endif
-            axis_motor->DC_calib_.phB += (current_phB_ - axis_motor->DC_calib_.phB) * calib_filter_k;
-            axis_motor->DC_calib_.phC += (current_phC_ - axis_motor->DC_calib_.phC) * calib_filter_k;
+            axis_motor->DC_calib_.phB += (adcval_ADC2_ - axis_motor->DC_calib_.phB) * calib_filter_k;
+            axis_motor->DC_calib_.phC += (adcval_ADC3_ - axis_motor->DC_calib_.phC) * calib_filter_k;
         #ifdef USE_SINGLE_AXIS 
             }
         #endif
@@ -508,7 +508,7 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
     #endif
 
     // Update the current control loop after all the new data has been had
-    if(update_run_control_loop_) {
+    if(update_control_loop_) {
 
         // Get sensor samples as early as possible
         // Sample the hall effect sensor pins
@@ -529,9 +529,11 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
         // Cache current measurements so they don't get over-written
         for(int i = 0; i < 3; i++) {
 
+            // Since we double-sample our ADC we should divide samples by 2.0f
             axis_motor->current_meas_[i].phB = axis_motor->buffered_current_meas_[i].phB / 2.0f;
             axis_motor->current_meas_[i].phC = axis_motor->buffered_current_meas_[i].phC / 2.0f;
 
+            // And reset our measurements when we are done buffering them
             axis_motor->buffered_current_meas_[i].phB = 0.0f;
             axis_motor->buffered_current_meas_[i].phC = 0.0f;
         }
@@ -544,7 +546,7 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
         #endif
 
         // Clear flag, nothing left to do!
-        update_run_control_loop_ = false;               
+        update_control_loop_ = false;               
     }
 
     // Increment the state machine counter

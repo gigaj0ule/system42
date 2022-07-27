@@ -1,51 +1,12 @@
 #include <Arduino.h>
 #include <interrupt.h>
-
 #include "dsp_functions.hpp"
-
-#ifdef __STM32F1__
-    #error "No F1 support yet in dsp_functions.cpp"
-#endif
-
-#ifndef __STM32F4__
-    #define __STM32F4__
-#endif
-
-#define USE_SINGLE_AXIS
-
-#ifdef __STM32F1__
-    #include <stm32f1xx_hal_gpio.h>
-    #include <stm32f1xx_hal_adc.h>
-    #include <stm32f1xx_hal_rcc.h>
-    #include <stm32f1xx_hal_tim.h>
-#endif
-
-#ifdef __STM32F4__
-    #include <stm32f405xx.h>
-    #include <stm32f4xx_hal_gpio.h>
-    #include <stm32f4xx_hal_gpio_ex.h>
-    #include <stm32f4xx_hal_adc.h>
-    #include <stm32f4xx_hal_adc_ex.h>
-    #include <stm32f4xx_hal_rcc.h>
-    #include <stm32f4xx_hal_rcc_ex.h>
-    #include <stm32f4xx_hal_tim.h>
-    #include <stm32f4xx_hal_tim_ex.h>
-
-    //#include "stm32f4xx.h"
-    //#include "stm32f4xx_it.h"
-#endif
+#include "dsp_init.hpp"
 
 // ---------------------------------------------------------------------------
 // Prototypes
 // 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
-
-
-// ---------------------------------------------------------------------------
-// Methods
-//
-void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
-}
 
 
 // Timer initialization ------------------------------------------------------
@@ -168,6 +129,9 @@ void DSP_TIM1_Init(void) {
 
     // Init pins
     //HAL_TIM_MspPostInit(&htim1);
+
+    // Init CH4
+    OC4_PWM_Override(&htim1);
 }
 
 // ---------------------------------------------------------------------------
@@ -242,6 +206,9 @@ void DSP_TIM8_Init(void) {
 
     // Init pins
     HAL_TIM_MspPostInit(&htim8);
+
+    // Init CH4
+    OC4_PWM_Override(&htim8);
 }
 
 // ---------------------------------------------------------------------------
@@ -774,6 +741,9 @@ void DSP_ADC1_Init(void) {
     {
         _Error_Handler(__FILE__, __LINE__);
     }
+
+    // GPIO Init
+    DSP_HAL_ADC_MspInit(&hadc1);
 }
 
 // ---------------------------------------------------------------------------
@@ -827,6 +797,9 @@ void DSP_ADC2_Init(void) {
     if (HAL_ADCEx_InjectedConfigChannel(&hadc2, &sConfigInjected) != HAL_OK) {
         _Error_Handler(__FILE__, __LINE__);
     }
+
+    // GPIO Init
+    DSP_HAL_ADC_MspInit(&hadc2);
 }
 
 // ---------------------------------------------------------------------------
@@ -880,6 +853,9 @@ void DSP_ADC3_Init(void) {
     if (HAL_ADCEx_InjectedConfigChannel(&hadc3, &sConfigInjected) != HAL_OK) {
         _Error_Handler(__FILE__, __LINE__);
     }
+
+    // GPIO Init
+    DSP_HAL_ADC_MspInit(&hadc3);
 }
 
 // ---------------------------------------------------------------------------
@@ -1190,77 +1166,9 @@ void sync_timers(TIM_HandleTypeDef* htim_a, TIM_HandleTypeDef* htim_b,
     htim_b->Instance->BDTR |= MOE_store_b;
 }
 
-// ----------------------------------------------------------------------------
-// @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
-// @ingroup low_level_fast
-//
-
-// These are slightly faster versions of the HAL functions which expect a 
-// static argument
-#define __FAST__HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->SR) & (__FLAG__)) == (__FLAG__))
-#define __FAST__HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->SR) = ~(__FLAG__))
-#define __FAST__HAL_ADC_MODIFY_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->SR) = (__FLAG__))
-
-#define __FAST__HAL_TIM_CLEAR_IT(__HANDLE__, __INTERRUPT__)  ((__HANDLE__)->SR = ~(__INTERRUPT__))
-#define __FAST__HAL_TIM_GET_FLAG(__HANDLE__, __FLAG__)       (((__HANDLE__)->SR &(__FLAG__)) == (__FLAG__))
-
-// Static arguments for the fast HAL functions
-static constexpr const uint32_t START_INJECTED_CONVERSION = ~(ADC_FLAG_JSTRT | ADC_FLAG_JEOC);
-static constexpr const uint32_t START_REGULAR_CONVERSION = ~(ADC_FLAG_STRT | ADC_FLAG_EOC);
-
-// ----------------------------------------------------------------------------
-//
-//ADC1_IRQHander
-
-
-void (*adc_callback_)(bool, int);
-
-extern "C" {
-
-    void ADC_IRQHandler(void) {
-
-        uint16_t now = TIM13->CNT;
-
-        // The HAL's ADC handling mechanism adds many clock cycles of overhead
-        // So we bypass it and handle the logic ourselves.
-        // ADC1: Injected channel?
-        if(__FAST__HAL_ADC_GET_FLAG(ADC1, ADC_FLAG_JEOC)) {
-
-            // Calculate vbus voltage
-            // vbus_voltage_sense_calculation();
-
-            // Clear interrupt flag & start next conversion
-            __FAST__HAL_ADC_MODIFY_FLAG(ADC1, START_INJECTED_CONVERSION);
-        }
-        
-        // ADC2: Injected channel?
-        else if(__FAST__HAL_ADC_GET_FLAG(ADC2, ADC_FLAG_JEOC)) {
-
-            if(adc_callback_){
-                adc_callback_(true, now);
-            }
-
-            // Clear interrupt flag & start next conversion
-            __FAST__HAL_ADC_MODIFY_FLAG(ADC2, START_INJECTED_CONVERSION);        
-        }
-
-        // ADC2: Regular channel?
-        else if(__FAST__HAL_ADC_GET_FLAG(ADC2, ADC_FLAG_EOC)) {
-
-            if(adc_callback_){
-                adc_callback_(false, now);
-            }
-
-            // Clear interrupt flag & start next conversion
-            __FAST__HAL_ADC_MODIFY_FLAG(ADC2, START_REGULAR_CONVERSION);        
-        }
-    }
-}
-
-
 // ---------------------------------------------------------------------------
 //
-void start_adc_pwm() {
+void DSP_PWM_INIT() {
 
     // Enable ADC
     __HAL_ADC_ENABLE(&hadc1);
@@ -1306,65 +1214,4 @@ void start_adc_pwm() {
     //}
 
     //safety_critical_arm_brake_resistor();
-}
-
-
-// ---------------------------------------------------------------------------
-//
-//
-void DSP_set_adc_handler(void (*adc_callback)(bool, int)) {
-    adc_callback_ = *adc_callback;
-}
-
-
-// ---------------------------------------------------------------------------
-//
-//
-void DSP_setup() {
-    
-    // M0
-    DSP_TIM1_Init();
-
-    // M0 Encoder
-    DSP_TIM3_Init();
-
-    #ifndef USE_SINGLE_AXIS
-        // M1
-        DSP_TIM8_Init();
-
-        // M1 Encoder
-        DSP_TIM4_Init();
-    #endif 
-
-    // OC
-    // DSP_TIM2_Init();
-    
-    // Input Capture
-    //DSP_TIM5_Init();
-
-    // uLTick (already handled by arduino.h)
-    // DSP_TIM13_Init();
-
-    // ADC DMA
-    DSP_DMA_Init();
-
-    // ADC
-    DSP_ADC1_Init();
-    DSP_ADC2_Init();
-    DSP_ADC3_Init();
-
-    // ADC GPIO
-    DSP_HAL_ADC_MspInit(&hadc1);
-    DSP_HAL_ADC_MspInit(&hadc2);
-    DSP_HAL_ADC_MspInit(&hadc3);
-
-    // Hack
-    OC4_PWM_Override(&htim1);
-    
-    #ifndef USE_SINGLE_AXIS
-        OC4_PWM_Override(&htim8);
-    #endif
-
-    // Start
-    start_adc_pwm();
 }
