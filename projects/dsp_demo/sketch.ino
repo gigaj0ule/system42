@@ -23,6 +23,26 @@ bool application_is_running = true;
 #define PIN_LED_ACTIVITY PB6
 #define PIN_LED_FAULT PB7
 
+// ----------------------------------------------------
+//
+void dsp_adc_callback(bool timer_one) {
+    
+    if(timer_one) {
+        pntp.adc_sample_number ++; 
+    }
+}
+
+// ----------------------------------------------------
+//
+void dsp_timer_one_control_loop(void) {
+    // Pass
+}
+
+// ----------------------------------------------------
+//
+void dsp_timer_eight_control_loop(void) {
+    // Pass
+}
 
 
 // ----------------------------------------------------
@@ -38,7 +58,10 @@ void setup() {
     digitalWrite(PA8, HIGH);
 
 	// Setup DSP
-	//DSP_set_adc_handler(&dsp_state_machine);
+	DSP_set_adc_sample_complete_callback(&dsp_adc_callback);
+	DSP_set_timer_one_control_loop_callback(&dsp_timer_one_control_loop);
+	DSP_set_timer_eight_control_loop_callback(&dsp_timer_eight_control_loop);
+
     DSP_setup();
 
     // Launch program!

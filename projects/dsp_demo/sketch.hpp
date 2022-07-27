@@ -18,7 +18,7 @@
         public:
 
             // Volatile variables
-            int32_t adc_sample_num = 0;
+            int32_t adc_sample_number = 0;
 
             // Non volatile variables
             struct DiskStructure_t {
@@ -30,8 +30,8 @@
                 return make_protocol_member_list(
 
                     make_protocol_number_kw(
-                        &adc_sample_num,
-                        property_name = "adc_sample_num"
+                        &adc_sample_number,
+                        property_name = "adc_sample_number"
                     )
 
                 );

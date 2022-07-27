@@ -278,7 +278,7 @@ bool Motor::measure_phase_resistance(float test_current, float max_voltage) {
 
     axis_->run_control_loop([&](){
 
-        float Ialpha = -(current_meas_[5].phB + current_meas_[5].phC);
+        float Ialpha = -(buffered_current_meas_[5].phB + buffered_current_meas_[5].phC);
         test_voltage += (kI * current_meas_period) * (test_current - Ialpha);
 
         if (test_voltage > max_voltage || test_voltage < -max_voltage) {
@@ -339,11 +339,11 @@ bool Motor::measure_phase_inductance(float voltage_low, float voltage_high, floa
         // Which axis are we measuring on?
         if(measurement_axis == TYPE_ALPHA) {
             // Measuring alpha
-            Isamples[i] += -current_meas_[5].phB - current_meas_[5].phC;
+            Isamples[i] += -buffered_current_meas_[5].phB - buffered_current_meas_[5].phC;
         }
         else {
             // Measuring beta
-            Isamples[i] +=  one_by_sqrt3 * (current_meas_[i].phB - current_meas_[i].phC);
+            Isamples[i] +=  one_by_sqrt3 * (buffered_current_meas_[i].phB - buffered_current_meas_[i].phC);
         }
 
         // Stores voltages for the timings
@@ -633,8 +633,8 @@ bool Motor::FOC_current(float Id_setpoint, float Iq_setpoint, float I_phase, flo
 
     // Forward clarke transform to estimate three currents from two measurements
     for(int i = 0; i < 3; i+=2) {
-        I_alpha[i/2] = -current_meas_[i].phB - current_meas_[i].phC;
-        I_beta[i/2]  = one_by_sqrt3 * (current_meas_[i].phB - current_meas_[i].phC);
+        I_alpha[i/2] = -buffered_current_meas_[i].phB - buffered_current_meas_[i].phC;
+        I_beta[i/2]  = one_by_sqrt3 * (buffered_current_meas_[i].phB - buffered_current_meas_[i].phC);
     }
 
     if(axis_->sensorless_estimator_.hfi_engaged) {
@@ -646,8 +646,8 @@ bool Motor::FOC_current(float Id_setpoint, float Iq_setpoint, float I_phase, flo
     current_control_.Id_setpoint = Id_setpoint;
 
     // Check for current sense saturation
-    if (fabsf(current_meas_[5].phB) > current_control_.overcurrent_trip_level
-     || fabsf(current_meas_[5].phC) > current_control_.overcurrent_trip_level) {
+    if (fabsf(buffered_current_meas_[5].phB) > current_control_.overcurrent_trip_level
+     || fabsf(buffered_current_meas_[5].phC) > current_control_.overcurrent_trip_level) {
         set_error(ERROR_CURRENT_SENSE_SATURATION);
     }
 

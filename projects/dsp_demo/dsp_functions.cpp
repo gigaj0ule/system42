@@ -39,8 +39,8 @@ float dc_offset_ADC2_[2] = {0.0f};
 float dc_offset_ADC3_[2] = {0.0f};
 
 // Sampled current measurements for the motor
-float current_meas_[2][2][3] = {0.0f};
 float buffered_current_meas_[2][2][3] = {0.0f};
+float active_current_meas_[2][2][3] = {0.0f};
 
 // This is used to refrence the proper time sequence where measured current 
 // values should be saved
@@ -52,6 +52,37 @@ bool update_control_loop_ = false;
 // Setting this flag to true does DC_Cal(ibration) for the active axis
 bool do_dc_calibration_ = false;
 
+
+
+// ---------------------------------------------------------------------------
+// Callback used for PWM State Machine
+//
+void (*adc_sample_complete_callback_)(bool);
+//
+//
+void DSP_set_adc_sample_complete_callback(void (*adc_sample_complete_callback)(bool)) {
+    adc_sample_complete_callback_ = *adc_sample_complete_callback;
+}
+
+// ---------------------------------------------------------------------------------
+//
+// Callback used for signaling timer_one control loop
+//
+void (*timer_one_control_loop_callback_)();
+
+void DSP_set_timer_one_control_loop_callback(void (*timer_one_control_loop_callback)()) {
+    timer_one_control_loop_callback_ = *timer_one_control_loop_callback;
+}
+
+// ---------------------------------------------------------------------------------
+//
+// Callback used for signaling timer_one control loop
+//
+void (*timer_eight_control_loop_callback_)();
+
+void DSP_set_timer_one_control_loop_callback(void (*timer_eight_control_loop_callback)()) {
+    timer_eight_control_loop_callback_ = *timer_eight_control_loop_callback;
+}
 
 // ---------------------------------------------------------------------------------
 // @brief This function samples currents from ADC2 and ADC3
@@ -109,9 +140,7 @@ void dsp_state_machine(bool timer_one) {
         pwm_adc_state_tracker_ = 0;
     }
 
-    // Setting this flag to true takes a current measurement for the active axis
-    bool sample_adc_ = false;
-
+    // State Machine
     if(timer_one) {
 
         // Timer One state machine
@@ -124,7 +153,6 @@ void dsp_state_machine(bool timer_one) {
                 
                 // Sample ADC on this state (timer_one, newest [5])
                 adc_measurement_stack_index_ = 5;
-                sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_one, 1)
                 timer_one_SVM_timings_state_ = 1;
@@ -134,8 +162,7 @@ void dsp_state_machine(bool timer_one) {
             case 2:
                 // Sample ADC on this state (timer_one, oldest [0])
                 adc_measurement_stack_index_ = 0;           
-                sample_adc_ = true;
-                
+
                 // Do DC bias measurement for (timer_one)
                 do_dc_calibration_ = true;
 
@@ -147,7 +174,6 @@ void dsp_state_machine(bool timer_one) {
             case 4:
                 // Sample ADC on this state (timer_one, oldest [1])
                 adc_measurement_stack_index_ = 1;
-                sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_one, 3)
                 timer_one_SVM_timings_state_ = 3;
@@ -157,7 +183,6 @@ void dsp_state_machine(bool timer_one) {
             case 6:
                 // Sample ADC on this state (timer_one, middle [2])
                 adc_measurement_stack_index_ = 2;    
-                sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_one, 4)
                 timer_one_SVM_timings_state_ = 4;
@@ -167,8 +192,7 @@ void dsp_state_machine(bool timer_one) {
             case 8:
                 // Sample ADC on this state (timer_one, middle [3])        
                 adc_measurement_stack_index_ = 3;  
-                sample_adc_ = true;
-                
+
                 // Set the SVM timings state to (timer_one, 5)
                 timer_one_SVM_timings_state_ = 5;
                 break;
@@ -177,7 +201,6 @@ void dsp_state_machine(bool timer_one) {
             case 10:
                 // Sample ADC on this state (timer_one, newest [4])
                 adc_measurement_stack_index_ = 4;  
-                sample_adc_ = true;
 
                 // Debugging
                 // check_if_run_control_loop_failed(axis_motor);     
@@ -214,8 +237,7 @@ void dsp_state_machine(bool timer_one) {
                 
                 // Sample ADC on this state (timer_eight, newest [5])        
                 adc_measurement_stack_index_ = 5;  
-                sample_adc_ = true;            
-                
+            
                 // Set the SVM timings state to (timer_eight, 1)
                 timer_eight_SVM_timings_state_ = 1;
                 break;
@@ -224,7 +246,6 @@ void dsp_state_machine(bool timer_one) {
             case 7: 
                 // Sample ADC on this state (timer_eight, oldest [0])
                 adc_measurement_stack_index_ = 0;     
-                sample_adc_ = true;
 
                 // Do DC bias measurement for (timer_eight)
                 do_dc_calibration_ = true;
@@ -237,8 +258,7 @@ void dsp_state_machine(bool timer_one) {
             case 9:
                 // Sample ADC on this state (timer_eight, oldest [1])
                 adc_measurement_stack_index_ = 1; 
-                sample_adc_ = true;
-                
+
                 // Set the SVM timings state to (timer_eight, 3)            
                 timer_eight_SVM_timings_state_ = 3;
 
@@ -250,7 +270,6 @@ void dsp_state_machine(bool timer_one) {
             case 11:
                 // Sample ADC on this state (timer_eight, middle [2])
                 adc_measurement_stack_index_ = 2;
-                sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_eight, 4)            
                 timer_eight_SVM_timings_state_ = 4;   
@@ -260,7 +279,6 @@ void dsp_state_machine(bool timer_one) {
             case 1:
                 // Sample ADC on this state (timer_eight, middle [3])
                 adc_measurement_stack_index_ = 3;
-                sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_eight, 5)
                 timer_eight_SVM_timings_state_ = 5;
@@ -270,10 +288,10 @@ void dsp_state_machine(bool timer_one) {
             case 3:
                 // Sample ADC on this state (timer_eight, newest [4])
                 adc_measurement_stack_index_ = 4;       
-                sample_adc_ = true;
 
                 // Check whether current thread failed for (timer_eight)
                 // check_if_run_control_loop_failed(axis_motor);
+
                 // Double buffer the axis timings 
                 for(int i = 0; i < 6; i++) {
                     active_timings_stack_[1][i][0] = next_timings_stack_[1][i][0];
@@ -293,6 +311,9 @@ void dsp_state_machine(bool timer_one) {
                 break;
         }
     }
+    
+    // Setting this flag to true takes a current measurement for the active axis
+    bool sample_adc_ = true;
 
     // Sample ADCs?
     if (sample_adc_) {
@@ -307,8 +328,8 @@ void dsp_state_machine(bool timer_one) {
         sample_adcs(timer_one);
 
         // Sample ADC for the active axis
-        buffered_current_meas_[timer_eight][0][adc_measurement_stack_index_] += adcval_ADC2_[timer_eight] - dc_offset_ADC2_[timer_eight];
-        buffered_current_meas_[timer_eight][1][adc_measurement_stack_index_] += adcval_ADC3_[timer_eight] - dc_offset_ADC3_[timer_eight];
+        active_current_meas_[timer_eight][0][adc_measurement_stack_index_] += adcval_ADC2_[timer_eight] - dc_offset_ADC2_[timer_eight];
+        active_current_meas_[timer_eight][1][adc_measurement_stack_index_] += adcval_ADC3_[timer_eight] - dc_offset_ADC3_[timer_eight];
 
         // Clear flag, nothing left to do!
         sample_adc_ = false;
@@ -358,16 +379,25 @@ void dsp_state_machine(bool timer_one) {
         for(int i = 0; i < 6; i++) {
 
             // Lock in our measurements
-            current_meas_[timer_eight][0][i] = buffered_current_meas_[timer_eight][0][i];
-            current_meas_[timer_eight][1][i] = buffered_current_meas_[timer_eight][1][i];
+            buffered_current_meas_[timer_eight][0][i] = active_current_meas_[timer_eight][0][i];
+            buffered_current_meas_[timer_eight][1][i] = active_current_meas_[timer_eight][1][i];
 
             // And reset our measurements when we are done buffering them
-            buffered_current_meas_[timer_eight][0][i] = 0.0f;
-            buffered_current_meas_[timer_eight][1][i] = 0.0f;
+            active_current_meas_[timer_eight][0][i] = 0.0f;
+            active_current_meas_[timer_eight][1][i] = 0.0f;
         }
 
-        // Trigger current control loop update
-        //axis.signal_current_meas(); 
+        // Trigger control loops!
+        if(timer_one) {
+            if(timer_one_control_loop_callback_) {
+                timer_one_control_loop_callback_();
+            }
+        }
+        else {
+            if(timer_eight_control_loop_callback_) {
+                timer_eight_control_loop_callback_();
+            }            
+        }
         
         // Clear flag, nothing left to do!
         update_control_loop_ = false;               
@@ -375,17 +405,6 @@ void dsp_state_machine(bool timer_one) {
 
     // Increment the state machine counter
     pwm_adc_state_tracker_ ++;
-}
-
-
-// ---------------------------------------------------------------------------
-// Callback used for PWM State Machine
-//
-void (*adc_callback_)(bool);
-//
-//
-void DSP_set_adc_handler(void (*adc_callback)(bool)) {
-    adc_callback_ = *adc_callback;
 }
 
 
@@ -415,9 +434,9 @@ extern "C" {
             dsp_state_machine(false);
 
             // Callback?
-            if(adc_callback_){
+            if(adc_sample_complete_callback_){
                 // Callback()
-                adc_callback_(true);
+                adc_sample_complete_callback_(true);
             }
 
             // Clear interrupt flag & start next conversion
@@ -431,9 +450,9 @@ extern "C" {
             dsp_state_machine(false);
 
             // Callback?
-            if(adc_callback_){
+            if(adc_sample_complete_callback_){
                 // Callback()
-                adc_callback_(false);
+                adc_sample_complete_callback_(false);
             }
 
             // Clear interrupt flag & start next conversion

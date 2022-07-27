@@ -466,8 +466,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             sample_adcs(timer_one, axis_motor);
 
             // Sample ADC for the active timer
-            axis_motor->buffered_current_meas_[adc_measurement_stack_index_].phB += adcval_ADC2_ - axis_motor->DC_calib_.phB;
-            axis_motor->buffered_current_meas_[adc_measurement_stack_index_].phC += adcval_ADC3_ - axis_motor->DC_calib_.phC;
+            axis_motor->active_current_meas_[adc_measurement_stack_index_].phB += adcval_ADC2_ - axis_motor->DC_calib_.phB;
+            axis_motor->active_current_meas_[adc_measurement_stack_index_].phC += adcval_ADC3_ - axis_motor->DC_calib_.phC;
         #ifdef USE_SINGLE_AXIS 
             }
         #endif
@@ -530,12 +530,12 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
         for(int i = 0; i < 6; i++) {
 
             // Lock in our samples
-            axis_motor->current_meas_[i].phB = axis_motor->buffered_current_meas_[i].phB;
-            axis_motor->current_meas_[i].phC = axis_motor->buffered_current_meas_[i].phC;
+            axis_motor->buffered_current_meas_[i].phB = axis_motor->active_current_meas_[i].phB;
+            axis_motor->buffered_current_meas_[i].phC = axis_motor->active_current_meas_[i].phC;
 
             // And reset our measurements when we are done buffering them
-            axis_motor->buffered_current_meas_[i].phB = 0.0f;
-            axis_motor->buffered_current_meas_[i].phC = 0.0f;
+            axis_motor->active_current_meas_[i].phB = 0.0f;
+            axis_motor->active_current_meas_[i].phC = 0.0f;
         }
 
         // Trigger current control loop update
