@@ -132,7 +132,7 @@ void dsp_state_machine(bool timer_one) {
             
             // Timer One Counting Down
             case 2:
-                // Double-sample ADC on this state (timer_one, oldest [0])
+                // Sample ADC on this state (timer_one, oldest [0])
                 adc_measurement_stack_index_ = 0;           
                 sample_adc_ = true;
                 
@@ -155,7 +155,7 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer One Counting Down
             case 6:
-                // Double-sample ADC on this state (timer_one, middle [2])
+                // Sample ADC on this state (timer_one, middle [2])
                 adc_measurement_stack_index_ = 2;    
                 sample_adc_ = true;
 
@@ -175,7 +175,7 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer One Counting Down
             case 10:
-                // Double-sample ADC on this state (timer_one, newest [4])
+                // Sample ADC on this state (timer_one, newest [4])
                 adc_measurement_stack_index_ = 4;  
                 sample_adc_ = true;
 
@@ -222,7 +222,7 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer Eight Counting Down
             case 7: 
-                // Double-sample ADC on this state (timer_eight, oldest [0])
+                // Sample ADC on this state (timer_eight, oldest [0])
                 adc_measurement_stack_index_ = 0;     
                 sample_adc_ = true;
 
@@ -248,7 +248,7 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer Eight Counting Down
             case 11:
-                // Double-sample ADC on this state (timer_eight, middle [2])
+                // Sample ADC on this state (timer_eight, middle [2])
                 adc_measurement_stack_index_ = 2;
                 sample_adc_ = true;
 
@@ -268,7 +268,7 @@ void dsp_state_machine(bool timer_one) {
             
             // Timer Eight Counting Down            
             case 3:
-                // Double-sample ADC on this state (timer_eight, newest [4])
+                // Sample ADC on this state (timer_eight, newest [4])
                 adc_measurement_stack_index_ = 4;       
                 sample_adc_ = true;
 

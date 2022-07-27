@@ -632,9 +632,9 @@ bool Motor::FOC_current(float Id_setpoint, float Iq_setpoint, float I_phase, flo
     float I_alpha[3], I_beta[3];
 
     // Forward clarke transform to estimate three currents from two measurements
-    for(int i = 0; i < 3; i++) {
-        I_alpha[i] = -current_meas_[i].phB - current_meas_[i].phC;
-        I_beta[i]  = one_by_sqrt3 * (current_meas_[i].phB - current_meas_[i].phC);
+    for(int i = 0; i < 3; i+=2) {
+        I_alpha[i/2] = -current_meas_[i].phB - current_meas_[i].phC;
+        I_beta[i/2]  = one_by_sqrt3 * (current_meas_[i].phB - current_meas_[i].phC);
     }
 
     if(axis_->sensorless_estimator_.hfi_engaged) {
