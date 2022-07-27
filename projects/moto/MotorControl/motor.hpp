@@ -213,8 +213,8 @@ public:
     bool is_calibrated_ = config_.pre_calibrated;
 
     // Sampled current measurements for the motor
-    Iph_BC_t current_meas_[3] = { {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} };
-    Iph_BC_t buffered_current_meas_[3] = { {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} };
+    Iph_BC_t current_meas_[6] = { {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}  };
+    Iph_BC_t buffered_current_meas_[6] = { {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} };
 
     // DC calibration offsets which are applied to the current measurements
     Iph_BC_t DC_calib_ = {0.0f, 0.0f};
@@ -278,12 +278,12 @@ public:
                 property_name = "is_calibrated"
             ),
             make_protocol_number_kw(
-                &current_meas_[2].phB,
+                &current_meas_[5].phB,
                 property_name = "current_meas_phB",
                 property_is_read_only = true
             ),
             make_protocol_number_kw(
-                &current_meas_[2].phC,
+                &current_meas_[5].phC,
                 property_name = "current_meas_phC",
                 property_is_read_only = true
             ),

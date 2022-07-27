@@ -233,8 +233,8 @@ bool SensorlessEstimator::update() {
     float I_alpha_beta[2];
     
     if(hfi_engaged == 0) {
-        I_alpha_beta[0] = -axis_->motor_.current_meas_[2].phB - axis_->motor_.current_meas_[2].phC;
-        I_alpha_beta[1] = one_by_sqrt3 * (axis_->motor_.current_meas_[2].phB - axis_->motor_.current_meas_[2].phC);
+        I_alpha_beta[0] = -axis_->motor_.current_meas_[5].phB - axis_->motor_.current_meas_[5].phC;
+        I_alpha_beta[1] = one_by_sqrt3 * (axis_->motor_.current_meas_[5].phB - axis_->motor_.current_meas_[5].phC);
     }
     else {
        I_alpha_beta[0] = hfi_cleaned_I_alpha_; 

@@ -122,8 +122,8 @@ void dsp_state_machine(bool timer_one) {
                 // Update control loop for (timer_one) on this state
                 update_control_loop_ = true;        
                 
-                // Sample ADC on this state (timer_one, newest [2])
-                adc_measurement_stack_index_ = 2;
+                // Sample ADC on this state (timer_one, newest [5])
+                adc_measurement_stack_index_ = 5;
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_one, 1)
@@ -145,8 +145,8 @@ void dsp_state_machine(bool timer_one) {
             
             // Timer One Counting Up
             case 4:
-                // Sample ADC on this state (timer_one, oldest [0])
-                adc_measurement_stack_index_ = 0;
+                // Sample ADC on this state (timer_one, oldest [1])
+                adc_measurement_stack_index_ = 1;
                 sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_one, 3)
@@ -155,8 +155,8 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer One Counting Down
             case 6:
-                // Double-sample ADC on this state (timer_one, middle [1])
-                adc_measurement_stack_index_ = 1;    
+                // Double-sample ADC on this state (timer_one, middle [2])
+                adc_measurement_stack_index_ = 2;    
                 sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_one, 4)
@@ -165,8 +165,8 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer One Counting Up
             case 8:
-                // Sample ADC on this state (timer_one, middle [1])        
-                adc_measurement_stack_index_ = 1;  
+                // Sample ADC on this state (timer_one, middle [3])        
+                adc_measurement_stack_index_ = 3;  
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_one, 5)
@@ -175,8 +175,8 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer One Counting Down
             case 10:
-                // Double-sample ADC on this state (timer_one, newest [2])
-                adc_measurement_stack_index_ = 2;  
+                // Double-sample ADC on this state (timer_one, newest [4])
+                adc_measurement_stack_index_ = 4;  
                 sample_adc_ = true;
 
                 // Debugging
@@ -212,8 +212,8 @@ void dsp_state_machine(bool timer_one) {
                 // Update control loop for (timer_eight) on this state
                 update_control_loop_ = true;         
                 
-                // Sample ADC on this state (timer_eight, newest [2])        
-                adc_measurement_stack_index_ = 2;  
+                // Sample ADC on this state (timer_eight, newest [5])        
+                adc_measurement_stack_index_ = 5;  
                 sample_adc_ = true;            
                 
                 // Set the SVM timings state to (timer_eight, 1)
@@ -236,7 +236,7 @@ void dsp_state_machine(bool timer_one) {
             // Timer Eight Counting Up
             case 9:
                 // Sample ADC on this state (timer_eight, oldest [1])
-                adc_measurement_stack_index_ = 0; 
+                adc_measurement_stack_index_ = 1; 
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_eight, 3)            
@@ -248,7 +248,8 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer Eight Counting Down
             case 11:
-                // Double-sample ADC on this state (timer_eight, middle [1])
+                // Double-sample ADC on this state (timer_eight, middle [2])
+                adc_measurement_stack_index_ = 2;
                 sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_eight, 4)            
@@ -257,8 +258,8 @@ void dsp_state_machine(bool timer_one) {
 
             // Timer Eight Counting Up    
             case 1:
-                // Sample ADC on this state (timer_eight, middle [0])
-                adc_measurement_stack_index_ = 1;
+                // Sample ADC on this state (timer_eight, middle [3])
+                adc_measurement_stack_index_ = 3;
                 sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_eight, 5)
@@ -267,8 +268,8 @@ void dsp_state_machine(bool timer_one) {
             
             // Timer Eight Counting Down            
             case 3:
-                // Double-sample ADC on this state (timer_eight, newest [2])
-                adc_measurement_stack_index_ = 2;       
+                // Double-sample ADC on this state (timer_eight, newest [4])
+                adc_measurement_stack_index_ = 4;       
                 sample_adc_ = true;
 
                 // Check whether current thread failed for (timer_eight)
@@ -354,11 +355,11 @@ void dsp_state_machine(bool timer_one) {
         //decode_hall_samples(axis.encoder_, GPIO_port_samples[timer_eight]);  
 
         // Cache current measurements so they don't get over-written
-        for(int i = 0; i < 3; i++) {
+        for(int i = 0; i < 6; i++) {
 
-            // Since we double-sample our ADC we should divide samples by 2.0f
-            current_meas_[timer_eight][0][i] = buffered_current_meas_[timer_eight][0][i] / 2.0f;
-            current_meas_[timer_eight][1][i] = buffered_current_meas_[timer_eight][1][i] / 2.0f;
+            // Lock in our measurements
+            current_meas_[timer_eight][0][i] = buffered_current_meas_[timer_eight][0][i];
+            current_meas_[timer_eight][1][i] = buffered_current_meas_[timer_eight][1][i];
 
             // And reset our measurements when we are done buffering them
             buffered_current_meas_[timer_eight][0][i] = 0.0f;

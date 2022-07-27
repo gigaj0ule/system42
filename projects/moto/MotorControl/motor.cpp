@@ -278,7 +278,7 @@ bool Motor::measure_phase_resistance(float test_current, float max_voltage) {
 
     axis_->run_control_loop([&](){
 
-        float Ialpha = -(current_meas_[2].phB + current_meas_[2].phC);
+        float Ialpha = -(current_meas_[5].phB + current_meas_[5].phC);
         test_voltage += (kI * current_meas_period) * (test_current - Ialpha);
 
         if (test_voltage > max_voltage || test_voltage < -max_voltage) {
@@ -339,7 +339,7 @@ bool Motor::measure_phase_inductance(float voltage_low, float voltage_high, floa
         // Which axis are we measuring on?
         if(measurement_axis == TYPE_ALPHA) {
             // Measuring alpha
-            Isamples[i] += -current_meas_[2].phB - current_meas_[2].phC;
+            Isamples[i] += -current_meas_[5].phB - current_meas_[5].phC;
         }
         else {
             // Measuring beta
@@ -646,8 +646,8 @@ bool Motor::FOC_current(float Id_setpoint, float Iq_setpoint, float I_phase, flo
     current_control_.Id_setpoint = Id_setpoint;
 
     // Check for current sense saturation
-    if (fabsf(current_meas_[2].phB) > current_control_.overcurrent_trip_level
-     || fabsf(current_meas_[2].phC) > current_control_.overcurrent_trip_level) {
+    if (fabsf(current_meas_[5].phB) > current_control_.overcurrent_trip_level
+     || fabsf(current_meas_[5].phC) > current_control_.overcurrent_trip_level) {
         set_error(ERROR_CURRENT_SENSE_SATURATION);
     }
 

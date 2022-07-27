@@ -244,7 +244,7 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
     }
 
     // Most important state machine. Check it against this google sheet:
-    // https://docs.google.com/spreadsheets/d/1Q7qS4xY7szme8t-sMSE4pxSfSi8XxtwAaxu0Tp91lds/edit#gid=0
+    // https://docs.google.com/spreadsheets/d/1TYNPmy3y1iP_toVe8yVe_oJ2IY8obYzYNfZCcu-Vm9A/edit?usp=sharing
     
     // Motor 0 is on Timer 1, which triggers ADC2 on Injected, and ADC3 on Injected conversion
     // Motor 1 is on Timer 8, which triggers ADC2 on Regular, and ADC3 on Regular conversion
@@ -261,8 +261,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
                 // Update control loop for (timer_one) on this state
                 update_control_loop_ = true;        
                 
-                // Sample ADC on this state (timer_one, newest [2])
-                adc_measurement_stack_index_ = 2;
+                // Sample ADC on this state (timer_one, newest [5])
+                adc_measurement_stack_index_ = 5;
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_one, 1)
@@ -287,8 +287,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             
             // Timer One Counting Up
             case 4:
-                // Sample ADC on this state (timer_one, oldest [0])
-                adc_measurement_stack_index_ = 0;
+                // Sample ADC on this state (timer_one, oldest [1])
+                adc_measurement_stack_index_ = 1;
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_one, 3)
@@ -297,8 +297,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer One Counting Down
             case 6:
-                // Double-sample ADC on this state (timer_one, middle [1])
-                adc_measurement_stack_index_ = 1;    
+                // Double-sample ADC on this state (timer_one, middle [2])
+                adc_measurement_stack_index_ = 2;    
                 sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_one, 4)
@@ -307,8 +307,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer One Counting Up
             case 8:
-                // Sample ADC on this state (timer_one, middle [1])        
-                adc_measurement_stack_index_ = 1;  
+                // Sample ADC on this state (timer_one, middle [3])        
+                adc_measurement_stack_index_ = 3;  
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_one, 5)
@@ -320,8 +320,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer One Counting Down
             case 10:
-                // Double-sample ADC on this state (timer_one, newest [2])
-                adc_measurement_stack_index_ = 2;          
+                // Double-sample ADC on this state (timer_one, newest [4])
+                adc_measurement_stack_index_ = 4;          
                 sample_adc_ = true;
 
                 // Debugging
@@ -356,8 +356,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
                 // Update control loop for (timer_eight) on this state
                 update_control_loop_ = true;  
 
-                // Sample ADC on this state (timer_eight, newest [2])        
-                adc_measurement_stack_index_ = 2;  
+                // Sample ADC on this state (timer_eight, newest [5])        
+                adc_measurement_stack_index_ = 5;  
                 sample_adc_ = true;            
                 
                 // Set the SVM timings state to (timer_eight, 1)
@@ -380,7 +380,7 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             // Timer Eight Counting Up
             case 9:
                 // Sample ADC on this state (timer_eight, oldest [1])
-                adc_measurement_stack_index_ = 0; 
+                adc_measurement_stack_index_ = 1; 
                 sample_adc_ = true;
 
                 // Set the SVM timings state to (timer_eight, 3)            
@@ -397,8 +397,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer Eight Counting Down
             case 11:
-                // Double-sample ADC on this state (timer_eight, middle [1])
-                adc_measurement_stack_index_ = 1;            
+                // Double-sample ADC on this state (timer_eight, middle [2])
+                adc_measurement_stack_index_ = 2;            
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_eight, 4)            
@@ -407,8 +407,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
 
             // Timer Eight Counting Up    
             case 1:
-                // Sample ADC on this state (timer_eight, middle [0])
-                adc_measurement_stack_index_ = 1;
+                // Sample ADC on this state (timer_eight, middle [3])
+                adc_measurement_stack_index_ = 3;
                 sample_adc_ = true;
                 
                 // Set the SVM timings state to (timer_eight, 5)
@@ -422,8 +422,8 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
             
             // Timer Eight Counting Down            
             case 3:
-                // Double-sample ADC on this state (timer_eight, newest [2])
-                adc_measurement_stack_index_ = 2;       
+                // Double-sample ADC on this state (timer_eight, newest [4])
+                adc_measurement_stack_index_ = 4;       
                 sample_adc_ = true;
 
                 #ifndef USE_SINGLE_AXIS 
@@ -527,11 +527,11 @@ void pwm_state_machine(bool timer_one, uint16_t now) {
         decode_hall_samples(axis.encoder_, GPIO_port_samples[timer_eight]);  
         
         // Cache current measurements so they don't get over-written
-        for(int i = 0; i < 3; i++) {
+        for(int i = 0; i < 6; i++) {
 
-            // Since we double-sample our ADC we should divide samples by 2.0f
-            axis_motor->current_meas_[i].phB = axis_motor->buffered_current_meas_[i].phB / 2.0f;
-            axis_motor->current_meas_[i].phC = axis_motor->buffered_current_meas_[i].phC / 2.0f;
+            // Lock in our samples
+            axis_motor->current_meas_[i].phB = axis_motor->buffered_current_meas_[i].phB;
+            axis_motor->current_meas_[i].phC = axis_motor->buffered_current_meas_[i].phC;
 
             // And reset our measurements when we are done buffering them
             axis_motor->buffered_current_meas_[i].phB = 0.0f;
