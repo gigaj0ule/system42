@@ -13,7 +13,6 @@
         // Stuff
     }
 
-
     class PowernetNamespace {
 
         public:
@@ -27,6 +26,12 @@
             char str_property[1024] = "Hello world";
             char buffer_property[60] = "DEADBEEF";
 
+            // Non volatile variables
+            struct DiskStructure_t {
+                int32_t nv_property = 0;
+            } disk0;
+
+            // Communicable variables
             auto communicable_variables() {
                 return make_protocol_member_list(
 
@@ -76,19 +81,6 @@
 
                 );
             };
-
-            struct DiskStructure_t {
-                int32_t nv_property = 0;
-            } disk0;
-
-            auto non_communicable_variables() {
-                return make_protocol_member_list(
-                    make_protocol_number_kw(
-                        &disk0.nv_property,
-                        property_name = "sample_nv_property"
-                    )
-                );
-            }
 
             event_vector_t event_trigger = {1};
 

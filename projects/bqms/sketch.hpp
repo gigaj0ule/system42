@@ -54,6 +54,11 @@
             #define TS_A_GND 0
             #define TS_B_GND 1
 
+            // Disk
+            struct DiskStructure_t {
+                int32_t nv_property = 0;
+            } disk0;
+
             // Communicable Properties
             auto communicable_variables() {
 
@@ -487,13 +492,6 @@
                 );
             };
 
-            struct DiskStructure_t {
-                int32_t nv_property = 0;
-            } disk0;
-
-            auto non_communicable_variables() {
-                return make_protocol_member_list();
-            }
 
             //event_vector_t scan_complete_event = {1};
 

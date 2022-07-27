@@ -21,12 +21,9 @@ bool application_is_running = true;
 #define PIN_LED_FAULT PB7
 
 
-
 // ----------------------------------------------------
 //
 void setup() {
-
-	__asm__ volatile ("nop");
 
     // Keep alive
 	pinMode(PA0, OUTPUT);
@@ -40,15 +37,15 @@ void setup() {
     pntp_begin("powernet_demo");
 
 	// Create worker task
-    osThreadDef(task_app, program_thread, osPriorityHigh, 0, 512 /* in 32-bit words */); 
+    osThreadDef(task_app, program_thread, osPriorityHigh, 0, 512); 
     osThreadId thread_app = osThreadCreate(osThread(task_app), NULL);
 
 	// Communication task 1
-    osThreadDef(task_tty0, comms_thread_tty0, osPriorityAboveNormal, 0, 4000 /* in 32-bit words */); 
+    osThreadDef(task_tty0, comms_thread_tty0, osPriorityAboveNormal, 0, 4000); 
     osThreadId thread_tty0 = osThreadCreate(osThread(task_tty0), NULL);
 
 	// Communication task 2
-    osThreadDef(task_eth0, comms_thread_eth0, osPriorityAboveNormal, 0, 4000 /* in 32-bit words */); 
+    osThreadDef(task_eth0, comms_thread_eth0, osPriorityAboveNormal, 0, 4000); 
     osThreadId thread_eth0 = osThreadCreate(osThread(task_eth0), NULL);
 
     // Start scheduler
@@ -60,7 +57,8 @@ void setup() {
 
 
 void loop(){
-    // Unused      
+    // Unused  
+	//bool activity = pntp_listen_tty0();    
 };
 
 
@@ -136,7 +134,6 @@ void catch_fault() {
 	pinMode(PIN_LED_FAULT, OUTPUT);
 
     while(1) {
-		serialEventUSB();
 		delay(100);
 
         digitalToggle(PIN_LED_FAULT);

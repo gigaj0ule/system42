@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <interrupt.h>
 
+#include "dsp_functions.hpp"
+
 #ifdef __STM32F1__
     #error "No F1 support yet in dsp_functions.cpp"
 #endif
@@ -28,131 +30,9 @@
     #include <stm32f4xx_hal_rcc_ex.h>
     #include <stm32f4xx_hal_tim.h>
     #include <stm32f4xx_hal_tim_ex.h>
-#endif
 
-#ifndef TIM_1_8_CLOCK_HZ
-    #define TIM_1_8_CLOCK_HZ            168000000
-    #define TIM_1_8_PERIOD_CLOCKS       3500
-    #define TIM_1_8_DEADTIME_CLOCKS     200
-    #define TIM_APB1_CLOCK_HZ           84000000
-    #define TIM_APB1_PERIOD_CLOCKS      4096
-    #define TIM_APB1_DEADTIME_CLOCKS    200
-    #define TIM_1_8_RCR                 0
-
-    #define M0_nCS_Pin                  GPIO_PIN_13
-    #define M0_nCS_GPIO_Port            GPIOC
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_nCS_Pin              GPIO_PIN_14
-        #define M1_nCS_GPIO_Port        GPIOC
-        #define M1_ENC_Z_Pin            GPIO_PIN_15
-        #define M1_ENC_Z_GPIO_Port      GPIOC
-    #endif 
-
-    #define M0_IB_Pin                   GPIO_PIN_0
-    #define M0_IB_GPIO_Port             GPIOC
-    #define M0_IC_Pin                   GPIO_PIN_1
-    #define M0_IC_GPIO_Port             GPIOC
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_IC_Pin               GPIO_PIN_2
-        #define M1_IC_GPIO_Port         GPIOC
-        #define M1_IB_Pin               GPIO_PIN_3
-        #define M1_IB_GPIO_Port         GPIOC
-    #endif
-
-    #define GPIO_1_Pin                  GPIO_PIN_0
-    #define GPIO_1_GPIO_Port            GPIOA
-    #define GPIO_2_Pin                  GPIO_PIN_1
-    #define GPIO_2_GPIO_Port            GPIOA
-    #define GPIO_3_Pin                  GPIO_PIN_2
-    #define GPIO_3_GPIO_Port            GPIOA
-    #define GPIO_4_Pin                  GPIO_PIN_3
-    #define GPIO_4_GPIO_Port            GPIOA
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_TEMP_Pin             GPIO_PIN_4
-        #define M1_TEMP_GPIO_Port       GPIOA
-    #endif 
-
-    #define AUX_TEMP_Pin                GPIO_PIN_5
-    #define AUX_TEMP_GPIO_Port          GPIOA
-    #define VBUS_S_Pin                  GPIO_PIN_6
-    #define VBUS_S_GPIO_Port            GPIOA
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_AL_Pin               GPIO_PIN_7
-        #define M1_AL_GPIO_Port         GPIOA
-    #endif 
-
-    #define GPIO_5_Pin                  GPIO_PIN_4
-    #define GPIO_5_GPIO_Port            GPIOC
-    #define M0_TEMP_Pin                 GPIO_PIN_5
-    #define M0_TEMP_GPIO_Port           GPIOC
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_BL_Pin               GPIO_PIN_0
-        #define M1_BL_GPIO_Port         GPIOB
-        #define M1_CL_Pin               GPIO_PIN_1
-        #define M1_CL_GPIO_Port         GPIOB
-    #endif
-
-    #define GPIO_6_Pin                  GPIO_PIN_2
-    #define GPIO_6_GPIO_Port            GPIOB
-    #define AUX_L_Pin                   GPIO_PIN_10
-    #define AUX_L_GPIO_Port             GPIOB
-    #define AUX_H_Pin                   GPIO_PIN_11
-    #define AUX_H_GPIO_Port             GPIOB
-    #define EN_GATE_Pin                 GPIO_PIN_12
-    #define EN_GATE_GPIO_Port           GPIOB
-    #define M0_AL_Pin                   GPIO_PIN_13
-    #define M0_AL_GPIO_Port             GPIOB
-    #define M0_BL_Pin                   GPIO_PIN_14
-    #define M0_BL_GPIO_Port             GPIOB
-    #define M0_CL_Pin                   GPIO_PIN_15
-    #define M0_CL_GPIO_Port             GPIOB
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_AH_Pin               GPIO_PIN_6
-        #define M1_AH_GPIO_Port         GPIOC
-        #define M1_BH_Pin               GPIO_PIN_7
-        #define M1_BH_GPIO_Port         GPIOC
-        #define M1_CH_Pin               GPIO_PIN_8
-        #define M1_CH_GPIO_Port         GPIOC
-    #endif 
-
-    #define M0_ENC_Z_Pin                GPIO_PIN_9
-    #define M0_ENC_Z_GPIO_Port          GPIOC
-    #define M0_AH_Pin                   GPIO_PIN_8
-    #define M0_AH_GPIO_Port             GPIOA
-    #define M0_BH_Pin                   GPIO_PIN_9
-    #define M0_BH_GPIO_Port             GPIOA
-    #define M0_CH_Pin                   GPIO_PIN_10
-    #define M0_CH_GPIO_Port             GPIOA
-    #define GPIO_7_Pin                  GPIO_PIN_15
-    #define GPIO_7_GPIO_Port            GPIOA
-
-    #ifdef USE_MOTO_PINS
-        #define nFAULT_Pin              GPIO_PIN_1
-        #define nFAULT_GPIO_Port        GPIOB
-    #else
-        #define nFAULT_Pin              GPIO_PIN_2
-        #define nFAULT_GPIO_Port        GPIOD
-    #endif
-
-    #define GPIO_8_Pin                  GPIO_PIN_3
-    #define GPIO_8_GPIO_Port            GPIOB
-    #define M0_ENC_A_Pin                GPIO_PIN_4
-    #define M0_ENC_A_GPIO_Port          GPIOB
-    #define M0_ENC_B_Pin                GPIO_PIN_5
-    #define M0_ENC_B_GPIO_Port          GPIOB
-
-    #ifndef USE_SINGLE_AXIS
-        #define M1_ENC_A_Pin            GPIO_PIN_6
-        #define M1_ENC_A_GPIO_Port      GPIOB
-        #define M1_ENC_B_Pin            GPIO_PIN_7
-        #define M1_ENC_B_GPIO_Port      GPIOB
-    #endif
+    //#include "stm32f4xx.h"
+    //#include "stm32f4xx_it.h"
 #endif
 
 // ---------------------------------------------------------------------------
@@ -165,9 +45,6 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle);
 // Methods
 //
 void set_pwm(TIM_HandleTypeDef * htim, int a, int b, int c) {
-}
-
-void start_pwm(TIM_HandleTypeDef* htim) {
 }
 
 
@@ -290,7 +167,7 @@ void DSP_TIM1_Init(void) {
     }
 
     // Init pins
-    HAL_TIM_MspPostInit(&htim1);
+    //HAL_TIM_MspPostInit(&htim1);
 }
 
 // ---------------------------------------------------------------------------
@@ -677,8 +554,8 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle) {
 
     else if(tim_pwmHandle->Instance==TIM8) {
         __HAL_RCC_TIM8_CLK_ENABLE();
-        HAL_NVIC_SetPriority(TIM8_TRG_COM_TIM14_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
+        //HAL_NVIC_SetPriority(TIM8_TRG_COM_TIM14_IRQn, 0, 0);
+        //HAL_NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
     }
 }
 
@@ -1208,10 +1085,242 @@ void DSP_HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
     }
 } 
 
+
+// ---------------------------------------------------------------------------
+//
+// @breif Starts the desired PWM timer
+// @ingroup low_level
+void start_pwm(TIM_HandleTypeDef* htim) {
+
+    // Calculate half-value for the PWM
+    int half_load = TIM_1_8_PERIOD_CLOCKS / 2;
+
+    // Preload the timer registers to 50%
+    // except for channel 4 which we don't use for PWM
+    htim->Instance->CCR1 = half_load;
+    htim->Instance->CCR2 = half_load;
+    htim->Instance->CCR3 = half_load;
+    htim->Instance->CCR4 = 1;
+
+    // Start up all the timers in PWM mode using the HAL
+    HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_1);
+
+    HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_2);
+    
+    HAL_TIM_PWM_Start(htim, TIM_CHANNEL_3);
+    HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_3);
+
+    // Ecept for channel 4... wait why do we bother with this?
+    //HAL_TIM_PWM_Start_IT(htim, TIM_CHANNEL_4);
+}
+
+
+// ---------------------------------------------------------------------------
+//
+// @brief This function synchronizes TIM1 and TIM8 with a 90 degree offset
+// @ingroup low_level
+void sync_timers(TIM_HandleTypeDef* htim_a, TIM_HandleTypeDef* htim_b, 
+                 uint16_t TIM_CLOCKSOURCE_ITRx, uint16_t count_offset,
+                 TIM_HandleTypeDef* htim_refbase) {
+
+    // Store intial timer configs
+    uint16_t MOE_store_a = htim_a->Instance->BDTR & (TIM_BDTR_MOE);
+    uint16_t MOE_store_b = htim_b->Instance->BDTR & (TIM_BDTR_MOE);
+    uint16_t CR2_store = htim_a->Instance->CR2;
+    uint16_t SMCR_store = htim_b->Instance->SMCR;
+    
+    // Turn off output
+    htim_a->Instance->BDTR &= ~(TIM_BDTR_MOE);
+    htim_b->Instance->BDTR &= ~(TIM_BDTR_MOE);
+    
+    // Disable both timer counters
+    htim_a->Instance->CR1 &= ~TIM_CR1_CEN;
+    htim_b->Instance->CR1 &= ~TIM_CR1_CEN;
+
+    // Set pwm_adc_state_tracker_ to 0
+    //pwm_adc_state_tracker_ = 0;
+    
+    // Set first timer to send TRGO on counter enable
+    htim_a->Instance->CR2 &= ~TIM_CR2_MMS;
+    htim_a->Instance->CR2 |= TIM_TRGO_ENABLE;
+    
+    // Set Trigger Source of second timer to the TRGO of the first timer
+    htim_b->Instance->SMCR &= ~TIM_SMCR_TS;
+    htim_b->Instance->SMCR |= TIM_CLOCKSOURCE_ITRx;
+    
+    // Set 2nd timer to start on trigger
+    htim_b->Instance->SMCR &= ~TIM_SMCR_SMS;
+    htim_b->Instance->SMCR |= TIM_SLAVEMODE_TRIGGER;
+    
+    // Dir bit is read only in center aligned mode, so we clear the mode for now
+    uint16_t CMS_store_a = htim_a->Instance->CR1 & TIM_CR1_CMS;
+    uint16_t CMS_store_b = htim_b->Instance->CR1 & TIM_CR1_CMS;
+    htim_a->Instance->CR1 &= ~TIM_CR1_CMS;
+    htim_b->Instance->CR1 &= ~TIM_CR1_CMS;
+    
+    // Set both timers to up-counting state
+    htim_a->Instance->CR1 &= ~TIM_CR1_DIR;
+    htim_b->Instance->CR1 &= ~TIM_CR1_DIR;
+    
+    // Restore center aligned mode
+    htim_a->Instance->CR1 |= CMS_store_a;
+    htim_b->Instance->CR1 |= CMS_store_b;
+    
+    // set counter offset
+    htim_a->Instance->CNT = count_offset;
+    htim_b->Instance->CNT = 0;
+    
+    // Set and start reference timebase timer (if used)
+    if (htim_refbase) {
+        htim_refbase->Instance->CNT = count_offset;
+        htim_refbase->Instance->CR1 |= (TIM_CR1_CEN); // start
+    }
+
+    // Start Timer a
+    htim_a->Instance->CR1 |= (TIM_CR1_CEN);
+    
+    // Restore timer configs
+    htim_a->Instance->CR2 = CR2_store;
+    htim_b->Instance->SMCR = SMCR_store;
+
+    // restore output
+    htim_a->Instance->BDTR |= MOE_store_a;
+    htim_b->Instance->BDTR |= MOE_store_b;
+}
+
+// ----------------------------------------------------------------------------
+// @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
+// @ingroup low_level_fast
+//
+
+// These are slightly faster versions of the HAL functions which expect a 
+// static argument
+#define __FAST__HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->SR) & (__FLAG__)) == (__FLAG__))
+#define __FAST__HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->SR) = ~(__FLAG__))
+#define __FAST__HAL_ADC_MODIFY_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->SR) = (__FLAG__))
+
+#define __FAST__HAL_TIM_CLEAR_IT(__HANDLE__, __INTERRUPT__)  ((__HANDLE__)->SR = ~(__INTERRUPT__))
+#define __FAST__HAL_TIM_GET_FLAG(__HANDLE__, __FLAG__)       (((__HANDLE__)->SR &(__FLAG__)) == (__FLAG__))
+
+// Static arguments for the fast HAL functions
+static constexpr const uint32_t START_INJECTED_CONVERSION = ~(ADC_FLAG_JSTRT | ADC_FLAG_JEOC);
+static constexpr const uint32_t START_REGULAR_CONVERSION = ~(ADC_FLAG_STRT | ADC_FLAG_EOC);
+
+// ----------------------------------------------------------------------------
+//
+//ADC1_IRQHander
+
+
+void (*adc_callback_)(bool, int);
+
+extern "C" {
+
+    void ADC_IRQHandler(void) {
+
+        uint16_t now = TIM13->CNT;
+
+        // The HAL's ADC handling mechanism adds many clock cycles of overhead
+        // So we bypass it and handle the logic ourselves.
+        // ADC1: Injected channel?
+        if(__FAST__HAL_ADC_GET_FLAG(ADC1, ADC_FLAG_JEOC)) {
+
+            // Calculate vbus voltage
+            // vbus_voltage_sense_calculation();
+
+            // Clear interrupt flag & start next conversion
+            __FAST__HAL_ADC_MODIFY_FLAG(ADC1, START_INJECTED_CONVERSION);
+        }
+        
+        // ADC2: Injected channel?
+        else if(__FAST__HAL_ADC_GET_FLAG(ADC2, ADC_FLAG_JEOC)) {
+
+            if(adc_callback_){
+                adc_callback_(true, now);
+            }
+
+            // Clear interrupt flag & start next conversion
+            __FAST__HAL_ADC_MODIFY_FLAG(ADC2, START_INJECTED_CONVERSION);        
+        }
+
+        // ADC2: Regular channel?
+        else if(__FAST__HAL_ADC_GET_FLAG(ADC2, ADC_FLAG_EOC)) {
+
+            if(adc_callback_){
+                adc_callback_(false, now);
+            }
+
+            // Clear interrupt flag & start next conversion
+            __FAST__HAL_ADC_MODIFY_FLAG(ADC2, START_REGULAR_CONVERSION);        
+        }
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+//
+void start_adc_pwm() {
+
+    // Enable ADC
+    __HAL_ADC_ENABLE(&hadc1);
+    __HAL_ADC_ENABLE(&hadc2);
+    __HAL_ADC_ENABLE(&hadc3);
+    
+    // Wait for the ADC to enable
+    // osDelay(2);
+
+    // Enable the ADC interrupts
+    __HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_JEOC);
+    __HAL_ADC_ENABLE_IT(&hadc2, ADC_IT_JEOC);
+    __HAL_ADC_ENABLE_IT(&hadc2, ADC_IT_EOC);
+
+    // Ensure that debug halting of the core doesn't leave the motor PWM running
+    __HAL_DBGMCU_FREEZE_TIM1();
+    __HAL_DBGMCU_FREEZE_TIM8();
+
+    // Start PWM for TIM1 and TIM8
+    start_pwm(&htim1);
+    start_pwm(&htim8);
+    
+    // Synchronize the timers 90 degrees out of phase with each other
+    sync_timers(&htim1, &htim8,  TIM_CLOCKSOURCE_ITR0, TIM_1_8_PERIOD_CLOCKS / 2 - 1 * 128, &htim13);
+
+    // Motor output starts in the disabled state
+    __HAL_TIM_MOE_DISABLE_UNCONDITIONALLY(&htim1);
+    __HAL_TIM_MOE_DISABLE_UNCONDITIONALLY(&htim8);
+
+    // Enable the update interrupt (used to coherently sample GPIO)
+    //__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+    //__HAL_TIM_ENABLE_IT(&htim8, TIM_IT_UPDATE);
+
+    // Start brake resistor PWM in floating output configuration
+    /*htim2.Instance->CCR3 = 0;
+    htim2.Instance->CCR4 = TIM_APB1_PERIOD_CLOCKS + 1;
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);*/
+
+    // Disarm motors and arm brake resistor
+    //for (size_t i = 0; i < AXIS_COUNT; ++i) {
+    //    safety_critical_disarm_motor_pwm(axes[i]->motor_);
+    //}
+
+    //safety_critical_arm_brake_resistor();
+}
+
+
 // ---------------------------------------------------------------------------
 //
 //
-void DSP_setup(void) {
+void DSP_set_adc_handler(void (*adc_callback)(bool, int)) {
+    adc_callback_ = *adc_callback;
+}
+
+
+// ---------------------------------------------------------------------------
+//
+//
+void DSP_setup() {
     
     // M0
     DSP_TIM1_Init();
@@ -1227,11 +1336,11 @@ void DSP_setup(void) {
         DSP_TIM4_Init();
     #endif 
 
-    // Brake Resistor
-    DSP_TIM2_Init();
+    // OC
+    // DSP_TIM2_Init();
     
     // Input Capture
-    DSP_TIM5_Init();
+    //DSP_TIM5_Init();
 
     // uLTick (already handled by arduino.h)
     // DSP_TIM13_Init();
@@ -1251,5 +1360,11 @@ void DSP_setup(void) {
 
     // Hack
     OC4_PWM_Override(&htim1);
-    OC4_PWM_Override(&htim8);
+    
+    #ifndef USE_SINGLE_AXIS
+        OC4_PWM_Override(&htim8);
+    #endif
+
+    // Start
+    start_adc_pwm();
 }

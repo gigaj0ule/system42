@@ -52,12 +52,10 @@ endif
 # Some libraries will require this to be defined
 ARDUINO = 110035
 
-USBD_USE_CDC = 1
-
 
 # ==================================================================
 # Configurable GCC Options
-OPTIONS := 
+OPTIONS := -DARDUINO=$(ARDUINO)
 
 # What microcontroller?
 ifeq ($(MCU_FAMILY), f103cb)
@@ -70,7 +68,6 @@ ifeq ($(MCU_FAMILY), f103cb)
 	OPTIONS				+= -DSTM32F103xB
 	VARIANT 			:= variant_PILL_F103Cx
 	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F1xx/F103C8T_F103CB(T-U)
-	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
 
 else ifeq ($(MCU_FAMILY), f103rc)
     $(warning Building for MCU_FAMILY "f103rc")
@@ -83,10 +80,9 @@ else ifeq ($(MCU_FAMILY), f103rc)
 	OPTIONS				+= -DSTM32F103xE
 	VARIANT 			:= variant_BLUEBUTTON_F103RCT
 	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F1xx/F103R(C-D-E)T
-	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
 
 else
-    $(warning Building for MCU_FAMILY "f40x")
+    $(warning Building for MCU_FAMILY "f405rg")
 	COREFILES_FAMILY    := f4
 	CPUID               := 0x2ba01477
 	FLASH_SIZE 			:= 1048576
@@ -95,11 +91,8 @@ else
 	OPTIONS				+= -DSTM32F405xx
 	VARIANT 			:= variant_generic
 	VARIANTPATH 		:= $(FRAMEWORKDIR)/Arduino_Core_STM32/variants/STM32F4xx/F405RGT_F415RGT
-	OPTIONS 			+= -DVARIANT_H="<$(VARIANT).h>"
 endif
 
-# Ignore CPUID
-CPUID := 0
 
 ifeq ($(PNTP_TCP), 1)
     $(warning Building with PNTP TCP Support")
@@ -117,11 +110,14 @@ ifeq ($(PNTP_TTY), 1)
 endif
 
 # More Options
+OPTIONS += -DARDUINO_ARCH_STM32
+OPTIONS += -DVARIANT_H="<$(VARIANT).h>"
+
+OPTIONS += -DUSBCON 
 OPTIONS += -DHAL_UART_MODULE_ENABLED 
 OPTIONS += -DHAL_PCD_MODULE_ENABLED
 
-OPTIONS += -DARDUINO_ARCH_STM32
-OPTIONS += -DUSBCON 
+USBD_USE_CDC = 1
 
 ifeq ($(USBD_USE_CDC), 1)
 	OPTIONS += -DUSBD_USE_CDC 
@@ -131,20 +127,18 @@ endif
 # CPU Specific Modifiers
 ifeq ($(COREFILES_FAMILY), f1)
 	CPU_VARIANT := STM32F1xx
+	OPTIONS     += -D__STM32F1__
 	OPTIONS     += -DBOARD_NAME="\"BLUEPILL_F103C8\"" 
 	OPTIONS     += -DSTM32F10X_MD 
-	OPTIONS     += -D__STM32F1__
-	OPTIONS     += -DARDUINO_ARCH_STM32F1
 
 	BOOTLOADER_SIZE := 0x2800
 
 else ifeq ($(COREFILES_FAMILY), f4)
 	CPU_VARIANT := STM32F4xx
+	OPTIONS     += -D__STM32F4__
 	OPTIONS     += -DBOARD_NAME="\"DISCO_F407VG\"" 
 	OPTIONS     += -D'__UNALIGNED_UINT32_READ(addr)=(*((const __packed uint32_t *)(addr)))'
 	OPTIONS     += -D'__UNALIGNED_UINT32_WRITE(addr, val)=((*((__packed uint32_t *)(addr))) = (val))'
-	OPTIONS     += -D__STM32F4__
-	#OPTIONS    += -DARDUINO_ARCH_STM32F4
 
 	BOOTLOADER_SIZE := 0x4000
 endif
@@ -155,23 +149,20 @@ endif
 
 # USB Data
 USB_VENDOR_ID = 1337
-USB_PRODUCT_ID = c0de
+USB_PRODUCT_ID = C0DE
 
 # Special meta settings
 ifdef META
 	OPTIONS += -DUSE_META_SETTINGS
-
-	# USB IDs
-	USB_VENDOR_ID = 0483
-	USB_PRODUCT_ID = DF11
 
 	TEMP_META_HACK = "META_V5=1"
 endif
 
 OPTIONS += -DUSBD_VID=0x$(USB_VENDOR_ID) 
 OPTIONS += -DUSBD_PID=0x$(USB_PRODUCT_ID)
-OPTIONS += -DUSB_PRODUCT_STRING="\"x42 Node\"" 
+OPTIONS += -DUSB_PRODUCT_STRING="\"M2.CPU\"" 
 OPTIONS += -DUSB_MANUFACTURER_STRING="\"Civil Electric\""
+
 
 ifdef ODRIVE_CODEBASE
 	# Firmware version macros
@@ -192,13 +183,11 @@ ifdef ODRIVE_CODEBASE
 	OPTIONS += -DFW_VERSION_REVISION=$(FW_VERSION_REVISION) -DFW_VERSION_UNRELEASED=$(FW_VERSION_UNRELEASED)
 	OPTIONS += -DHW_VERSION_MAJOR=$(HW_VERSION_MAJOR) -DHW_VERSION_MINOR=$(HW_VERSION_MINOR) -DHW_VERSION_VOLTAGE=$(HW_VERSION_VOLTAGE)
 	OPTIONS += -DCDC_BAUD_RATE=921600
-
-	#OPTIONS += -DUSE_MOTO_PINS
-	#OPTIONS += -DUSE_HIGH_VOLTAGE
 	OPTIONS += -DUSE_SINGLE_AXIS
 
 	OPTIONS += -DUSB_PROTOCOL_NATIVE_STREAM_BASED
 endif
+
 
 # Use bootloader or not (now a command line option)
 ifneq ($(NO_BOOTLOADER), 1)
@@ -207,10 +196,6 @@ else
 	BOOTLOADER_SIZE := 0
 endif
 
-# Set arduino define if given
-ifdef ARDUINO
-    OPTIONS += -DARDUINO=$(ARDUINO)
-endif
 
 ######################################################################
 # Location of paths, libraries
@@ -244,6 +229,7 @@ endif
 
 # Path location for arduino core
 PATH_ARDUINO_CORE_STM32 = $(FRAMEWORKDIR)/Arduino_Core_STM32/cores/arduino
+PATH_PATCHES            = $(FRAMEWORKDIR)/Arduino_Core_STM32_patches
 
 # Path location for arduino libraries
 PATH_LIBRARY_SPI        = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/SPI/src
@@ -255,8 +241,6 @@ PATH_LIBRARY_SRCWRAPPER = $(FRAMEWORKDIR)/Arduino_Core_STM32/libraries/SrcWrappe
 
 # External libraries
 PATH_LIBRARY_ETHERNET   = $(LIBRARIESDIR)/Ethernet/src
-#PATH_LIBRARY_ETHERNET   = $(LIBRARIESDIR)/Ethernet_Generic/src
-#PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/MDNS_Generic/src
 PATH_LIBRARY_BONJOUR    = $(LIBRARIESDIR)/ArduinoMDNS
 
 PATH_ST_HAL             = $(FRAMEWORKDIR)/Arduino_Core_STM32/system/Drivers/$(CPU_VARIANT)_HAL_Driver
@@ -269,9 +253,6 @@ PATH_CMSIS              = $(FRAMEWORKDIR)/CMSIS
 # Path location for FreeRTOS
 PATH_FREERTOS           = $(FRAMEWORKDIR)/STM32FreeRTOS/src
 
-# Patches to arduino core
-PATH_PATCHES            = $(FRAMEWORKDIR)/Arduino_Core_STM32_patches
-
 # Special config for ODRIVE_CODEBASE
 ifdef ODRIVE_CODEBASE
 	VARIANTPATH          := $(SOURCEPATH)/Board/v3
@@ -283,7 +264,6 @@ endif
 
 # DSP Library
 PATH_LIBRARY_DSP    	 := $(LIBRARIESDIR)/lib_dsp
-
 
 # Target Path
 TARGET_PATH = $(TARGET)
@@ -373,7 +353,6 @@ LDFLAGS += -Wl,-gc-sections
 LDFLAGS += -Wl,--defsym=LD_FLASH_OFFSET=$(BOOTLOADER_SIZE)
 LDFLAGS += -Wl,--entry=Reset_Handler 
 LDFLAGS += -Wl,--unresolved-symbols=report-all 
-#LDFLAGS += -Wl,--warn-common
 LDFLAGS += -Wl,-Map,$(BUILDDIR)/$(TARGET_PATH).map
 LDFLAGS += -Wl,--start-group 
 LDFLAGS += -Wl,--no-whole-archive 
@@ -519,21 +498,8 @@ else
 	C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
 	C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
 
-	#C_FILES := $(filter-out %hw_config.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_desc.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_cdc.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_cdc_if.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_hid_composite.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_hid_composite_if.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_audio.c, $(C_FILES))
-
 	# Files we Patched
 	C_FILES += $(call rwildcard, $(PATH_PATCHES), *.c)
-
-	# Hack to fix someone's bad hack
-	#C_FILES := $(filter-out %usbd_core.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_ioreq.c, $(C_FILES))
-	#C_FILES := $(filter-out %usbd_ctlreq.c, $(C_FILES))
 
 	# Assembly
 	ASM_FILES := $(call rwildcard, $(PATH_ARDUINO_CORE_STM32), *.s)
@@ -603,17 +569,8 @@ build: $(TARGET_PATH).elf $(TARGET_PATH).hex $(TARGET_PATH).bin $(TARGET_PATH).a
 
 all: build
 
-#upload: $(TARGET_PATH).elf
-#	openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -c "program $(BUILDDIR)/$(TARGET_PATH).elf verify reset exit"
-
-#upload-alt: $(TARGET_PATH).elf
-#	openocd -f interface/stlink-v2.cfg -c 'set CPUTAPID 0x2ba01477' -f target/stm32f1x.cfg -c "program $(BUILDDIR)/$(TARGET_PATH).elf verify reset exit"
-
-#upload-dfu:  $(TARGET_PATH).bin
-#	dfu-util -a 0 -s 0x08002000:leave -D $(BUILDDIR)/$(TARGET_PATH).bin
-
 readback-f1:
-	openocd -f interface/stlink.cfg -c 'set CPUTAPID $(CPUID)' -f target/stm32f1x.cfg -c "init" -c "reset init" -c "dump_image $(SRC).bin 0x8000000 $(FLASH_SIZE)" -c "exit"
+	openocd -f interface/stlink.cfg -c 'set CPUTAPID 0' -f target/stm32f1x.cfg -c "init" -c "reset init" -c "dump_image $(SRC).bin 0x8000000 $(FLASH_SIZE)" -c "exit"
 
 define build-key
 	@echo "\nMAKE: Generating boot key...\n"
@@ -622,7 +579,7 @@ endef
 
 define build-upload-bootloader
 	@echo "\nMAKE: Building bootloader...\n"
-	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) USB_VENDOR_ID=$(USB_VENDOR_ID) USB_PRODUCT_ID=$(USB_PRODUCT_ID) MCU_FAMILY=$(MCU_FAMILY) $(TEMP_META_HACK) $(BOOTLOADER_READOUT_PROTECT) CPUID=$(CPUID) clean upload)	
+	@(cd ./$(FRAMEWORKDIR)/bootloader && $(MAKE) $(USE_BOOTLOADER_KEY_FILE) USB_VENDOR_ID=$(USB_VENDOR_ID) USB_PRODUCT_ID=$(USB_PRODUCT_ID) MCU_FAMILY=$(MCU_FAMILY) $(TEMP_META_HACK) $(BOOTLOADER_READOUT_PROTECT) CPUID=0 clean upload)	
 	@ sleep 1
 endef
 
