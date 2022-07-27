@@ -34,8 +34,19 @@ void dsp_adc_callback(bool timer_one) {
 
 // ----------------------------------------------------
 //
+extern float buffered_current_meas_[2][2][6];
+
 void dsp_timer_one_control_loop(void) {
-    // Pass
+    
+    pntp.timer_one_loop_number ++; 
+
+    for(int i = 0; i < 6; i++) {
+        pntp.adc_samples[TIMER_ONE_ARRAY_INDEX][ADC2_ARRAY_INDEX][i] 
+            = buffered_current_meas_[TIMER_ONE_ARRAY_INDEX][ADC2_ARRAY_INDEX][i];
+
+        pntp.adc_samples[TIMER_ONE_ARRAY_INDEX][ADC3_ARRAY_INDEX][i] 
+            = buffered_current_meas_[TIMER_ONE_ARRAY_INDEX][ADC3_ARRAY_INDEX][i];
+    }
 }
 
 // ----------------------------------------------------

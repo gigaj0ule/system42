@@ -35,13 +35,18 @@
     #endif
 
     #define TIMER_ONE_ARRAY_INDEX 0
-    #define TIMER_EIGHT_ARRAY_INDEX 0
+    #define TIMER_EIGHT_ARRAY_INDEX 1
+
+    #define ADC2_ARRAY_INDEX 0
+    #define ADC3_ARRAY_INDEX 1
 
     void DSP_setup(void);
 
     void DSP_set_adc_sample_complete_callback(void (*adc_sample_complete_callback)(bool));
     void DSP_set_timer_one_control_loop_callback(void (*timer_one_control_loop_callback)());
     void DSP_set_timer_eight_control_loop_callback(void (*timer_eight_control_loop_callback)());
+
+    //extern float buffered_current_meas_[2][2][3] = {0.0f};
 
     extern "C" {
         void ADC_IRQHandler(void);

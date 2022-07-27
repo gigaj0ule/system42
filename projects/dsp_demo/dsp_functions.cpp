@@ -39,8 +39,8 @@ float dc_offset_ADC2_[2] = {0.0f};
 float dc_offset_ADC3_[2] = {0.0f};
 
 // Sampled current measurements for the motor
-float buffered_current_meas_[2][2][3] = {0.0f};
-float active_current_meas_[2][2][3] = {0.0f};
+float buffered_current_meas_[2][2][6] = {0.0f};
+float active_current_meas_[2][2][6] = {0.0f};
 
 // This is used to refrence the proper time sequence where measured current 
 // values should be saved
@@ -59,7 +59,6 @@ bool do_dc_calibration_ = false;
 //
 void (*adc_sample_complete_callback_)(bool);
 //
-//
 void DSP_set_adc_sample_complete_callback(void (*adc_sample_complete_callback)(bool)) {
     adc_sample_complete_callback_ = *adc_sample_complete_callback;
 }
@@ -69,7 +68,7 @@ void DSP_set_adc_sample_complete_callback(void (*adc_sample_complete_callback)(b
 // Callback used for signaling timer_one control loop
 //
 void (*timer_one_control_loop_callback_)();
-
+//
 void DSP_set_timer_one_control_loop_callback(void (*timer_one_control_loop_callback)()) {
     timer_one_control_loop_callback_ = *timer_one_control_loop_callback;
 }
@@ -79,8 +78,8 @@ void DSP_set_timer_one_control_loop_callback(void (*timer_one_control_loop_callb
 // Callback used for signaling timer_one control loop
 //
 void (*timer_eight_control_loop_callback_)();
-
-void DSP_set_timer_one_control_loop_callback(void (*timer_eight_control_loop_callback)()) {
+//
+void DSP_set_timer_eight_control_loop_callback(void (*timer_eight_control_loop_callback)()) {
     timer_eight_control_loop_callback_ = *timer_eight_control_loop_callback;
 }
 
@@ -123,9 +122,6 @@ static inline void sample_adcs(bool timer_one) {
 // https://docs.google.com/spreadsheets/d/1TYNPmy3y1iP_toVe8yVe_oJ2IY8obYzYNfZCcu-Vm9A/edit?usp=sharing
 //
 void dsp_state_machine(bool timer_one) {
-
-    // Sample number ++
-    // pntp.adc_sample_num ++;
 
     // Timer 1 triggers ADC2 on Injected, and ADC3 on Injected conversion
     // Timer 8 triggers ADC2 on Regular, and ADC3 on Regular conversion
@@ -207,9 +203,9 @@ void dsp_state_machine(bool timer_one) {
 
                 // Buffer pwm timings 
                 for(int i = 0; i < 6; i++) {
-                    active_timings_stack_[0][i][0] = next_timings_stack_[0][i][0];
-                    active_timings_stack_[0][i][1] = next_timings_stack_[0][i][1];
-                    active_timings_stack_[0][i][2] = next_timings_stack_[0][i][2];
+                    active_timings_stack_[TIMER_ONE_ARRAY_INDEX][i][0] = next_timings_stack_[TIMER_ONE_ARRAY_INDEX][i][0];
+                    active_timings_stack_[TIMER_ONE_ARRAY_INDEX][i][1] = next_timings_stack_[TIMER_ONE_ARRAY_INDEX][i][1];
+                    active_timings_stack_[TIMER_ONE_ARRAY_INDEX][i][2] = next_timings_stack_[TIMER_ONE_ARRAY_INDEX][i][2];
                 }
 
                 // Invalidate old timings
@@ -294,9 +290,9 @@ void dsp_state_machine(bool timer_one) {
 
                 // Double buffer the axis timings 
                 for(int i = 0; i < 6; i++) {
-                    active_timings_stack_[1][i][0] = next_timings_stack_[1][i][0];
-                    active_timings_stack_[1][i][1] = next_timings_stack_[1][i][1];
-                    active_timings_stack_[1][i][2] = next_timings_stack_[1][i][2];
+                    active_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][i][0] = next_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][i][0];
+                    active_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][i][1] = next_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][i][1];
+                    active_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][i][2] = next_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][i][2];
                 }
 
                 // Invalidate old timings
@@ -328,8 +324,11 @@ void dsp_state_machine(bool timer_one) {
         sample_adcs(timer_one);
 
         // Sample ADC for the active axis
-        active_current_meas_[timer_eight][0][adc_measurement_stack_index_] += adcval_ADC2_[timer_eight] - dc_offset_ADC2_[timer_eight];
-        active_current_meas_[timer_eight][1][adc_measurement_stack_index_] += adcval_ADC3_[timer_eight] - dc_offset_ADC3_[timer_eight];
+        active_current_meas_[timer_eight][ADC2_ARRAY_INDEX][adc_measurement_stack_index_] 
+            += adcval_ADC2_[timer_eight];// - dc_offset_ADC2_[timer_eight];
+
+        active_current_meas_[timer_eight][ADC3_ARRAY_INDEX][adc_measurement_stack_index_] 
+            += adcval_ADC3_[timer_eight];// - dc_offset_ADC3_[timer_eight];
 
         // Clear flag, nothing left to do!
         sample_adc_ = false;
@@ -348,14 +347,14 @@ void dsp_state_machine(bool timer_one) {
 
     // Update PWM timing registers (we do this every state)
     if(timer_one) {
-        TIM1->CCR1 = active_timings_stack_[0][timer_one_SVM_timings_state_][0];
-        TIM1->CCR2 = active_timings_stack_[0][timer_one_SVM_timings_state_][1];
-        TIM1->CCR3 = active_timings_stack_[0][timer_one_SVM_timings_state_][2];
+        TIM1->CCR1 = active_timings_stack_[TIMER_ONE_ARRAY_INDEX][timer_one_SVM_timings_state_][0];
+        TIM1->CCR2 = active_timings_stack_[TIMER_ONE_ARRAY_INDEX][timer_one_SVM_timings_state_][1];
+        TIM1->CCR3 = active_timings_stack_[TIMER_ONE_ARRAY_INDEX][timer_one_SVM_timings_state_][2];
     }
     else {
-        TIM8->CCR1 = active_timings_stack_[1][timer_eight_SVM_timings_state_][0];
-        TIM8->CCR2 = active_timings_stack_[1][timer_eight_SVM_timings_state_][1];
-        TIM8->CCR3 = active_timings_stack_[1][timer_eight_SVM_timings_state_][2];
+        TIM8->CCR1 = active_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][timer_eight_SVM_timings_state_][0];
+        TIM8->CCR2 = active_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][timer_eight_SVM_timings_state_][1];
+        TIM8->CCR3 = active_timings_stack_[TIMER_EIGHT_ARRAY_INDEX][timer_eight_SVM_timings_state_][2];
     }
 
     // Update the current control loop after all the new data has been had
@@ -379,12 +378,12 @@ void dsp_state_machine(bool timer_one) {
         for(int i = 0; i < 6; i++) {
 
             // Lock in our measurements
-            buffered_current_meas_[timer_eight][0][i] = active_current_meas_[timer_eight][0][i];
-            buffered_current_meas_[timer_eight][1][i] = active_current_meas_[timer_eight][1][i];
+            buffered_current_meas_[timer_eight][ADC2_ARRAY_INDEX][i] = active_current_meas_[timer_eight][ADC2_ARRAY_INDEX][i];
+            buffered_current_meas_[timer_eight][ADC3_ARRAY_INDEX][i] = active_current_meas_[timer_eight][ADC3_ARRAY_INDEX][i];
 
             // And reset our measurements when we are done buffering them
-            active_current_meas_[timer_eight][0][i] = 0.0f;
-            active_current_meas_[timer_eight][1][i] = 0.0f;
+            active_current_meas_[timer_eight][ADC2_ARRAY_INDEX][i] = 0.0f;
+            active_current_meas_[timer_eight][ADC3_ARRAY_INDEX][i] = 0.0f;
         }
 
         // Trigger control loops!
@@ -431,7 +430,7 @@ extern "C" {
         else if(__FAST__HAL_ADC_GET_FLAG(ADC2, ADC_FLAG_JEOC)) {
 
             // Advance DSP state machine
-            dsp_state_machine(false);
+            dsp_state_machine(true);
 
             // Callback?
             if(adc_sample_complete_callback_){
