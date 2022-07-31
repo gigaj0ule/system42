@@ -1,5 +1,4 @@
-# system42
-### answer to life, universe, and everything m.c.u.
+# MH32
 
 ~j0ule 2019-2022 - alpha release
 
@@ -10,9 +9,6 @@ microcontrollers.
 I support arduino, st-hal, 
 and freeRTOS simultaneously.
 
-I support TTY and Ethernet
-communication.
-
 I have a BIOS that can accept 
 new code via USB with dfu-util 
 so you don't need a special 
@@ -21,10 +17,10 @@ programmer.
 I am my own build system. Just 
 type $ make.
 
-I am solid. All my dependencies 
-are included in-tree which means 
-you will always be able to build 
-and deploy me.
+All my dependencies are included 
+in-tree which means you will 
+always be able to build and 
+deploy me.
 
 I can automate your labor by 
 running tiny robots or even a 
